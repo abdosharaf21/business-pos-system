@@ -23,10 +23,10 @@ class BaseConfig:
 
     DB_HOST = os.environ.get("DB_HOST", "localhost")
     DB_PORT = int(os.environ.get("DB_PORT", "3306"))
-    DB_NAME = os.environ.get("DB_NAME", "business_dev")
+    DB_NAME = os.environ.get("DB_NAME", "pos_system")
     DB_USER = os.environ.get("DB_USER", "root")
     DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
-    DB_POOL_NAME = os.environ.get("DB_POOL_NAME", "bizdev_pool")
+    DB_POOL_NAME = os.environ.get("DB_POOL_NAME", "pos_pool")
     DB_POOL_SIZE = int(os.environ.get("DB_POOL_SIZE", "5"))
 
     JWT_ACCESS_TOKEN_EXPIRES = 3600
