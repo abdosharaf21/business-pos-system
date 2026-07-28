@@ -1,0 +1,202 @@
+"""Pytest configuration and fixtures for API tests.
+
+Provides mock-based Flask app, test client, and JWT token fixtures
+for all three roles (admin, manager, employee). All repositories
+and DB connections are mocked so no real database is needed.
+"""
+
+import pytest
+from unittest.mock import MagicMock, patch
+from datetime import timedelta, datetime, timezone
+
+from backend.modules.users.model import User
+
+_JWT_SECRET = "test-secret-key-xxxxxxxxxxxxxxxxxxx"
+
+
+def _make_user(user_id: int, email: str, role: str, name: str) -> User:
+    """Factory helper that returns a realistic User model instance."""
+    return User(
+        id=user_id,
+        full_name=name,
+        email=email,
+        password_hash="$2b$12$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        role=role,
+        status="active",
+        created_at=datetime.now(timezone.utc).isoformat(),
+        updated_at=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+@pytest.fixture
+def app():
+    """Create a fully mocked Flask application for testing.
+
+    Patches every repository + Database internals so the app
+    starts without a real database.
+    """
+    patches = [
+        patch("backend.modules.auth.repository.AuthRepository"),
+        patch("backend.modules.users.repository.UserRepository"),
+        patch("backend.modules.clients.repository.ClientRepository"),
+        patch("backend.modules.services.repository.ServiceRepository"),
+        patch("backend.modules.service_categories.repository.ServiceCategoryRepository"),
+        patch("backend.modules.client_services.repository.ClientServiceRepository"),
+        patch("backend.database.connection.Database._initialize_pool"),
+    ]
+
+    for p in patches:
+        p.start()
+
+    from backend.app import create_app
+
+    test_config = {
+        "TESTING": True,
+        "SECRET_KEY": _JWT_SECRET,
+        "JWT_SECRET_KEY": _JWT_SECRET,
+        "JWT_ACCESS_TOKEN_EXPIRES": timedelta(hours=1),
+        "JWT_REFRESH_TOKEN_EXPIRES": timedelta(days=30),
+    }
+
+    application = create_app(config=test_config)
+    yield application
+
+    for p in patches:
+        p.stop()
+
+
+@pytest.fixture
+def client(app):
+    """Flask test client bound to the mocked app."""
+    return app.test_client()
+
+
+# ---------------------------------------------------------------------------
+# JWT token fixtures — generated directly (no API call), so they always work
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def admin_token(app):
+    """Valid JWT access token for an admin user."""
+    with app.app_context():
+        from flask_jwt_extended import create_access_token
+        return create_access_token(
+            identity="1",
+            additional_claims={"email": "admin@test.com", "role": "admin", "full_name": "Admin User"},
+        )
+
+
+@pytest.fixture
+def manager_token(app):
+    """Valid JWT access token for a manager user."""
+    with app.app_context():
+        from flask_jwt_extended import create_access_token
+        return create_access_token(
+            identity="2",
+            additional_claims={"email": "manager@test.com", "role": "manager", "full_name": "Manager User"},
+        )
+
+
+@pytest.fixture
+def employee_token(app):
+    """Valid JWT access token for an employee user."""
+    with app.app_context():
+        from flask_jwt_extended import create_access_token
+        return create_access_token(
+            identity="3",
+            additional_claims={"email": "employee@test.com", "role": "employee", "full_name": "Employee User"},
+        )
+
+
+@pytest.fixture
+def admin_refresh_token(app):
+    """Valid JWT refresh token for an admin user."""
+    with app.app_context():
+        from flask_jwt_extended import create_refresh_token
+        return create_refresh_token(identity="1")
+
+
+@pytest.fixture
+def admin_headers(admin_token):
+    """HTTP Authorization header dict for admin."""
+    return {"Authorization": f"Bearer {admin_token}"}
+
+
+@pytest.fixture
+def manager_headers(manager_token):
+    """HTTP Authorization header dict for manager."""
+    return {"Authorization": f"Bearer {manager_token}"}
+
+
+@pytest.fixture
+def employee_headers(employee_token):
+    """HTTP Authorization header dict for employee."""
+    return {"Authorization": f"Bearer {employee_token}"}
+
+
+# ---------------------------------------------------------------------------
+# Sample data fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def sample_user():
+    """Sample user data dict."""
+    return {
+        "id": 1,
+        "full_name": "Test User",
+        "email": "test@example.com",
+        "phone": "+1234567890",
+        "role": "employee",
+        "status": "active",
+    }
+
+
+@pytest.fixture
+def sample_client():
+    """Sample client data dict."""
+    return {
+        "id": 1,
+        "company_name": "Test Company",
+        "contact_person": "John Doe",
+        "email": "contact@testcompany.com",
+        "phone": "+1234567890",
+        "address": "123 Test Street",
+        "status": "lead",
+    }
+
+
+@pytest.fixture
+def sample_service():
+    """Sample service data dict."""
+    return {
+        "id": 1,
+        "category_id": 1,
+        "name": "Test Service",
+        "description": "A test service",
+        "price": 99.99,
+        "duration_days": 30,
+        "status": "active",
+    }
+
+
+@pytest.fixture
+def sample_category():
+    """Sample category data dict."""
+    return {
+        "id": 1,
+        "name": "Test Category",
+        "description": "A test category",
+    }
+
+
+@pytest.fixture
+def sample_assignment():
+    """Sample client-service assignment data dict."""
+    return {
+        "id": 1,
+        "client_id": 1,
+        "service_id": 1,
+        "start_date": "2024-01-01T00:00:00",
+        "end_date": "2024-01-31T23:59:59",
+        "status": "active",
+    }
