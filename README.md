@@ -1,24 +1,8 @@
-# Business Development Management System
+# POS System
 
-A full-stack Business Development Management System built with **Flask**, **React**, **MySQL**, and a modular feature-based architecture.
+A full-stack Point of Sale System built with **Flask**, **React**, **MySQL**, and a modular feature-based architecture.
 
-This project is designed to manage clients, services, service categories, assignments, and business operations through a modern web interface and a RESTful API.
-
----
-
-# Features
-
-* User Management
-* Client Management
-* Service Management
-* Service Categories
-* Client Service Assignments
-* Dashboard
-* JWT Authentication (In Progress)
-* REST API
-* OpenAPI / Swagger Documentation
-* Modular Feature-Based Backend
-* React + Vite Frontend
+This project was initialized from the Business Development Management System codebase and is being developed as an independent POS application.
 
 ---
 
@@ -58,18 +42,17 @@ backend/
         service_categories/
         client_services/
         dashboard/
+        auth/
 
 frontend/
     src/
-        api/
-        components/
-        layouts/
-        pages/
-        routes/
-        context/
+        modules/
+        shared/
+        router/
+        tests/
 
 db/
-    maindb.sql
+    pos_system.sql
 ```
 
 ---
@@ -79,8 +62,8 @@ db/
 ## Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/my-web-app.git
-cd my-web-app
+git clone https://github.com/YOUR_USERNAME/business-pos-system.git
+cd business-pos-system
 ```
 
 ---
@@ -120,13 +103,13 @@ pip install -r requirements.txt
 Create a MySQL database:
 
 ```sql
-CREATE DATABASE business_development;
+CREATE DATABASE pos_system;
 ```
 
 Import the schema:
 
 ```bash
-mysql -u root -p business_development < db/maindb.sql
+mysql -u root -p pos_system < db/pos_system.sql
 ```
 
 ---
@@ -190,17 +173,6 @@ http://localhost:5173
 
 ---
 
-# API Modules
-
-* Users
-* Clients
-* Services
-* Service Categories
-* Client Services
-* Dashboard
-
----
-
 # Architecture
 
 Backend follows a **Feature-Based Architecture**.
@@ -223,26 +195,31 @@ This keeps every feature isolated and easy to maintain.
 
 Current Version:
 
-**v1.0 (Development MVP)**
+**v1.0 (Initial POS Base)**
 
 Completed:
 
-* Backend Architecture
-* Frontend Architecture
+* Backend Architecture (inherited)
+* Frontend Architecture (inherited)
 * Database Design
 * REST API
 * CRUD Structure
-* OpenAPI
-* Swagger
-* LAN Development Support
+* JWT Authentication
+* RBAC
+* OpenAPI / Swagger
 
-Planned:
+Planned POS Modules:
 
-* Complete JWT Authentication
-* Dashboard Analytics
-* Production Deployment
-* Docker Support
-* CI/CD Pipeline
+* Product Management
+* Customer Management
+* Supplier Management
+* Sales Management
+* Purchase Management
+* Expense Tracking
+* Inventory Management
+* Reports & Analytics
+* Barcode Scanning
+* Receipt Printing
 
 ---
 
