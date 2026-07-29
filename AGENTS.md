@@ -1,6 +1,6 @@
 # AGENTS.md
 
-# Business Development Web App
+# Business POS System
 
 This document defines the architecture, coding standards, folder structure, and development rules for the entire backend project.
 
@@ -69,6 +69,13 @@ backend/
 
     modules/
 
+        auth/
+
+            model.py
+            repository.py
+            service.py
+            routes.py
+
         users/
 
             model.py
@@ -76,30 +83,63 @@ backend/
             service.py
             routes.py
 
-        clients/
+        dashboard/
+
+            repository.py
+            service.py
+            routes.py
+
+        categories/
 
             model.py
             repository.py
             service.py
             routes.py
 
-        services/
+        products/
 
             model.py
             repository.py
             service.py
             routes.py
 
-        service_categories/
+        customers/
 
             model.py
             repository.py
             service.py
             routes.py
 
-        client_services/
+        suppliers/
 
             model.py
+            repository.py
+            service.py
+            routes.py
+
+        purchases/
+
+            model.py
+            repository.py
+            service.py
+            routes.py
+
+        inventory/
+
+            model.py
+            repository.py
+            service.py
+            routes.py
+
+        pos/
+
+            model.py
+            repository.py
+            service.py
+            routes.py
+
+        reports/
+
             repository.py
             service.py
             routes.py
@@ -425,31 +465,28 @@ Employee
 
 ---
 
+# Completed Modules
+
+- Auth (JWT login/logout)
+- Dashboard (KPIs and stats)
+- Products (CRUD with SKU/barcode)
+- Categories (product categorization)
+- Customers (management with search)
+- Suppliers (management for purchases)
+- Purchases (orders with cost tracking)
+- Inventory (stock + adjustments + history)
+- POS (sales with cart/checkout/invoice)
+- Users (role-based management)
+- Reports (sales, profit, performance)
+
 # Future Modules
 
-Users
-
-Clients
-
-Services
-
-Service Categories
-
-Client Services
-
-Projects
-
-Invoices
-
-Payments
-
-Reports
-
-Notifications
-
-Analytics
-
-Settings
+- Projects
+- Invoices
+- Payments
+- Notifications
+- Analytics
+- Settings
 
 ---
 

@@ -1,8 +1,13 @@
-export function DataTable({ columns, data, emptyMessage = "No data available" }) {
+import { useTranslation } from "react-i18next";
+
+export function DataTable({ columns, data, emptyMessage }) {
+  const { t } = useTranslation();
+  const msg = emptyMessage || t("common.noDataAvailable");
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-2xl border border-surface-200/80 p-16 text-center shadow-card">
-        <p className="text-surface-400 text-sm font-medium">{emptyMessage}</p>
+        <p className="text-surface-400 text-sm font-medium">{msg}</p>
       </div>
     );
   }
@@ -16,7 +21,7 @@ export function DataTable({ columns, data, emptyMessage = "No data available" })
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-5 py-3.5 text-left text-[11px] font-semibold text-surface-500 uppercase tracking-wider"
+                  className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider"
                 >
                   {col.label}
                 </th>

@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   BarChart3,
@@ -11,35 +12,15 @@ import {
   Building2,
   ShoppingBag,
   Contact2,
+  Truck,
   ShoppingCart,
   CreditCard,
 } from "lucide-react";
 
-const navGroups = [
-  {
-    label: "Overview",
-    items: [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
-  },
-  {
-    label: "Management",
-    items: [
-      { to: "/pos", label: "POS", icon: CreditCard },
-      { to: "/reports", label: "Reports", icon: BarChart3 },
-      { to: "/products", label: "Products", icon: ShoppingBag },
-      { to: "/customers", label: "Customers", icon: Contact2 },
-      { to: "/purchases", label: "Purchases", icon: ShoppingCart },
-      { to: "/categories", label: "Categories", icon: FolderOpen },
-      { to: "/inventory", label: "Inventory", icon: Package },
-    ],
-  },
-  {
-    label: "Administration",
-    items: [{ to: "/users", label: "Users", icon: UserCog, roles: ["admin"] }],
-  },
-];
-
 export default function Sidebar({ isOpen, onClose }) {
   const { logout, user } = useAuth();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
 
   const handleLogout = async () => {
     await logout();
@@ -54,6 +35,30 @@ export default function Sidebar({ isOpen, onClose }) {
         .slice(0, 2)
     : "?";
 
+  const navGroups = [
+    {
+      label: t("nav.overview"),
+      items: [{ to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard }],
+    },
+    {
+      label: t("nav.management"),
+      items: [
+        { to: "/pos", label: t("nav.pos"), icon: CreditCard },
+        { to: "/reports", label: t("nav.reports"), icon: BarChart3 },
+        { to: "/products", label: t("nav.products"), icon: ShoppingBag },
+        { to: "/customers", label: t("nav.customers"), icon: Contact2 },
+        { to: "/suppliers", label: t("nav.suppliers"), icon: Truck },
+        { to: "/purchases", label: t("nav.purchases"), icon: ShoppingCart },
+        { to: "/categories", label: t("nav.categories"), icon: FolderOpen },
+        { to: "/inventory", label: t("nav.inventory"), icon: Package },
+      ],
+    },
+    {
+      label: t("nav.administration"),
+      items: [{ to: "/users", label: t("nav.users"), icon: UserCog, roles: ["admin"] }],
+    },
+  ];
+
   return (
     <>
       {isOpen && (
@@ -65,8 +70,8 @@ export default function Sidebar({ isOpen, onClose }) {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-surface-200/80 flex flex-col transition-transform duration-300 ease-out
-          lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 start-0 z-50 h-full w-64 bg-white border-e border-surface-200/80 flex flex-col transition-transform duration-300 ease-out
+          lg:translate-x-0 ${isOpen ? "translate-x-0" : (isRtl ? "translate-x-full" : "-translate-x-full")}`}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -77,14 +82,14 @@ export default function Sidebar({ isOpen, onClose }) {
               <Building2 className="w-5 h-5 text-white" strokeWidth={2.2} />
             </div>
             <div>
-              <span className="text-[15px] font-bold text-surface-900 tracking-tight">BizDev</span>
-              <p className="text-[10px] text-surface-400 font-medium -mt-0.5 tracking-wide uppercase">Management</p>
+              <span className="text-[15px] font-bold text-surface-900 tracking-tight">{t("common.appName")}</span>
+              <p className="text-[10px] text-surface-400 font-medium -mt-0.5 tracking-wide uppercase">{t("common.appSubtitle")}</p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="lg:hidden text-surface-400 hover:text-surface-600 p-1.5 rounded-lg hover:bg-surface-100 transition-colors"
-            aria-label="Close sidebar"
+            aria-label={t("common.closeSidebar")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -120,7 +125,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     {({ isActive }) => (
                       <>
                         {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary-600 rounded-r-full" />
+                          <span className="absolute start-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary-600 rounded-e-full" />
                         )}
                         <Icon
                           className={`w-[18px] h-[18px] shrink-0 ${
@@ -162,10 +167,10 @@ export default function Sidebar({ isOpen, onClose }) {
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-medium text-surface-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
-            aria-label="Sign out"
+            aria-label={t("common.signOut")}
           >
-            <LogOut className="w-[18px] h-[18px]" strokeWidth={1.8} />
-            Sign out
+            <LogOut className={`w-[18px] h-[18px] ${isRtl ? "rotate-180" : ""}`} strokeWidth={1.8} />
+            {t("common.signOut")}
           </button>
         </div>
       </aside>

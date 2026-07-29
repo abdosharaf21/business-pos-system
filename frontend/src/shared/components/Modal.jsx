@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { useEffect } from "react";
 
 export function Modal({ isOpen, onClose, title, children, maxWidth = "max-w-lg" }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -26,7 +29,7 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = "max-w-lg" 
           <button
             onClick={onClose}
             className="text-surface-400 hover:text-surface-600 p-2 rounded-xl hover:bg-surface-100 transition-colors"
-            aria-label="Close dialog"
+            aria-label={t("common.closeDialog")}
           >
             <X className="w-5 h-5" />
           </button>

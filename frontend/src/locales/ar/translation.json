@@ -1,0 +1,684 @@
+{
+  "nav": {
+    "overview": "نظرة عامة",
+    "dashboard": "لوحة التحكم",
+    "management": "الإدارة",
+    "pos": "نقطة البيع",
+    "reports": "التقارير",
+    "products": "المنتجات",
+    "customers": "العملاء",
+    "suppliers": "الموردين",
+    "purchases": "المشتريات",
+    "categories": "التصنيفات",
+    "inventory": "المخزون",
+    "administration": "الإدارة العامة",
+    "users": "المستخدمين"
+  },
+  "auth": {
+    "welcomeBack": "مرحبًا بعودتك",
+    "signInSubtitle": "سجل الدخول إلى حسابك للمتابعة",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "you@company.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جارٍ تسجيل الدخول...",
+    "brandSubtitle": "نظام الإدارة",
+    "heroTitle": "إدارة نقاط البيع",
+    "heroTitleAccent": "ببساطة",
+    "heroDescription": "إدارة عملائك وخدماتك وفريقك — كل ذلك من لوحة تحكم احترافية واحدة مصممة للأعمال التجارية المتنامية.",
+    "stats": {
+      "modules": "وحدات",
+      "secure": "آمن",
+      "available": "متاح"
+    },
+    "footer": "نظام نقاط البيع",
+    "validation": {
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "عنوان البريد الإلكتروني غير صالح",
+      "passwordRequired": "كلمة المرور مطلوبة"
+    },
+    "toast": {
+      "loginFailed": "فشل تسجيل الدخول"
+    }
+  },
+  "dashboard": {
+    "title": "لوحة تحكم نقاط البيع",
+    "subtitle": "نظرة عامة على نظام نقاط البيع الخاص بك",
+    "totalProducts": "إجمالي المنتجات",
+    "categories": "التصنيفات",
+    "customers": "العملاء",
+    "suppliers": "الموردين",
+    "totalSales": "إجمالي المبيعات",
+    "totalPurchases": "إجمالي المشتريات",
+    "inventoryValue": "قيمة المخزون",
+    "lowStockItems": "المنتجات منخفضة المخزون",
+    "todaysSales": "مبيعات اليوم",
+    "transactions": "{{count}} معاملة",
+    "inventoryHealth": "صحة المخزون",
+    "productsTracked": "{{count}} منتج متتبع",
+    "adequatelyStocked": "المنتجات المخزنة بشكل كافٍ",
+    "emptyTitle": "مرحباً بك في نظام نقاط البيع",
+    "emptyDescription": "نظامك جاهز. ابدأ بإضافة المنتجات والعملاء وإجراء المبيعات لرؤية بيانات أعمالك هنا."
+  },
+  "products": {
+    "title": "المنتجات",
+    "subtitle": "إدارة كتالوج المنتجات الخاص بك",
+    "newProduct": "منتج جديد",
+    "addProduct": "إضافة منتج",
+    "searchPlaceholder": "ابحث بالاسم أو الباركود...",
+    "searchAriaLabel": "بحث عن المنتجات",
+    "allCategories": "جميع التصنيفات",
+    "allStatus": "جميع الحالات",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "noProductsFound": "لم يتم العثور على منتجات",
+    "tryDifferentFilters": "جرب عوامل تصفية مختلفة",
+    "addYourFirstProduct": "أضف منتجك الأول",
+    "columns": {
+      "sku": "رمز SKU",
+      "name": "الاسم",
+      "barcode": "الباركود",
+      "category": "التصنيف",
+      "purchasePrice": "سعر الشراء",
+      "sellingPrice": "سعر البيع",
+      "qty": "الكمية",
+      "minStock": "الحد الأدنى",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "edit": "تعديل",
+    "delete": "حذف",
+    "form": {
+      "titleCreate": "منتج جديد",
+      "titleEdit": "تعديل المنتج",
+      "name": "الاسم",
+      "namePlaceholder": "اسم المنتج",
+      "barcode": "الباركود",
+      "barcodePlaceholder": "الباركود",
+      "sku": "رمز SKU (وحدة حفظ المخزون)",
+      "skuPlaceholder": "رمز SKU اختياري",
+      "category": "التصنيف",
+      "categoryPlaceholder": "اختر التصنيف",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف مختصر (اختياري)",
+      "purchasePrice": "سعر الشراء",
+      "sellingPrice": "سعر البيع",
+      "quantity": "الكمية",
+      "minStock": "الحد الأدنى للمخزون",
+      "status": "الحالة",
+      "formActive": "نشط",
+      "formInactive": "غير نشط",
+      "placeholderZero": "٠",
+      "placeholderDecimal": "٠.٠٠",
+      "cancel": "إلغاء",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "saving": "جارٍ الحفظ..."
+    },
+    "validation": {
+      "nameRequired": "الاسم مطلوب",
+      "barcodeRequired": "الباركود مطلوب",
+      "categoryRequired": "التصنيف مطلوب",
+      "required": "مطلوب",
+      "mustBePositive": "يجب أن يكون ≥ 0",
+      "priceNotLower": "يجب ألا يقل سعر البيع عن سعر الشراء"
+    },
+    "toast": {
+      "created": "تم إنشاء المنتج",
+      "createFailed": "فشل إنشاء المنتج",
+      "updated": "تم تحديث المنتج",
+      "updateFailed": "فشل تحديث المنتج",
+      "deleted": "تم حذف المنتج",
+      "deleteFailed": "فشل حذف المنتج"
+    },
+    "confirmDelete": {
+      "title": "حذف المنتج",
+      "message": "حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف",
+      "deleting": "جارٍ الحذف...",
+      "cancel": "إلغاء"
+    }
+  },
+  "inventory": {
+    "title": "المخزون",
+    "subtitle": "إدارة مستويات مخزون المنتجات",
+    "totalProducts": "إجمالي المنتجات",
+    "totalStock": "إجمالي المخزون",
+    "totalValue": "قيمة المخزون",
+    "lowStockItems": "المنتجات منخفضة المخزون",
+    "allProducts": "جميع المنتجات",
+    "lowStock": "مخزون منخفض",
+    "searchPlaceholder": "ابحث عن المنتجات...",
+    "searchAriaLabel": "بحث في المخزون",
+    "noBarcode": "لا يوجد باركود",
+    "low": "منخفض",
+    "noProductsFound": "لم يتم العثور على منتجات",
+    "tryDifferentSearch": "جرب بحثًا مختلفًا",
+    "noProductsInInventory": "لا توجد منتجات في المخزون",
+    "columns": {
+      "product": "المنتج",
+      "category": "التصنيف",
+      "stock": "المخزون",
+      "minStock": "الحد الأدنى",
+      "price": "السعر",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "history": "السجل"
+    },
+    "adjust": {
+      "title": "تعديل المخزون — {{name}}",
+      "currentStock": "المخزون الحالي",
+      "afterAdjustment": "بعد التعديل",
+      "type": "النوع",
+      "adjustment": "تعديل",
+      "purchase": "شراء",
+      "return": "مرتجع",
+      "sale": "بيع",
+      "quantity": "الكمية",
+      "quantityPlaceholder": "مثال: 10 (موجب) أو 5- (سالب)",
+      "quantityHint": "القيمة الموجبة تضيف مخزونًا، والسالبة تطرحه",
+      "cancel": "إلغاء",
+      "adjust": "تعديل المخزون",
+      "adjusting": "جارٍ التعديل..."
+    },
+    "history": {
+      "title": "سجل المعاملات — {{name}}",
+      "noTransactions": "لا توجد معاملات مسجلة",
+      "purchase": "شراء",
+      "sale": "بيع",
+      "adjustment": "تعديل",
+      "return": "مرتجع"
+    },
+    "toast": {
+      "adjusted": "تم تعديل المخزون",
+      "adjustFailed": "فشل تعديل المخزون"
+    },
+    "validation": {
+      "typeRequired": "النوع مطلوب",
+      "mustBeWhole": "يجب أن يكون رقمًا صحيحًا",
+      "quantityNotZero": "لا يمكن أن تكون الكمية صفرًا"
+    }
+  },
+  "purchases": {
+    "title": "المشتريات",
+    "subtitle": "إدارة أوامر الشراء وإعادة تموين المخزون",
+    "newPurchase": "شراء جديد",
+    "searchPlaceholder": "ابحث برقم الفاتورة أو المورد...",
+    "searchAriaLabel": "بحث في المشتريات",
+    "noPurchasesFound": "لم يتم العثور على مشتريات",
+    "tryDifferentSearch": "جرب بحثًا مختلفًا",
+    "createYourFirst": "أنشئ أول عملية شراء",
+    "columns": {
+      "invoice": "رقم الفاتورة",
+      "supplier": "المورد",
+      "total": "الإجمالي",
+      "status": "الحالة",
+      "date": "التاريخ",
+      "actions": "الإجراءات"
+    },
+    "statusCompleted": "مكتمل",
+    "statusPending": "معلق",
+    "statusCancelled": "ملغي",
+    "viewDetails": "عرض التفاصيل",
+    "invoice": "الفاتورة",
+    "failedToLoadInvoice": "فشل تحميل الفاتورة",
+    "form": {
+      "title": "أمر شراء جديد",
+      "supplier": "المورد",
+      "supplierPlaceholder": "اختر المورد",
+      "addSupplier": "+ إضافة مورد",
+      "addProducts": "إضافة منتجات",
+      "searchPlaceholder": "ابحث بالاسم أو الباركود أو رمز SKU...",
+      "searching": "جارٍ البحث...",
+      "noProductsFound": "لم يتم العثور على منتجات",
+      "skuPrefix": "SKU: {{code}}",
+      "barcodeFormat": "({{code}})",
+      "complete": "إتمام الشراء",
+      "creating": "جارٍ الإنشاء...",
+      "cancel": "إلغاء",
+      "total": "الإجمالي"
+    },
+    "items": {
+      "product": "المنتج",
+      "qty": "الكمية",
+      "costPrice": "سعر التكلفة",
+      "subtotal": "المجموع الفرعي"
+    },
+    "supplierForm": {
+      "title": "مورد جديد",
+      "name": "الاسم *",
+      "namePlaceholder": "اسم المورد",
+      "phone": "الهاتف *",
+      "phonePlaceholder": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "البريد الإلكتروني (اختياري)",
+      "address": "العنوان",
+      "addressPlaceholder": "العنوان (اختياري)",
+      "cancel": "إلغاء",
+      "save": "حفظ المورد",
+      "saving": "جارٍ الحفظ..."
+    },
+    "detail": {
+      "title": "شراء #{{number}}",
+      "supplier": "المورد",
+      "date": "التاريخ",
+      "totalAmount": "المبلغ الإجمالي",
+      "items": {
+        "product": "المنتج",
+        "qty": "الكمية",
+        "cost": "التكلفة",
+        "subtotal": "المجموع الفرعي"
+      }
+    },
+    "invoiceModal": {
+      "title": "الفاتورة #{{number}}",
+      "header": "فاتورة الشراء",
+      "supplier": "المورد",
+      "date": "التاريخ",
+      "processedBy": "تمت المعالجة بواسطة",
+      "totalAmount": "المبلغ الإجمالي",
+      "footer": "تم إنشاء الفاتورة تلقائيًا بواسطة نظام نقاط البيع",
+      "columns": {
+        "num": "#",
+        "product": "المنتج",
+        "barcode": "الباركود",
+        "qty": "الكمية",
+        "price": "السعر",
+        "total": "الإجمالي"
+      }
+    },
+    "validation": {
+      "supplierRequired": "اسم المورد مطلوب",
+      "phoneRequired": "رقم الهاتف مطلوب",
+      "invalidEmail": "تنسيق البريد الإلكتروني غير صالح",
+      "selectSupplier": "يرجى اختيار المورد",
+      "addProduct": "يرجى إضافة منتج واحد على الأقل",
+      "quantityPositive": "يجب أن تكون الكمية أكبر من صفر",
+      "costNotNegative": "لا يمكن أن يكون سعر التكلفة سالبًا",
+      "productAlreadyAdded": "المنتج مضاف بالفعل"
+    },
+    "toast": {
+      "purchaseCreated": "تم إنشاء عملية الشراء بنجاح",
+      "purchaseFailed": "فشل إنشاء عملية الشراء",
+      "supplierCreated": "تم إنشاء المورد بنجاح",
+      "supplierFailed": "فشل إنشاء المورد"
+    }
+  },
+  "pos": {
+    "searchPlaceholder": "ابحث عن المنتجات...",
+    "barcodePlaceholder": "الباركود",
+    "allCategories": "جميع التصنيفات",
+    "outOfStock": "نفد من المخزون",
+    "lowStock": "مخزون منخفض",
+    "noProductsFound": "لم يتم العثور على منتجات",
+    "failedToLoadProducts": "فشل تحميل المنتجات",
+    "cartTitle": "سلة المشتريات",
+    "cartEmpty": "السلة فارغة",
+    "cartEmptyHint": "انقر على منتج لإضافته",
+    "perUnit": "{{price}} / للوحدة",
+    "summary": "الملخص",
+    "subtotal": "المجموع الفرعي",
+    "discount": "الخصم",
+    "tax": "الضريبة",
+    "grandTotal": "الإجمالي الكلي",
+    "items": "المنتجات",
+    "clearCart": "تفريغ السلة",
+    "checkout": "إتمام الشراء",
+    "checkoutTitle": "إتمام عملية الشراء",
+    "customerLabel": "العميل",
+    "customerOptional": "(اختياري)",
+    "customerSearchPlaceholder": "ابحث بالاسم أو رقم الهاتف...",
+    "paymentMethod": "طريقة الدفع",
+    "cash": "نقدي",
+    "card": "بطاقة",
+    "transfer": "تحويل",
+    "mixed": "مختلط",
+    "cancel": "إلغاء",
+    "confirmSale": "تأكيد البيع",
+    "processing": "جارٍ المعالجة...",
+    "checkoutFailed": "فشل إتمام عملية الشراء",
+    "invoice": {
+      "title": "الفاتورة",
+      "notFound": "الفاتورة غير موجودة",
+      "notFoundDesc": "عملية البيع التي تبحث عنها غير موجودة أو تم حذفها.",
+      "backToPos": "العودة إلى نقطة البيع",
+      "backToPosTitle": "العودة إلى نقطة البيع",
+      "print": "طباعة",
+      "newSale": "بيع جديد",
+      "posSystem": "نظام نقاط البيع",
+      "invoiceLabel": "الفاتورة",
+      "cashier": "أمين الصندوق",
+      "customer": "العميل",
+      "walkInCustomer": "عميل زائر",
+      "product": "المنتج",
+      "qty": "الكمية",
+      "unitPrice": "سعر الوحدة",
+      "total": "الإجمالي",
+      "invoiceSubtotal": "المجموع الفرعي",
+      "invoiceDiscount": "الخصم",
+      "invoiceGrandTotal": "الإجمالي الكلي",
+      "payment": "الدفع",
+      "thankYou": "شكراً لك على الشراء!"
+    }
+  },
+  "customers": {
+    "title": "العملاء",
+    "description": "إدارة دليل العملاء الخاص بك",
+    "searchPlaceholder": "ابحث بالاسم أو رقم الهاتف...",
+    "searchAriaLabel": "بحث عن العملاء",
+    "newCustomer": "عميل جديد",
+    "columns": {
+      "name": "الاسم",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "noResultsTitle": "لم يتم العثور على عملاء",
+      "noResultsDescription": "جرب بحثًا مختلفًا",
+      "noCustomersDescription": "أضف عميلك الأول",
+      "addCustomer": "إضافة عميل"
+    },
+    "form": {
+      "titleCreate": "عميل جديد",
+      "titleEdit": "تعديل العميل",
+      "name": "الاسم",
+      "namePlaceholder": "الاسم الكامل",
+      "phone": "الهاتف",
+      "phonePlaceholder": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "عنوان البريد الإلكتروني (اختياري)",
+      "address": "العنوان",
+      "addressPlaceholder": "العنوان (اختياري)",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ...",
+      "create": "إنشاء",
+      "update": "تحديث"
+    },
+    "validation": {
+      "nameRequired": "الاسم مطلوب",
+      "phoneRequired": "رقم الهاتف مطلوب"
+    },
+    "toast": {
+      "created": "تم إنشاء العميل",
+      "createFailed": "فشل إنشاء العميل",
+      "updated": "تم تحديث العميل",
+      "updateFailed": "فشل تحديث العميل",
+      "deleted": "تم حذف العميل",
+      "deleteFailed": "فشل حذف العميل"
+    },
+    "confirmDelete": {
+      "title": "حذف العميل",
+      "message": "حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "edit": "تعديل",
+    "delete": "حذف"
+  },
+  "categories": {
+    "title": "التصنيفات",
+    "description": "تنظيم منتجاتك في تصنيفات",
+    "searchPlaceholder": "ابحث عن التصنيفات...",
+    "searchAriaLabel": "بحث عن التصنيفات",
+    "newCategory": "تصنيف جديد",
+    "columns": {
+      "name": "الاسم",
+      "description": "الوصف",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "noResultsTitle": "لم يتم العثور على تصنيفات",
+      "noResultsDescription": "جرب بحثًا مختلفًا",
+      "noCategoriesDescription": "أضف تصنيفك الأول",
+      "addCategory": "إضافة تصنيف"
+    },
+    "form": {
+      "titleCreate": "تصنيف جديد",
+      "titleEdit": "تعديل التصنيف",
+      "name": "الاسم",
+      "namePlaceholder": "اسم التصنيف",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف مختصر (اختياري)",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ...",
+      "create": "إنشاء",
+      "update": "تحديث"
+    },
+    "validation": {
+      "nameRequired": "الاسم مطلوب"
+    },
+    "toast": {
+      "created": "تم إنشاء التصنيف",
+      "createFailed": "فشل إنشاء التصنيف",
+      "updated": "تم تحديث التصنيف",
+      "updateFailed": "فشل تحديث التصنيف",
+      "deleted": "تم حذف التصنيف",
+      "deleteFailed": "فشل حذف التصنيف"
+    },
+    "confirmDelete": {
+      "title": "حذف التصنيف",
+      "message": "حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "edit": "تعديل",
+    "delete": "حذف"
+  },
+  "users": {
+    "title": "المستخدمين",
+    "description": "إدارة مستخدمي النظام والأدوار",
+    "searchPlaceholder": "ابحث عن المستخدمين...",
+    "searchAriaLabel": "بحث عن المستخدمين",
+    "addUser": "إضافة مستخدم",
+    "columns": {
+      "name": "الاسم",
+      "role": "الدور",
+      "phone": "الهاتف",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "noResultsTitle": "لم يتم العثور على مستخدمين",
+      "noResultsDescription": "جرب مصطلح بحث مختلف",
+      "noUsersDescription": "ابدأ بإضافة أول مستخدم",
+      "addUser": "إضافة مستخدم"
+    },
+    "form": {
+      "createTitle": "إنشاء مستخدم",
+      "createBtn": "إنشاء مستخدم",
+      "editTitle": "تعديل المستخدم",
+      "fullName": "الاسم الكامل",
+      "fullNamePlaceholder": "جون دو",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "john@company.com",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "8 أحرف كحد أدنى",
+      "passwordHint": "8 أحرف كحد أدنى",
+      "phone": "الهاتف",
+      "phonePlaceholder": "+1234567890",
+      "phoneHint": "اختياري",
+      "role": "الدور",
+      "status": "الحالة",
+      "statusActive": "نشط",
+      "statusInactive": "غير نشط",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ...",
+      "creating": "جارٍ الإنشاء...",
+      "update": "تحديث",
+      "resetPassword": "إعادة تعيين كلمة المرور",
+      "resetPasswordTitle": "إعادة تعيين كلمة المرور — {{name}}",
+      "newPassword": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "8 أحرف كحد أدنى",
+      "resetting": "جارٍ إعادة التعيين..."
+    },
+    "roles": {
+      "admin": "مدير",
+      "manager": "مشرف",
+      "employee": "موظف"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "validation": {
+      "nameRequired": "الاسم مطلوب",
+      "nameTooLong": "الاسم طويل جداً",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "بريد إلكتروني غير صالح",
+      "passwordMin": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+      "phoneInvalid": "يجب أن يكون رقم الهاتف 10-15 رقمًا (+ اختياري)"
+    },
+    "toast": {
+      "created": "تم إنشاء المستخدم",
+      "createFailed": "فشل إنشاء المستخدم",
+      "updated": "تم تحديث المستخدم",
+      "updateFailed": "فشل تحديث المستخدم",
+      "deleted": "تم حذف المستخدم",
+      "deleteFailed": "فشل حذف المستخدم",
+      "passwordReset": "تم إعادة تعيين كلمة المرور بنجاح",
+      "passwordResetFailed": "فشل إعادة تعيين كلمة المرور"
+    },
+    "confirmDelete": {
+      "title": "حذف المستخدم",
+      "message": "هل أنت متأكد من رغبتك في حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "edit": "تعديل",
+    "delete": "حذف",
+    "resetPassword": "إعادة تعيين كلمة المرور"
+  },
+  "suppliers": {
+    "title": "الموردين",
+    "description": "إدارة دليل الموردين الخاص بك",
+    "searchPlaceholder": "ابحث بالاسم أو رقم الهاتف...",
+    "searchAriaLabel": "بحث عن الموردين",
+    "newSupplier": "مورد جديد",
+    "columns": {
+      "name": "الاسم",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "noResultsTitle": "لم يتم العثور على موردين",
+      "noResultsDescription": "جرب بحثًا مختلفًا",
+      "noSuppliersDescription": "أضف موردك الأول",
+      "addSupplier": "إضافة مورد"
+    },
+    "form": {
+      "titleCreate": "مورد جديد",
+      "titleEdit": "تعديل المورد",
+      "name": "الاسم",
+      "namePlaceholder": "اسم المورد",
+      "phone": "الهاتف",
+      "phonePlaceholder": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "عنوان البريد الإلكتروني (اختياري)",
+      "address": "العنوان",
+      "addressPlaceholder": "العنوان (اختياري)",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ...",
+      "create": "إنشاء",
+      "update": "تحديث"
+    },
+    "validation": {
+      "nameRequired": "الاسم مطلوب",
+      "phoneRequired": "رقم الهاتف مطلوب"
+    },
+    "toast": {
+      "created": "تم إنشاء المورد",
+      "createFailed": "فشل إنشاء المورد",
+      "updated": "تم تحديث المورد",
+      "updateFailed": "فشل تحديث المورد",
+      "deleted": "تم حذف المورد",
+      "deleteFailed": "فشل حذف المورد"
+    },
+    "confirmDelete": {
+      "title": "حذف المورد",
+      "message": "حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "edit": "تعديل",
+    "delete": "حذف"
+  },
+  "reports": {
+    "title": "التقارير والتحليلات",
+    "description": "نظرة عامة على أداء الأعمال والرؤى",
+    "summary": {
+      "todaySales": "مبيعات اليوم",
+      "monthlySales": "المبيعات الشهرية",
+      "totalInvoices": "إجمالي الفواتير",
+      "avgInvoiceValue": "متوسط قيمة الفاتورة",
+      "todayPurchases": "مشتريات اليوم",
+      "monthlyPurchases": "المشتريات الشهرية",
+      "inventoryValue": "قيمة المخزون",
+      "lowStockItems": "المنتجات منخفضة المخزون"
+    },
+    "topSelling": {
+      "title": "المنتجات الأكثر مبيعاً",
+      "product": "المنتج",
+      "qtySold": "الكمية المباعة",
+      "revenue": "الإيرادات",
+      "empty": "لا توجد بيانات مبيعات متاحة"
+    },
+    "recentSales": {
+      "title": "آخر المبيعات",
+      "invoice": "الفاتورة",
+      "amount": "المبلغ",
+      "date": "التاريخ",
+      "empty": "لا توجد مبيعات حديثة"
+    },
+    "salesAnalytics": "تحليلات المبيعات",
+    "profitAnalytics": "تحليلات الأرباح",
+    "productPerformance": "أداء المنتجات",
+    "productPerformanceSub": {
+      "topPerforming": "الأعلى أداءً",
+      "slowMoving": "بطيء الحركة",
+      "product": "المنتج",
+      "qtySold": "الكمية المباعة",
+      "revenue": "الإيرادات",
+      "topEmpty": "لا توجد بيانات مبيعات للمنتجات",
+      "slowEmpty": "جميع المنتجات لها مبيعات"
+    },
+    "supplierPerformance": "أداء الموردين",
+    "supplierPerformanceSub": {
+      "supplier": "المورد",
+      "totalSpent": "إجمالي المنصرف",
+      "orders": "الطلبيات",
+      "empty": "لا توجد بيانات موردين متاحة"
+    },
+    "filters": {
+      "last7Days": "آخر 7 أيام",
+      "last30Days": "آخر 30 يوم",
+      "custom": "مخصص",
+      "to": "إلى"
+    },
+    "charts": {
+      "noSalesData": "لا توجد بيانات مبيعات في هذه الفترة"
+    },
+    "profitCards": {
+      "revenue": "الإيرادات",
+      "purchaseCost": "تكلفة الشراء",
+      "grossProfit": "إجمالي الربح",
+      "profitMargin": "هامش الربح"
+    }
+  },
+  "common": {
+    "signOut": "تسجيل الخروج",
+    "notifications": "الإشعارات",
+    "openMenu": "فتح القائمة",
+    "closeSidebar": "إغلاق القائمة الجانبية",
+    "appName": "نقاط البيع",
+    "appSubtitle": "الإدارة",
+    "somethingWentWrong": "حدث خطأ ما",
+    "tryAgain": "حاول مرة أخرى",
+    "closeDialog": "إغلاق الحوار",
+    "cancel": "إلغاء",
+    "noDataAvailable": "لا توجد بيانات متاحة"
+  },
+  "language": {
+    "switch": "اللغة",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}

@@ -69,8 +69,6 @@ from backend.middleware import (
     load_user_context,
 )
 
-from backend.docs import get_swagger_ui_response, get_spec_json_response
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -279,24 +277,6 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(suppliers_bp)
     app.register_blueprint(pos_bp)
     app.register_blueprint(reports_bp)
-
-    @app.route("/api/docs", methods=["GET"])
-    def swagger_ui():
-        """Serve Swagger UI for API documentation.
-
-        Returns:
-            HTML response with Swagger UI interface.
-        """
-        return get_swagger_ui_response()
-
-    @app.route("/api/docs/spec.json", methods=["GET"])
-    def openapi_spec():
-        """Serve the OpenAPI 3.0 specification as JSON.
-
-        Returns:
-            JSON response with the complete API specification.
-        """
-        return get_spec_json_response()
 
     return app
 

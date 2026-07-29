@@ -1,6 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, Loader2 } from "lucide-react";
 
-export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmText = "Delete", loading = false }) {
+export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmText, loadingText, loading = false }) {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
 
   return (
@@ -24,7 +27,7 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, conf
             disabled={loading}
             className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 disabled:opacity-50 transition-all duration-150"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             onClick={onConfirm}
@@ -32,7 +35,7 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, conf
             className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-red-600/25"
           >
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {loading ? "Deleting..." : confirmText}
+            {loading ? (loadingText || confirmText || t("common.cancel")) : (confirmText || t("common.cancel"))}
           </button>
         </div>
       </div>

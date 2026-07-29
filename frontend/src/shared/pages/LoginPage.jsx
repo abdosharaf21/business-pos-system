@@ -1,19 +1,22 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Building2, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Building2, Loader2, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 
-const schema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
 export default function LoginPage() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const schema = useMemo(() => z.object({
+    email: z.string().min(1, t("auth.validation.emailRequired")).email(t("auth.validation.emailInvalid")),
+    password: z.string().min(1, t("auth.validation.passwordRequired")),
+  }), [t]);
 
   const {
     register,
@@ -26,11 +29,13 @@ export default function LoginPage() {
     try {
       await login(values.email, values.password);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error(err.response?.data?.message || t("auth.toast.loginFailed"));
     } finally {
       setLoading(false);
     }
   };
+
+  const isRtl = document.documentElement.dir === "rtl";
 
   return (
     <div className="min-h-screen flex">
@@ -47,23 +52,23 @@ export default function LoginPage() {
               <Building2 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">BizDev</h2>
-              <p className="text-xs text-primary-200 font-medium">Management System</p>
+              <h2 className="text-2xl font-bold text-white tracking-tight">{t("common.appName")}</h2>
+              <p className="text-xs text-primary-200 font-medium">{t("auth.brandSubtitle")}</p>
             </div>
           </div>
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-            Business Development
+            {t("auth.heroTitle")}
             <br />
-            <span className="text-primary-200">Made Simple</span>
+            <span className="text-primary-200">{t("auth.heroTitleAccent")}</span>
           </h1>
           <p className="text-base text-primary-100/80 max-w-md leading-relaxed">
-            Manage your clients, services, and team — all from one professional dashboard built for growing businesses.
+            {t("auth.heroDescription")}
           </p>
           <div className="flex gap-8 mt-12">
             {[
-              { value: "6+", label: "Modules" },
-              { value: "100%", label: "Secure" },
-              { value: "24/7", label: "Available" },
+              { value: "6+", label: t("auth.stats.modules") },
+              { value: "100%", label: t("auth.stats.secure") },
+              { value: "24/7", label: t("auth.stats.available") },
             ].map(({ value, label }) => (
               <div key={label}>
                 <p className="text-2xl font-bold text-white">{value}</p>
@@ -82,30 +87,30 @@ export default function LoginPage() {
             <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/25">
               <Building2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-surface-900 tracking-tight">BizDev</span>
+            <span className="text-xl font-bold text-surface-900 tracking-tight">{t("common.appName")}</span>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-surface-900 tracking-tight">Welcome back</h2>
-            <p className="text-sm text-surface-400 mt-1.5">Sign in to your account to continue</p>
+            <h2 className="text-2xl font-bold text-surface-900 tracking-tight">{t("auth.welcomeBack")}</h2>
+            <p className="text-sm text-surface-400 mt-1.5">{t("auth.signInSubtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-[13px] font-semibold text-surface-700 mb-1.5">
-                Email address
+                {t("auth.emailLabel")}
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
+                <Mail className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
                 <input
                   id="email"
                   type="email"
                   autoComplete="email"
                   {...register("email")}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-xl text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
+                  className={`w-full ps-11 pe-4 py-3 border rounded-xl text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
                     focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
                     ${errors.email ? "border-red-300 bg-red-50/30" : "border-surface-200 bg-surface-50 hover:border-surface-300"}`}
-                  placeholder="you@company.com"
+                  placeholder={t("auth.emailPlaceholder")}
                 />
               </div>
               {errors.email && (
@@ -115,20 +120,29 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-[13px] font-semibold text-surface-700 mb-1.5">
-                Password
+                {t("auth.passwordLabel")}
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
+                <Lock className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none" />
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   {...register("password")}
-                  className={`w-full pl-11 pr-4 py-3 border rounded-xl text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
+                  className={`w-full ps-11 pe-12 py-3 border rounded-xl text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
                     focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
                     ${errors.password ? "border-red-300 bg-red-50/30" : "border-surface-200 bg-surface-50 hover:border-surface-300"}`}
-                  placeholder="Enter your password"
+                  placeholder={t("auth.passwordPlaceholder")}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute end-3.5 top-1/2 -translate-y-1/2 p-1 text-surface-400 hover:text-surface-600 transition-colors"
+                  aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
               {errors.password && (
                 <p className="text-xs text-red-500 mt-1.5 font-medium">{errors.password.message}</p>
@@ -141,18 +155,21 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-sm font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-primary-600/25 hover:shadow-xl hover:shadow-primary-600/30 active:scale-[0.98]"
             >
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t("auth.signingIn")}
+                </>
               ) : (
                 <>
-                  Sign in
-                  <ArrowRight className="w-4 h-4" />
+                  {t("auth.signIn")}
+                  <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
                 </>
               )}
             </button>
           </form>
 
           <p className="text-center text-xs text-surface-400 mt-8">
-            Business Development Management System
+            {t("auth.footer")}
           </p>
         </div>
       </div>

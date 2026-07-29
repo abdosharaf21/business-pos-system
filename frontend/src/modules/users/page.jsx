@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "./api";
 import { useAuth } from "../../shared/context/AuthContext";
+import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { DataTable } from "../../shared/components/DataTable";
 import { Badge, statusBadge } from "../../shared/components/Badge";
@@ -16,29 +17,6 @@ import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, UserCog, Key, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 
-const userSchema = z.object({
-  full_name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
-  phone: z.string().regex(/^\+?[0-9]{10,15}$/, "Phone must be 10-15 digits (optional +)").optional().or(z.literal("")),
-  role: z.enum(["admin", "manager", "employee"]),
-  status: z.enum(["active", "inactive"]),
-});
-
-const editUserSchema = z.object({
-  full_name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  phone: z.string().regex(/^\+?[0-9]{10,15}$/, "Phone must be 10-15 digits (optional +)").optional().or(z.literal("")),
-  role: z.enum(["admin", "manager", "employee"]),
-  status: z.enum(["active", "inactive"]),
-});
-
-const resetPasswordSchema = z.object({
-  new_password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-const ROLE_LABELS = { admin: "Admin", manager: "Manager", employee: "Employee" };
-
 const ROLE_COLORS = {
   admin: "bg-violet-50 text-violet-700 ring-violet-200/60",
   manager: "bg-sky-50 text-sky-700 ring-sky-200/60",
@@ -50,6 +28,7 @@ const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
 const SELECT_CLASS = INPUT_CLASS;
 
 export default function UsersPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
@@ -71,40 +50,40 @@ export default function UsersPage() {
     mutationFn: (data) => userService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("User created");
+      toast.success(t("users.toast.created"));
       setModalOpen(false);
     },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to create"),
+    onError: (err) => toast.error(err.response?.data?.message || t("users.toast.createFailed")),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => userService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("User updated");
+      toast.success(t("users.toast.updated"));
       setModalOpen(false);
       setEditing(null);
     },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to update"),
+    onError: (err) => toast.error(err.response?.data?.message || t("users.toast.updateFailed")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => userService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("User deleted");
+      toast.success(t("users.toast.deleted"));
       setDeleteTarget(null);
     },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to delete"),
+    onError: (err) => toast.error(err.response?.data?.message || t("users.toast.deleteFailed")),
   });
 
   const resetMutation = useMutation({
     mutationFn: ({ id, new_password }) => userService.changePassword(id, new_password),
     onSuccess: () => {
-      toast.success("Password reset successfully");
+      toast.success(t("users.toast.passwordReset"));
       setResetTarget(null);
     },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to reset password"),
+    onError: (err) => toast.error(err.response?.data?.message || t("users.toast.passwordResetFailed")),
   });
 
   const filtered = users.filter(
@@ -117,7 +96,7 @@ export default function UsersPage() {
   const columns = [
     {
       key: "full_name",
-      label: "Name",
+      label: t("users.columns.name"),
       render: (val, row) => (
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow-sm shadow-primary-500/20">
@@ -132,38 +111,38 @@ export default function UsersPage() {
     },
     {
       key: "role",
-      label: "Role",
+      label: t("users.columns.role"),
       render: (val) => (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ring-1 ring-inset ${ROLE_COLORS[val] || "bg-surface-100 text-surface-600 ring-surface-200/60"}`}>
           <Shield className="w-3 h-3" />
-          {ROLE_LABELS[val] || val}
+          {t("users.roles." + val)}
         </span>
       ),
     },
     {
       key: "phone",
-      label: "Phone",
+      label: t("users.columns.phone"),
       render: (val) => val || <span className="text-surface-300">-</span>,
     },
     {
       key: "status",
-      label: "Status",
-      render: (val) => <Badge variant={statusBadge(val)}>{val}</Badge>,
+      label: t("users.columns.status"),
+      render: (val) => <Badge variant={statusBadge(val)}>{t("users.status." + val)}</Badge>,
     },
     ...(isAdmin
       ? [
           {
             key: "id",
-            label: "Actions",
+            label: t("users.columns.actions"),
             render: (_, row) => (
               <div className="flex items-center gap-1">
-                <button onClick={() => openEdit(row)} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title="Edit">
+                <button onClick={() => openEdit(row)} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("users.edit")}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setResetTarget(row)} className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150" title="Reset password">
+                <button onClick={() => setResetTarget(row)} className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150" title={t("users.resetPassword")}>
                   <Key className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title="Delete">
+                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title={t("users.delete")}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -189,8 +168,8 @@ export default function UsersPage() {
   return (
     <div>
       <PageHeader
-        title="Users"
-        description="Manage system users and roles"
+        title={t("users.title")}
+        description={t("users.description")}
         actions={
           isAdmin && (
             <button
@@ -198,33 +177,33 @@ export default function UsersPage() {
               className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20"
             >
               <Plus className="w-4 h-4" />
-              Add User
+              {t("users.addUser")}
             </button>
           )
         }
       />
 
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
         <input
           type="text"
-          placeholder="Search users..."
+          placeholder={t("users.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card"
-          aria-label="Search users"
+          className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card"
+          aria-label={t("users.searchAriaLabel")}
         />
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={UserCog}
-          title="No users found"
-          description={search ? "Try a different search term" : "Get started by adding your first user"}
+          title={t("users.empty.noResultsTitle")}
+          description={search ? t("users.empty.noResultsDescription") : t("users.empty.noUsersDescription")}
           action={
             !search && isAdmin && (
               <button onClick={openCreate} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">
-                Add User
+                {t("users.empty.addUser")}
               </button>
             )
           }
@@ -254,8 +233,8 @@ export default function UsersPage() {
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
-        title="Delete User"
-        message={`Are you sure you want to delete "${deleteTarget?.full_name}"? This action cannot be undone.`}
+        title={t("users.confirmDelete.title")}
+        message={t("users.confirmDelete.message", { name: deleteTarget?.full_name })}
         loading={deleteMutation.isPending}
       />
 
@@ -271,6 +250,17 @@ export default function UsersPage() {
 }
 
 function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
+  const { t } = useTranslation();
+
+  const userSchema = useMemo(() => z.object({
+    full_name: z.string().min(1, t("users.validation.nameRequired")).max(100, t("users.validation.nameTooLong")),
+    email: z.string().min(1, t("users.validation.emailRequired")).email(t("users.validation.emailInvalid")),
+    password: z.string().min(8, t("users.validation.passwordMin")).optional().or(z.literal("")),
+    phone: z.string().regex(/^\+?[0-9]{10,15}$/, t("users.validation.phoneInvalid")).optional().or(z.literal("")),
+    role: z.enum(["admin", "manager", "employee"]),
+    status: z.enum(["active", "inactive"]),
+  }), [t]);
+
   const {
     register,
     handleSubmit,
@@ -282,7 +272,7 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create User">
+    <Modal isOpen={isOpen} onClose={onClose} title={t("users.form.createTitle")}>
       <form
         onSubmit={handleSubmit((data) => {
           const payload = { ...data };
@@ -294,10 +284,10 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
         className="space-y-5"
       >
         {[
-          { name: "full_name", label: "Full Name", placeholder: "John Doe" },
-          { name: "email", label: "Email", type: "email", placeholder: "john@company.com" },
-          { name: "password", label: "Password", type: "password", placeholder: "Min 8 characters", hint: "Min 8 characters" },
-          { name: "phone", label: "Phone", type: "tel", placeholder: "+1234567890", hint: "Optional" },
+          { name: "full_name", label: t("users.form.fullName"), placeholder: t("users.form.fullNamePlaceholder") },
+          { name: "email", label: t("users.form.email"), type: "email", placeholder: t("users.form.emailPlaceholder") },
+          { name: "password", label: t("users.form.password"), type: "password", placeholder: t("users.form.passwordPlaceholder"), hint: t("users.form.passwordHint") },
+          { name: "phone", label: t("users.form.phone"), type: "tel", placeholder: t("users.form.phonePlaceholder"), hint: t("users.form.phoneHint") },
         ].map(({ name, label, type = "text", placeholder, hint }) => (
           <div key={name}>
             <label className={LABEL_CLASS}>{label}</label>
@@ -309,19 +299,19 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={LABEL_CLASS}>Role</label>
+            <label className={LABEL_CLASS}>{t("users.form.role")}</label>
             <select {...register("role")} className={SELECT_CLASS}>
-              <option value="employee">Employee</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
+              <option value="employee">{t("users.roles.employee")}</option>
+              <option value="manager">{t("users.roles.manager")}</option>
+              <option value="admin">{t("users.roles.admin")}</option>
             </select>
             {errors.role && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.role.message}</p>}
           </div>
           <div>
-            <label className={LABEL_CLASS}>Status</label>
+            <label className={LABEL_CLASS}>{t("users.form.status")}</label>
             <select {...register("status")} className={SELECT_CLASS}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="active">{t("users.status.active")}</option>
+              <option value="inactive">{t("users.status.inactive")}</option>
             </select>
             {errors.status && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.status.message}</p>}
           </div>
@@ -329,10 +319,10 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
 
         <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
           <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">
-            Cancel
+            {t("users.form.cancel")}
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">
-            {loading ? "Creating..." : "Create User"}
+            {loading ? t("users.form.creating") : t("users.form.createBtn")}
           </button>
         </div>
       </form>
@@ -341,6 +331,16 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
 }
 
 function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
+  const { t } = useTranslation();
+
+  const editUserSchema = useMemo(() => z.object({
+    full_name: z.string().min(1, t("users.validation.nameRequired")).max(100, t("users.validation.nameTooLong")),
+    email: z.string().min(1, t("users.validation.emailRequired")).email(t("users.validation.emailInvalid")),
+    phone: z.string().regex(/^\+?[0-9]{10,15}$/, t("users.validation.phoneInvalid")).optional().or(z.literal("")),
+    role: z.enum(["admin", "manager", "employee"]),
+    status: z.enum(["active", "inactive"]),
+  }), [t]);
+
   const {
     register,
     handleSubmit,
@@ -357,12 +357,12 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit User">
+    <Modal isOpen={isOpen} onClose={onClose} title={t("users.form.editTitle")}>
       <form onSubmit={handleSubmit((data) => onSubmit(data))} className="space-y-5">
         {[
-          { name: "full_name", label: "Full Name", placeholder: "John Doe" },
-          { name: "email", label: "Email", type: "email", placeholder: "john@company.com" },
-          { name: "phone", label: "Phone", type: "tel", placeholder: "+1234567890" },
+          { name: "full_name", label: t("users.form.fullName"), placeholder: t("users.form.fullNamePlaceholder") },
+          { name: "email", label: t("users.form.email"), type: "email", placeholder: t("users.form.emailPlaceholder") },
+          { name: "phone", label: t("users.form.phone"), type: "tel", placeholder: t("users.form.phonePlaceholder") },
         ].map(({ name, label, type = "text", placeholder }) => (
           <div key={name}>
             <label className={LABEL_CLASS}>{label}</label>
@@ -373,19 +373,19 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={LABEL_CLASS}>Role</label>
+            <label className={LABEL_CLASS}>{t("users.form.role")}</label>
             <select {...register("role")} className={SELECT_CLASS}>
-              <option value="employee">Employee</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
+              <option value="employee">{t("users.roles.employee")}</option>
+              <option value="manager">{t("users.roles.manager")}</option>
+              <option value="admin">{t("users.roles.admin")}</option>
             </select>
             {errors.role && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.role.message}</p>}
           </div>
           <div>
-            <label className={LABEL_CLASS}>Status</label>
+            <label className={LABEL_CLASS}>{t("users.form.status")}</label>
             <select {...register("status")} className={SELECT_CLASS}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="active">{t("users.status.active")}</option>
+              <option value="inactive">{t("users.status.inactive")}</option>
             </select>
             {errors.status && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.status.message}</p>}
           </div>
@@ -393,10 +393,10 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
 
         <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
           <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">
-            Cancel
+            {t("users.form.cancel")}
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">
-            {loading ? "Saving..." : "Update"}
+            {loading ? t("users.form.saving") : t("users.form.update")}
           </button>
         </div>
       </form>
@@ -405,6 +405,12 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
 }
 
 function ResetPasswordModal({ isOpen, onClose, user, onSubmit, loading }) {
+  const { t } = useTranslation();
+
+  const resetPasswordSchema = useMemo(() => z.object({
+    new_password: z.string().min(8, t("users.validation.passwordMin")),
+  }), [t]);
+
   const {
     register,
     handleSubmit,
@@ -416,7 +422,7 @@ function ResetPasswordModal({ isOpen, onClose, user, onSubmit, loading }) {
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Reset Password — ${user?.full_name || ""}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={t("users.form.resetPasswordTitle", { name: user?.full_name || "" })}>
       <form
         onSubmit={handleSubmit((data) => {
           onSubmit(data.new_password);
@@ -425,22 +431,22 @@ function ResetPasswordModal({ isOpen, onClose, user, onSubmit, loading }) {
         className="space-y-5"
       >
         <div>
-          <label className={LABEL_CLASS}>New Password</label>
+          <label className={LABEL_CLASS}>{t("users.form.newPassword")}</label>
           <input
             type="password"
             {...register("new_password")}
             className={INPUT_CLASS}
-            placeholder="Min 8 characters"
+            placeholder={t("users.form.newPasswordPlaceholder")}
           />
           {errors.new_password && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.new_password.message}</p>}
         </div>
 
         <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
           <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">
-            Cancel
+            {t("users.form.cancel")}
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-amber-500/20">
-            {loading ? "Resetting..." : "Reset Password"}
+            {loading ? t("users.form.resetting") : t("users.form.resetPassword")}
           </button>
         </div>
       </form>

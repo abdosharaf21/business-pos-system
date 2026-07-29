@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardService } from "./api";
 import { StatCard } from "../../shared/components/StatCard";
@@ -5,6 +6,7 @@ import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
 import { Badge, statusBadge } from "../../shared/components/Badge";
+import { formatCurrency } from "../../utils/formatCurrency";
 import {
   Package,
   FolderOpen,
@@ -18,6 +20,7 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
@@ -34,23 +37,23 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-surface-900 tracking-tight">POS Dashboard</h1>
-        <p className="text-sm text-surface-400 mt-1">Overview of your point of sale system</p>
+        <h1 className="text-2xl font-bold text-surface-900 tracking-tight">{t("dashboard.title")}</h1>
+        <p className="text-sm text-surface-400 mt-1">{t("dashboard.subtitle")}</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <StatCard label="Total Products" value={data.total_products} icon={Package} color="blue" />
-        <StatCard label="Categories" value={data.total_categories} icon={FolderOpen} color="purple" />
-        <StatCard label="Customers" value={data.total_customers} icon={Users} color="green" />
-        <StatCard label="Suppliers" value={data.total_suppliers} icon={Truck} color="orange" />
+        <StatCard label={t("dashboard.totalProducts")} value={data.total_products} icon={Package} color="blue" />
+        <StatCard label={t("dashboard.categories")} value={data.total_categories} icon={FolderOpen} color="purple" />
+        <StatCard label={t("dashboard.customers")} value={data.total_customers} icon={Users} color="green" />
+        <StatCard label={t("dashboard.suppliers")} value={data.total_suppliers} icon={Truck} color="orange" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <StatCard label="Total Sales" value={data.total_sales} icon={ShoppingCart} color="blue" />
-        <StatCard label="Total Purchases" value={data.total_purchases} icon={ArrowUpDown} color="green" />
-        <StatCard label="Inventory Value" value={`$${(data.inventory_value || 0).toLocaleString()}`} icon={DollarSign} color="purple" />
-        <StatCard label="Low Stock Items" value={data.low_stock_products} icon={AlertTriangle} color="orange" />
+        <StatCard label={t("dashboard.totalSales")} value={data.total_sales} icon={ShoppingCart} color="blue" />
+        <StatCard label={t("dashboard.totalPurchases")} value={data.total_purchases} icon={ArrowUpDown} color="green" />
+        <StatCard label={t("dashboard.inventoryValue")} value={formatCurrency(data.inventory_value)} icon={DollarSign} color="purple" />
+        <StatCard label={t("dashboard.lowStockItems")} value={data.low_stock_products} icon={AlertTriangle} color="orange" />
       </div>
 
       {/* Today's Activity */}
@@ -61,11 +64,11 @@ export default function DashboardPage() {
               <TrendingUp className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-surface-800">Today's Sales</p>
-              <p className="text-[11px] text-surface-400">{data.todays_sales} transactions</p>
+              <p className="text-[13px] font-semibold text-surface-800">{t("dashboard.todaysSales")}</p>
+              <p className="text-[11px] text-surface-400">{t("dashboard.transactions", { count: data.todays_sales })}</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-surface-900">${(data.todays_revenue || 0).toLocaleString()}</p>
+          <p className="text-3xl font-bold text-surface-900">{formatCurrency(data.todays_revenue)}</p>
         </div>
         <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
           <div className="flex items-center gap-3 mb-4">
@@ -73,12 +76,12 @@ export default function DashboardPage() {
               <Package className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-surface-800">Inventory Health</p>
-              <p className="text-[11px] text-surface-400">{data.total_products} products tracked</p>
+              <p className="text-[13px] font-semibold text-surface-800">{t("dashboard.inventoryHealth")}</p>
+              <p className="text-[11px] text-surface-400">{t("dashboard.productsTracked", { count: data.total_products })}</p>
             </div>
           </div>
           <p className="text-3xl font-bold text-surface-900">{data.total_products - data.low_stock_products}/{data.total_products}</p>
-          <p className="text-[11px] text-surface-400 mt-1">Products adequately stocked</p>
+          <p className="text-[11px] text-surface-400 mt-1">{t("dashboard.adequatelyStocked")}</p>
         </div>
       </div>
 
@@ -86,8 +89,8 @@ export default function DashboardPage() {
         <div className="bg-white rounded-2xl border border-surface-200/80 shadow-card">
           <EmptyState
             icon={TrendingUp}
-            title="Welcome to POS"
-            description="Your system is ready. Start by adding products, customers, and making sales to see your business data here."
+            title={t("dashboard.emptyTitle")}
+            description={t("dashboard.emptyDescription")}
           />
         </div>
       )}

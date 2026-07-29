@@ -1,4 +1,4 @@
-"""Database package for the Business Development Web App.
+"""Database package for the Business POS System.
 
 Provides a production-ready connection pool for MySQL with
 environment-based configuration.

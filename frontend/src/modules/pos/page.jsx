@@ -1,12 +1,14 @@
 import { useState, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { posService } from "./api";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { Badge } from "../../shared/components/Badge";
 import { Modal } from "../../shared/components/Modal";
 import toast from "react-hot-toast";
+import { formatCurrency } from "../../utils/formatCurrency";
 import {
   Search,
   Barcode,
@@ -31,6 +33,7 @@ const SELECT_CLASS =
 
 export default function PosPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [barcodeSearch, setBarcodeSearch] = useState("");
@@ -78,7 +81,7 @@ export default function PosPage() {
     },
     onError: (err) => {
       const msg =
-        err.response?.data?.message || "Checkout failed";
+        err.response?.data?.message || t("pos.checkoutFailed");
       toast.error(msg);
     },
   });
@@ -192,30 +195,30 @@ export default function PosPage() {
   );
 
   if (isLoading) return <LoadingSpinner size="lg" />;
-  if (error) return <ErrorDisplay message="Failed to load products" onRetry={refetch} />;
+  if (error) return <ErrorDisplay message={t("pos.failedToLoadProducts")} onRetry={refetch} />;
 
   return (
     <div className="h-[calc(100vh-2rem)] flex gap-4 p-4">
       <div className="w-1/2 flex flex-col gap-4 min-w-0">
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
+            <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t("pos.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className={`${INPUT_CLASS} pl-10`}
+              className={`${INPUT_CLASS} ps-10`}
             />
           </div>
           <div className="relative w-48">
-            <Barcode className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
+            <Barcode className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
             <input
               type="text"
-              placeholder="Barcode"
+              placeholder={t("pos.barcodePlaceholder")}
               value={barcodeSearch}
               onChange={(e) => setBarcodeSearch(e.target.value)}
-              className={`${INPUT_CLASS} pl-10`}
+              className={`${INPUT_CLASS} ps-10`}
             />
           </div>
           <select
@@ -223,7 +226,7 @@ export default function PosPage() {
             onChange={(e) => setCategoryFilter(e.target.value)}
             className={`${SELECT_CLASS} w-48`}
           >
-            <option value="">All Categories</option>
+            <option value="">{t("pos.allCategories")}</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -239,7 +242,7 @@ export default function PosPage() {
                 key={product.id}
                 onClick={() => addToCart(product)}
                 disabled={product.quantity <= 0}
-                className={`text-left p-4 rounded-2xl border-2 transition-all duration-150 ${
+                className={`text-start p-4 rounded-2xl border-2 transition-all duration-150 ${
                   product.quantity <= 0
                     ? "border-surface-200 bg-surface-50 opacity-50 cursor-not-allowed"
                     : "border-surface-200 bg-white hover:border-primary-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-[0.98]"
@@ -250,10 +253,10 @@ export default function PosPage() {
                     {product.name}
                   </span>
                   {product.quantity <= 0 && (
-                    <Badge variant="danger">Out of Stock</Badge>
+                    <Badge variant="danger">{t("pos.outOfStock")}</Badge>
                   )}
                   {product.quantity > 0 && product.quantity <= product.minimum_stock && (
-                    <Badge variant="warning">Low Stock</Badge>
+                    <Badge variant="warning">{t("pos.lowStock")}</Badge>
                   )}
                 </div>
                 {product.barcode && (
@@ -263,10 +266,10 @@ export default function PosPage() {
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-primary-600">
-                    ${Number(product.selling_price).toFixed(2)}
+                    {formatCurrency(product.selling_price)}
                   </span>
                   <span className="text-xs text-surface-500">
-                    <Package className="inline w-3 h-3 mr-1" />
+                    <Package className="inline w-3 h-3 me-1" />
                     {product.quantity}
                   </span>
                 </div>
@@ -275,7 +278,7 @@ export default function PosPage() {
             {filtered.length === 0 && (
               <div className="col-span-2 flex flex-col items-center justify-center py-16 text-surface-400">
                 <Package className="w-12 h-12 mb-3" />
-                <p className="text-sm font-medium">No products found</p>
+                <p className="text-sm font-medium">{t("pos.noProductsFound")}</p>
               </div>
             )}
           </div>
@@ -288,7 +291,7 @@ export default function PosPage() {
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-surface-600" />
               <h2 className="text-sm font-semibold text-surface-800">
-                Shopping Cart
+                {t("pos.cartTitle")}
               </h2>
             </div>
             {cart.length > 0 && (
@@ -302,8 +305,8 @@ export default function PosPage() {
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-surface-400 px-4">
                 <ShoppingCart className="w-10 h-10 mb-2" />
-                <p className="text-sm font-medium">Cart is empty</p>
-                <p className="text-[11px] mt-1">Click a product to add it</p>
+                <p className="text-sm font-medium">{t("pos.cartEmpty")}</p>
+                <p className="text-[11px] mt-1">{t("pos.cartEmptyHint")}</p>
               </div>
             ) : (
               <div className="divide-y divide-surface-100">
@@ -321,7 +324,7 @@ export default function PosPage() {
                           {item.name}
                         </p>
                         <p className="text-[11px] text-surface-400">
-                          ${Number(item.selling_price).toFixed(2)} / unit
+                          {t("pos.perUnit", { price: formatCurrency(item.selling_price) })}
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
@@ -345,7 +348,7 @@ export default function PosPage() {
                       </div>
                       <div className="w-20 text-right">
                         <p className="text-sm font-bold text-surface-800 tabular-nums">
-                          ${(item.quantity * item.selling_price).toFixed(2)}
+                          {formatCurrency(item.quantity * item.selling_price)}
                         </p>
                       </div>
                       <button
@@ -367,31 +370,31 @@ export default function PosPage() {
         <div className="bg-white rounded-2xl border border-surface-200 p-5">
           <div className="flex items-center gap-2 mb-4">
             <Calculator className="w-4 h-4 text-surface-500" />
-            <h2 className="text-sm font-semibold text-surface-800">Summary</h2>
+            <h2 className="text-sm font-semibold text-surface-800">{t("pos.summary")}</h2>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-surface-500">Subtotal</span>
+              <span className="text-surface-500">{t("pos.subtotal")}</span>
               <span className="font-semibold text-surface-800 tabular-nums">
-                ${subtotal.toFixed(2)}
+                {formatCurrency(subtotal)}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-surface-500">Discount</span>
-              <span className="text-surface-300">$0.00</span>
+              <span className="text-surface-500">{t("pos.discount")}</span>
+              <span className="text-surface-300">{formatCurrency(0)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-surface-500">Tax</span>
+              <span className="text-surface-500">{t("pos.tax")}</span>
               <span className="text-surface-300">—</span>
             </div>
             <hr className="border-surface-100" />
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-surface-800">
-                Grand Total
+                {t("pos.grandTotal")}
               </span>
               <span className="text-lg font-bold text-primary-600 tabular-nums">
-                ${subtotal.toFixed(2)}
+                {formatCurrency(subtotal)}
               </span>
             </div>
           </div>
@@ -403,7 +406,7 @@ export default function PosPage() {
             disabled={cart.length === 0}
             className="w-full py-3 px-4 rounded-xl border-2 border-surface-200 text-sm font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
           >
-            Clear Cart
+            {t("pos.clearCart")}
           </button>
           <button
             onClick={() => setCheckoutOpen(true)}
@@ -415,7 +418,7 @@ export default function PosPage() {
             ) : (
               <CreditCard className="w-4 h-4" />
             )}
-            Checkout
+            {checkoutMutation.isPending ? null : t("pos.checkout")}
           </button>
         </div>
       </div>
@@ -423,17 +426,17 @@ export default function PosPage() {
       <Modal
         isOpen={checkoutOpen}
         onClose={() => { if (!checkoutMutation.isPending) { setCheckoutOpen(false); setSelectedCustomer(null); setCustomerSearch(""); setCustomerResults([]); } }}
-        title="Complete Checkout"
+        title={t("pos.checkoutTitle")}
         maxWidth="max-w-md"
       >
         <div className="space-y-4">
           <div>
             <label className="block text-[13px] font-semibold text-surface-700 mb-1.5">
-              Customer <span className="text-surface-400 font-normal">(optional)</span>
+              {t("pos.customerLabel")} <span className="text-surface-400 font-normal">{t("pos.customerOptional")}</span>
             </label>
             <input
               type="text"
-              placeholder="Search by name or phone..."
+              placeholder={t("pos.customerSearchPlaceholder")}
               value={customerSearch}
               onChange={(e) => handleCustomerSearch(e.target.value)}
               className={INPUT_CLASS}
@@ -449,10 +452,10 @@ export default function PosPage() {
                       setCustomerSearch(`${c.name} — ${c.phone || ""}`);
                       setCustomerResults([]);
                     }}
-                    className="w-full text-left px-3.5 py-2.5 text-sm text-surface-700 hover:bg-surface-50 border-b border-surface-100 last:border-0"
+                    className="w-full text-start px-3.5 py-2.5 text-sm text-surface-700 hover:bg-surface-50 border-b border-surface-100 last:border-0"
                   >
                     <span className="font-medium">{c.name}</span>
-                    {c.phone && <span className="text-surface-400 ml-2">{c.phone}</span>}
+                    {c.phone && <span className="text-surface-400 ms-2">{c.phone}</span>}
                   </button>
                 ))}
               </div>
@@ -467,17 +470,17 @@ export default function PosPage() {
 
           <div>
             <label className="block text-[13px] font-semibold text-surface-700 mb-1.5">
-              Payment Method
+              {t("pos.paymentMethod")}
             </label>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
               className={SELECT_CLASS}
             >
-              <option value="cash">Cash</option>
-              <option value="card">Card</option>
-              <option value="transfer">Transfer</option>
-              <option value="mixed">Mixed</option>
+              <option value="cash">{t("pos.cash")}</option>
+              <option value="card">{t("pos.card")}</option>
+              <option value="transfer">{t("pos.transfer")}</option>
+              <option value="mixed">{t("pos.mixed")}</option>
             </select>
           </div>
 
@@ -485,22 +488,22 @@ export default function PosPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-surface-500">Items</span>
+              <span className="text-surface-500">{t("pos.items")}</span>
               <span className="font-medium text-surface-700">
                 {cart.reduce((s, i) => s + i.quantity, 0)}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-surface-500">Subtotal</span>
+              <span className="text-surface-500">{t("pos.subtotal")}</span>
               <span className="font-semibold text-surface-800">
-                ${subtotal.toFixed(2)}
+                {formatCurrency(subtotal)}
               </span>
             </div>
             <hr className="border-surface-100" />
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-surface-800">Grand Total</span>
+              <span className="text-sm font-bold text-surface-800">{t("pos.grandTotal")}</span>
               <span className="text-lg font-bold text-primary-600">
-                ${subtotal.toFixed(2)}
+                {formatCurrency(subtotal)}
               </span>
             </div>
           </div>
@@ -512,7 +515,7 @@ export default function PosPage() {
               disabled={checkoutMutation.isPending}
               className="flex-1 py-2.5 px-4 rounded-xl border-2 border-surface-200 text-sm font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 transition-all duration-150"
             >
-              Cancel
+              {t("pos.cancel")}
             </button>
             <button
               type="button"
@@ -525,7 +528,7 @@ export default function PosPage() {
               ) : (
                 <Check className="w-4 h-4" />
               )}
-              {checkoutMutation.isPending ? "Processing..." : "Confirm Sale"}
+              {checkoutMutation.isPending ? t("pos.processing") : t("pos.confirmSale")}
             </button>
           </div>
         </div>

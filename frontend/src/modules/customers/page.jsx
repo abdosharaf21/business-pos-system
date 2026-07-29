@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { customerService } from "./api";
 import { useAuth } from "../../shared/context/AuthContext";
 import { PageHeader } from "../../shared/components/PageHeader";
@@ -15,17 +16,11 @@ import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, Users } from "lucide-react";
 import toast from "react-hot-toast";
 
-const customerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  phone: z.string().min(1, "Phone is required"),
-  email: z.string().optional(),
-  address: z.string().optional(),
-});
-
 const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
 const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
 
 export default function CustomersPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const canManage = ["admin", "manager"].includes(user?.role);
@@ -44,20 +39,20 @@ export default function CustomersPage() {
 
   const createMutation = useMutation({
     mutationFn: (data) => customerService.create(data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); toast.success("Customer created"); setModalOpen(false); },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to create customer"),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); toast.success(t("customers.toast.created")); setModalOpen(false); },
+    onError: (err) => toast.error(err.response?.data?.message || t("customers.toast.createFailed")),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => customerService.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); toast.success("Customer updated"); setModalOpen(false); setEditing(null); },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to update customer"),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); toast.success(t("customers.toast.updated")); setModalOpen(false); setEditing(null); },
+    onError: (err) => toast.error(err.response?.data?.message || t("customers.toast.updateFailed")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => customerService.delete(id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); toast.success("Customer deleted"); setDeleteTarget(null); },
-    onError: (err) => toast.error(err.response?.data?.message || "Failed to delete customer"),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); toast.success(t("customers.toast.deleted")); setDeleteTarget(null); },
+    onError: (err) => toast.error(err.response?.data?.message || t("customers.toast.deleteFailed")),
   });
 
   const filtered = customers.filter((c) => {
@@ -70,35 +65,35 @@ export default function CustomersPage() {
   const columns = [
     {
       key: "name",
-      label: "Name",
+      label: t("customers.columns.name"),
       render: (val) => <span className="text-[13px] font-semibold text-surface-800">{val}</span>,
     },
     {
       key: "phone",
-      label: "Phone",
+      label: t("customers.columns.phone"),
       render: (val) => <span className="text-[13px] text-surface-600">{val || "-"}</span>,
     },
     {
       key: "email",
-      label: "Email",
+      label: t("customers.columns.email"),
       render: (val) => <span className="text-[13px] text-surface-500">{val || "-"}</span>,
     },
     {
       key: "address",
-      label: "Address",
+      label: t("customers.columns.address"),
       render: (val) => <span className="text-[13px] text-surface-500 truncate max-w-[200px] inline-block">{val || "-"}</span>,
     },
     ...(canManage
       ? [
           {
             key: "id",
-            label: "Actions",
+            label: t("customers.columns.actions"),
             render: (_, row) => (
               <div className="flex items-center gap-1">
-                <button onClick={() => { setEditing(row); setModalOpen(true); }} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title="Edit">
+                <button onClick={() => { setEditing(row); setModalOpen(true); }} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("customers.edit")}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title="Delete">
+                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title={t("customers.delete")}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -114,37 +109,45 @@ export default function CustomersPage() {
   return (
     <div>
       <PageHeader
-        title="Customers"
-        description="Manage your customer directory"
+        title={t("customers.title")}
+        description={t("customers.description")}
         actions={
           canManage && (
             <button onClick={() => { setEditing(null); setModalOpen(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
               <Plus className="w-4 h-4" />
-              New Customer
+              {t("customers.newCustomer")}
             </button>
           )
         }
       />
 
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-        <input type="text" placeholder="Search by name or phone..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label="Search customers" />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+        <input type="text" placeholder={t("customers.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label={t("customers.searchAriaLabel")} />
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Users} title="No customers found" description={search ? "Try a different search" : "Add your first customer"} action={!search && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">Add Customer</button>} />
+        <EmptyState icon={Users} title={t("customers.empty.noResultsTitle")} description={search ? t("customers.empty.noResultsDescription") : t("customers.empty.noCustomersDescription")} action={!search && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("customers.empty.addCustomer")}</button>} />
       ) : (
         <DataTable columns={columns} data={filtered} />
       )}
 
       <CustomerModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setEditing(null); }} editing={editing} onSubmit={(data) => editing ? updateMutation.mutate({ id: editing.id, data }) : createMutation.mutate(data)} loading={createMutation.isPending || updateMutation.isPending} />
 
-      <ConfirmDialog isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={() => deleteMutation.mutate(deleteTarget.id)} title="Delete Customer" message={`Delete "${deleteTarget?.name}"? This action cannot be undone.`} loading={deleteMutation.isPending} />
+      <ConfirmDialog isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={() => deleteMutation.mutate(deleteTarget.id)} title={t("customers.confirmDelete.title")} message={t("customers.confirmDelete.message", { name: deleteTarget?.name })} loading={deleteMutation.isPending} />
     </div>
   );
 }
 
 function CustomerModal({ isOpen, onClose, editing, onSubmit, loading }) {
+  const { t } = useTranslation();
+  const customerSchema = useMemo(() => z.object({
+    name: z.string().min(1, t("customers.validation.nameRequired")),
+    phone: z.string().min(1, t("customers.validation.phoneRequired")),
+    email: z.string().optional(),
+    address: z.string().optional(),
+  }), [t]);
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(customerSchema),
     values: editing ? {
@@ -161,31 +164,31 @@ function CustomerModal({ isOpen, onClose, editing, onSubmit, loading }) {
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={editing ? "Edit Customer" : "New Customer"}>
+    <Modal isOpen={isOpen} onClose={onClose} title={editing ? t("customers.form.titleEdit") : t("customers.form.titleCreate")}>
       <form onSubmit={handleSubmit((data) => { onSubmit(data); reset(); })} className="space-y-5">
         <div>
-          <label className={LABEL_CLASS}>Name</label>
-          <input {...register("name")} placeholder="Full name" className={INPUT_CLASS} />
+          <label className={LABEL_CLASS}>{t("customers.form.name")}</label>
+          <input {...register("name")} placeholder={t("customers.form.namePlaceholder")} className={INPUT_CLASS} />
           {errors.name && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.name.message}</p>}
         </div>
         <div>
-          <label className={LABEL_CLASS}>Phone</label>
-          <input {...register("phone")} placeholder="Phone number" className={INPUT_CLASS} />
+          <label className={LABEL_CLASS}>{t("customers.form.phone")}</label>
+          <input {...register("phone")} placeholder={t("customers.form.phonePlaceholder")} className={INPUT_CLASS} />
           {errors.phone && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.phone.message}</p>}
         </div>
         <div>
-          <label className={LABEL_CLASS}>Email</label>
-          <input {...register("email")} type="email" placeholder="Email address (optional)" className={INPUT_CLASS} />
+          <label className={LABEL_CLASS}>{t("customers.form.email")}</label>
+          <input {...register("email")} type="email" placeholder={t("customers.form.emailPlaceholder")} className={INPUT_CLASS} />
           {errors.email && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.email.message}</p>}
         </div>
         <div>
-          <label className={LABEL_CLASS}>Address</label>
-          <textarea {...register("address")} rows={2} placeholder="Address (optional)" className={`${INPUT_CLASS} resize-none`} />
+          <label className={LABEL_CLASS}>{t("customers.form.address")}</label>
+          <textarea {...register("address")} rows={2} placeholder={t("customers.form.addressPlaceholder")} className={`${INPUT_CLASS} resize-none`} />
           {errors.address && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.address.message}</p>}
         </div>
         <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">Cancel</button>
-          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? "Saving..." : editing ? "Update" : "Create"}</button>
+          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("customers.form.cancel")}</button>
+          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? t("customers.form.saving") : editing ? t("customers.form.update") : t("customers.form.create")}</button>
         </div>
       </form>
     </Modal>
