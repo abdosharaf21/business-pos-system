@@ -173,6 +173,13 @@ def register_error_handlers(app: Flask) -> None:
             str(error),
             exc_info=True
         )
+        errno = getattr(error, "errno", 0)
+        if errno == 1146 and request.method == "GET":
+            return jsonify({
+                "success": True,
+                "message": "No data available",
+                "data": [],
+            }), 200
         return jsonify({
             "success": False,
             "message": "A database error occurred",

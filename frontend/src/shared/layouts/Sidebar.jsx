@@ -2,14 +2,20 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   LayoutDashboard,
+  BarChart3,
   Users,
   Briefcase,
   FolderOpen,
+  Package,
   Link2,
   UserCog,
   LogOut,
   X,
   Building2,
+  ShoppingBag,
+  Contact2,
+  ShoppingCart,
+  CreditCard,
 } from "lucide-react";
 
 const navGroups = [
@@ -20,9 +26,15 @@ const navGroups = [
   {
     label: "Management",
     items: [
+      { to: "/pos", label: "POS", icon: CreditCard },
+      { to: "/reports", label: "Reports", icon: BarChart3 },
       { to: "/clients", label: "Clients", icon: Users },
       { to: "/services", label: "Services", icon: Briefcase },
+      { to: "/products", label: "Products", icon: ShoppingBag },
+      { to: "/customers", label: "Customers", icon: Contact2 },
+      { to: "/purchases", label: "Purchases", icon: ShoppingCart },
       { to: "/categories", label: "Categories", icon: FolderOpen },
+      { to: "/inventory", label: "Inventory", icon: Package },
       { to: "/client-services", label: "Client Services", icon: Link2 },
     ],
   },

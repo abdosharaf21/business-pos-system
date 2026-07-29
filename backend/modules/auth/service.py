@@ -6,7 +6,7 @@ and current user retrieval. Delegates DB operations to the repository.
 """
 
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Set, Tuple
 
 import bcrypt
 from flask_jwt_extended import (
@@ -32,15 +32,18 @@ class AuthService:
         self,
         auth_repository: AuthRepository,
         user_repository: UserRepository,
+        blocklist: Set[str] = None,
     ) -> None:
         """Initialize the auth service.
 
         Args:
             auth_repository: Repository for token blocklist operations.
             user_repository: Repository for user database operations.
+            blocklist: In-memory set of revoked JWT token IDs.
         """
         self._auth_repository = auth_repository
         self._user_repository = user_repository
+        self._blocklist = blocklist if blocklist is not None else set()
 
     def login(self, email: str, password: str) -> Dict[str, Any]:
         """
@@ -101,6 +104,8 @@ class AuthService:
         self._auth_repository.add_to_blocklist(
             refresh_jti, "refresh", datetime.now(timezone.utc)
         )
+        self._blocklist.add(access_jti)
+        self._blocklist.add(refresh_jti)
 
     def refresh_tokens(self, refresh_token: str) -> Dict[str, str]:
         """

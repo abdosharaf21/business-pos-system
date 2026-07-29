@@ -5,11 +5,18 @@ import ProtectedRoute from "./ProtectedRoute";
 import AppLayout from "../shared/layouts/AppLayout";
 import LoginPage from "../shared/pages/LoginPage";
 import DashboardPage from "../modules/dashboard/page";
+import ReportsPage from "../modules/reports/page";
 import ClientsPage from "../modules/clients/page";
 import ServicesPage from "../modules/services/page";
-import CategoriesPage from "../modules/service_categories/page";
+import CategoriesPage from "../modules/categories/page";
+import InventoryPage from "../modules/inventory/page";
+import ProductsPage from "../modules/products/page";
+import CustomersPage from "../modules/customers/page";
+import PurchasesPage from "../modules/purchases/page";
 import ClientServicesPage from "../modules/client_services/page";
 import UsersPage from "../modules/users/page";
+import PosPage from "../modules/pos/page";
+import InvoicePage from "../modules/pos/invoice";
 
 export default function AppRoutes() {
   return (
@@ -41,9 +48,16 @@ export default function AppRoutes() {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/purchases" element={<PurchasesPage />} />
+          <Route path="/pos" element={<PosPage />} />
+          <Route path="/pos/invoice/:saleId" element={<InvoicePage />} />
           <Route path="/client-services" element={<ClientServicesPage />} />
           <Route path="/users" element={<UsersPage />} />
         </Route>

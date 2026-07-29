@@ -20,6 +20,22 @@ def init_dashboard_service(dashboard_service: DashboardService) -> None:
     _dashboard_service = dashboard_service
 
 
+@dashboard_bp.route("/", methods=["GET"])
+@require_authenticated
+def get_dashboard():
+    """Get dashboard statistics (root endpoint).
+
+    Returns:
+        JSON response with dashboard statistics.
+    """
+    statistics = _dashboard_service.get_dashboard_statistics()
+    return jsonify({
+        "success": True,
+        "message": "Dashboard statistics retrieved successfully",
+        "data": statistics
+    }), 200
+
+
 @dashboard_bp.route("/statistics", methods=["GET"])
 @require_authenticated
 def get_statistics():
