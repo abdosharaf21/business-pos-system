@@ -7,10 +7,6 @@ role-based access control, password management, and validation.
 from unittest.mock import patch
 
 from backend.modules.users.model import User
-from backend.modules.clients.model import Client
-from backend.modules.services.model import Service
-from backend.modules.service_categories.model import ServiceCategory
-from backend.modules.client_services.model import ClientService
 
 
 def _user(**kw):
