@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 class BaseConfig:
     """Base configuration shared across all environments.
@@ -37,6 +39,22 @@ class BaseConfig:
 
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
+    SERVER_HOST = os.environ.get("SERVER_HOST", "0.0.0.0")
+    SERVER_PORT = int(os.environ.get("SERVER_PORT", "5001"))
+    FLASK_ENV = os.environ.get("FLASK_ENV", "development")
+
+    CORS_ORIGINS = os.environ.get(
+        "CORS_ORIGINS",
+        "http://localhost:3000,http://localhost:5174",
+    ).split(",")
+
+    FRONTEND_DIST = os.environ.get(
+        "FRONTEND_DIST",
+        os.path.join(_project_root, "frontend", "dist"),
+    )
+    SERVE_STATIC = False
+    LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+
     @classmethod
     def validate(cls) -> None:
         """Validate that all required secrets are configured.
@@ -66,6 +84,22 @@ class ProductionConfig(BaseConfig):
     """Production configuration."""
 
     DEBUG = False
+    SERVE_STATIC = True
+
+
+class DesktopConfig(BaseConfig):
+    """Desktop (Electron/Tauri) configuration.
+
+    Frontend is served as static files from the backend or
+    connects directly to the backend API.
+    """
+
+    DEBUG = False
+    SERVE_STATIC = True
+    CORS_ORIGINS = os.environ.get(
+        "CORS_ORIGINS",
+        "http://localhost:5174,file://",
+    ).split(",")
 
 
 def get_config() -> BaseConfig:
@@ -77,4 +111,6 @@ def get_config() -> BaseConfig:
     env = os.environ.get("FLASK_ENV", "development")
     if env == "production":
         return ProductionConfig
+    if env == "desktop":
+        return DesktopConfig
     return DevelopmentConfig

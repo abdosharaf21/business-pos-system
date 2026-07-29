@@ -1,7 +1,8 @@
 import axios from "axios";
+import config from "../../config";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: config.apiBaseUrl,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -65,7 +66,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post("/api/auth/refresh", {
+        const { data } = await axios.post(`${config.apiBaseUrl}/auth/refresh`, {
           refresh_token: refreshToken,
         });
 

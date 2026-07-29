@@ -23,17 +23,27 @@ def _get_lan_ip() -> str:
 
 
 _LAN_IP = _get_lan_ip()
-DEFAULT_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5174",
-]
-if _LAN_IP:
-    DEFAULT_ALLOWED_ORIGINS.append(f"http://{_LAN_IP}:5174")
-    DEFAULT_ALLOWED_ORIGINS.append(f"http://{_LAN_IP}:3000")
 DEFAULT_ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 DEFAULT_ALLOWED_HEADERS = ["Content-Type", "Authorization", "X-Requested-With"]
 DEFAULT_EXPOSE_HEADERS = ["Content-Length", "X-Request-Id"]
 DEFAULT_MAX_AGE = 3600
+
+
+def _expand_origins(origins: List[str]) -> List[str]:
+    """Expand origin list with LAN IP variants.
+
+    Args:
+        origins: Base list of allowed origins.
+
+    Returns:
+        Expanded list with LAN IP variants appended.
+    """
+    result = list(origins)
+    if _LAN_IP:
+        for origin in origins:
+            if "localhost" in origin:
+                result.append(origin.replace("localhost", _LAN_IP))
+    return result
 
 
 def create_cors_middleware(
@@ -58,7 +68,7 @@ def create_cors_middleware(
         CORS middleware function for Flask after_request.
     """
     if allowed_origins is None:
-        allowed_origins = DEFAULT_ALLOWED_ORIGINS
+        allowed_origins = ["http://localhost:5174"]
 
     if allowed_methods is None:
         allowed_methods = DEFAULT_ALLOWED_METHODS
@@ -68,6 +78,8 @@ def create_cors_middleware(
 
     if expose_headers is None:
         expose_headers = DEFAULT_EXPOSE_HEADERS
+
+    allowed_origins = _expand_origins(allowed_origins)
 
     def cors_after_request(response: Response) -> Response:
         """Add CORS headers to the response.

@@ -9,7 +9,7 @@ from datetime import timedelta
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
-from flask import Flask, jsonify, request, g
+from flask import Flask, jsonify, request, g, send_from_directory
 from flask_jwt_extended import JWTManager
 
 from backend.config import get_config
@@ -91,6 +91,10 @@ def create_app(config: dict = None) -> Flask:
 
     config_class = get_config()
     config_class.validate()
+
+    log_level = getattr(logging, config_class.LOG_LEVEL.upper(), logging.INFO)
+    logging.getLogger().setLevel(log_level)
+    logger.info("Log level set to %s", config_class.LOG_LEVEL.upper())
 
     app.config["SECRET_KEY"] = config_class.SECRET_KEY
     app.config["JWT_SECRET_KEY"] = config_class.JWT_SECRET_KEY
@@ -189,7 +193,7 @@ def create_app(config: dict = None) -> Flask:
 
     register_error_handlers(app)
     register_security_headers(app)
-    register_cors(app)
+    register_cors(app, allowed_origins=config_class.CORS_ORIGINS)
 
     @app.before_request
     def before_request():
@@ -278,10 +282,42 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(pos_bp)
     app.register_blueprint(reports_bp)
 
+    if config_class.SERVE_STATIC:
+        frontend_dir = config_class.FRONTEND_DIST
+        if os.path.isdir(frontend_dir):
+            logger.info("Serving static frontend from %s", frontend_dir)
+
+            @app.route("/", defaults={"path": ""})
+            @app.route("/<path:path>")
+            def serve_frontend(path):
+                """Serve React SPA or static assets.
+
+                Args:
+                    path: URL path to serve.
+
+                Returns:
+                    Static file or index.html for client-side routing.
+                """
+                if path.startswith("api/"):
+                    return jsonify({"success": False, "message": "Not found"}), 404
+                file_path = os.path.join(frontend_dir, path)
+                if path and os.path.isfile(file_path):
+                    return send_from_directory(frontend_dir, path)
+                return send_from_directory(frontend_dir, "index.html")
+        else:
+            logger.warning(
+                "Frontend dist not found at %s; static serving disabled",
+                frontend_dir,
+            )
+
     return app
 
 
 if __name__ == "__main__":
     config_class = get_config()
     application = create_app()
-    application.run(debug=config_class.DEBUG, host="0.0.0.0", port=5001)
+    application.run(
+        debug=config_class.DEBUG,
+        host=config_class.SERVER_HOST,
+        port=config_class.SERVER_PORT,
+    )
