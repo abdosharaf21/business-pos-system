@@ -147,13 +147,13 @@ python3 app.py
 Backend:
 
 ```
-http://localhost:5000
+http://localhost:5001
 ```
 
 Swagger (if enabled):
 
 ```
-http://localhost:5000/docs
+http://localhost:5001/docs
 ```
 
 ---
@@ -168,7 +168,7 @@ npm run dev -- --host
 Frontend:
 
 ```
-http://localhost:5173
+http://localhost:5174
 ```
 
 ---

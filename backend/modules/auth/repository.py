@@ -39,7 +39,7 @@ class AuthRepository:
             True if inserted successfully.
         """
         sql = f"""
-            INSERT INTO `{self._TABLE}` (jti, token_type, expires_at)
+            INSERT IGNORE INTO `{self._TABLE}` (jti, token_type, expires_at)
             VALUES (%s, %s, %s)
         """
         with self._database.connection() as conn:

@@ -25,10 +25,10 @@ def _get_lan_ip() -> str:
 _LAN_IP = _get_lan_ip()
 DEFAULT_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://localhost:5173",
+    "http://localhost:5174",
 ]
 if _LAN_IP:
-    DEFAULT_ALLOWED_ORIGINS.append(f"http://{_LAN_IP}:5173")
+    DEFAULT_ALLOWED_ORIGINS.append(f"http://{_LAN_IP}:5174")
     DEFAULT_ALLOWED_ORIGINS.append(f"http://{_LAN_IP}:3000")
 DEFAULT_ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 DEFAULT_ALLOWED_HEADERS = ["Content-Type", "Authorization", "X-Requested-With"]
