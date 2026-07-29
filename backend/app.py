@@ -16,10 +16,6 @@ from backend.config import get_config
 from backend.database import Database
 
 from backend.modules.users.routes import users_bp, init_user_service
-from backend.modules.clients.routes import clients_bp, init_client_service
-from backend.modules.services.routes import services_bp, init_service_service
-from backend.modules.service_categories.routes import service_categories_bp, init_category_service
-from backend.modules.client_services.routes import client_services_bp, init_assignment_service
 from backend.modules.dashboard.routes import dashboard_bp, init_dashboard_service
 from backend.modules.auth.routes import auth_bp, init_auth_service
 from backend.modules.auth.repository import AuthRepository
@@ -28,18 +24,6 @@ from backend.modules.auth.service import AuthService
 from backend.modules.users.repository import UserRepository
 from backend.modules.users.service import UserService
 from backend.modules.users.model import User
-
-from backend.modules.clients.repository import ClientRepository
-from backend.modules.clients.service import ClientService
-
-from backend.modules.services.repository import ServiceRepository
-from backend.modules.services.service import ServiceService
-
-from backend.modules.service_categories.repository import ServiceCategoryRepository
-from backend.modules.service_categories.service import ServiceCategoryService
-
-from backend.modules.client_services.repository import ClientServiceRepository
-from backend.modules.client_services.service import ClientServiceAssignmentService
 
 from backend.modules.dashboard.repository import DashboardRepository
 from backend.modules.dashboard.service import DashboardService
@@ -250,22 +234,6 @@ def create_app(config: dict = None) -> Flask:
     auth_service = AuthService(auth_repo, user_repo, jwt_blocklist)
     init_auth_service(auth_service)
 
-    client_repo = ClientRepository(database)
-    client_service = ClientService(client_repo)
-    init_client_service(client_service)
-
-    service_repo = ServiceRepository(database)
-    service_service = ServiceService(service_repo)
-    init_service_service(service_service)
-
-    category_repo = ServiceCategoryRepository(database)
-    category_service = ServiceCategoryService(category_repo)
-    init_category_service(category_service)
-
-    assignment_repo = ClientServiceRepository(database)
-    assignment_service = ClientServiceAssignmentService(assignment_repo)
-    init_assignment_service(assignment_service)
-
     dashboard_repo = DashboardRepository(database)
     dashboard_service = DashboardService(dashboard_repository=dashboard_repo)
     init_dashboard_service(dashboard_service)
@@ -302,10 +270,6 @@ def create_app(config: dict = None) -> Flask:
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
-    app.register_blueprint(clients_bp)
-    app.register_blueprint(services_bp)
-    app.register_blueprint(service_categories_bp)
-    app.register_blueprint(client_services_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(categories_bp)
     app.register_blueprint(inventory_bp)

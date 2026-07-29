@@ -38,10 +38,6 @@ def app():
     patches = [
         patch("backend.modules.auth.repository.AuthRepository"),
         patch("backend.modules.users.repository.UserRepository"),
-        patch("backend.modules.clients.repository.ClientRepository"),
-        patch("backend.modules.services.repository.ServiceRepository"),
-        patch("backend.modules.service_categories.repository.ServiceCategoryRepository"),
-        patch("backend.modules.client_services.repository.ClientServiceRepository"),
         patch("backend.database.connection.Database._initialize_pool"),
     ]
 
@@ -151,52 +147,4 @@ def sample_user():
     }
 
 
-@pytest.fixture
-def sample_client():
-    """Sample client data dict."""
-    return {
-        "id": 1,
-        "company_name": "Test Company",
-        "contact_person": "John Doe",
-        "email": "contact@testcompany.com",
-        "phone": "+1234567890",
-        "address": "123 Test Street",
-        "status": "lead",
-    }
 
-
-@pytest.fixture
-def sample_service():
-    """Sample service data dict."""
-    return {
-        "id": 1,
-        "category_id": 1,
-        "name": "Test Service",
-        "description": "A test service",
-        "price": 99.99,
-        "duration_days": 30,
-        "status": "active",
-    }
-
-
-@pytest.fixture
-def sample_category():
-    """Sample category data dict."""
-    return {
-        "id": 1,
-        "name": "Test Category",
-        "description": "A test category",
-    }
-
-
-@pytest.fixture
-def sample_assignment():
-    """Sample client-service assignment data dict."""
-    return {
-        "id": 1,
-        "client_id": 1,
-        "service_id": 1,
-        "start_date": "2024-01-01T00:00:00",
-        "end_date": "2024-01-31T23:59:59",
-        "status": "active",
-    }
