@@ -7,6 +7,24 @@ import logging
 from datetime import timedelta
 
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_cwd = os.getcwd()
+_env_debug = []
+for _env_path in [os.path.join(_cwd, '.env'), os.path.join(_project_root, '.env')]:
+    _env_debug.append(f"checking: {_env_path} exists={os.path.isfile(_env_path)}")
+    if os.path.isfile(_env_path):
+        with open(_env_path) as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if not _line or _line.startswith('#'):
+                    continue
+                if '=' in _line:
+                    _k, _v = _line.split('=', 1)
+                    _k, _v = _k.strip().lstrip('\ufeff').strip('"\''), _v.strip().strip('"\'')
+                    if _k and _k not in os.environ:
+                        os.environ[_k] = _v
+_env_debug.append(f"SECRET_KEY in environ: {'SECRET_KEY' in os.environ}")
+with open(os.path.join(_cwd, 'env_debug.log'), 'w') as _f:
+    _f.write('\n'.join(_env_debug))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 from flask import Flask, jsonify, request, g, send_from_directory
