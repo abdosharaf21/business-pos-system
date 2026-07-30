@@ -87,12 +87,14 @@ pub fn run() {
 
                 app.manage(BackendProcess(Mutex::new(Some(child))));
 
-                eprintln!("[tauri] Waiting for backend on port 5001...");
-                wait_for_port(5001, 15).map_err(|e| {
-                    eprintln!("[tauri] ERROR: {}", e);
-                    e
-                })?;
-                eprintln!("[tauri] Backend is ready");
+                eprintln!("[tauri] Backend spawned, waiting asynchronously...");
+                std::thread::spawn(|| {
+                    eprintln!("[tauri] Waiting for backend on port 5001...");
+                    match wait_for_port(5001, 30) {
+                        Ok(_) => eprintln!("[tauri] Backend is ready"),
+                        Err(e) => eprintln!("[tauri] Backend startup warning: {}", e),
+                    }
+                });
             }
 
             Ok(())
