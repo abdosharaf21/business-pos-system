@@ -87,11 +87,18 @@ pub fn run() {
 
                 app.manage(BackendProcess(Mutex::new(Some(child))));
 
-                eprintln!("[tauri] Backend spawned, waiting asynchronously...");
-                std::thread::spawn(|| {
+                let handle = app.handle().clone();
+                std::thread::spawn(move || {
                     eprintln!("[tauri] Waiting for backend on port 5001...");
                     match wait_for_port(5001, 30) {
-                        Ok(_) => eprintln!("[tauri] Backend is ready"),
+                        Ok(_) => {
+                            eprintln!("[tauri] Backend is ready, navigating to frontend...");
+                            if let Some(window) = handle.get_webview_window("main") {
+                                let url =
+                                    url::Url::parse("http://localhost:5001").unwrap();
+                                let _ = window.navigate(url);
+                            }
+                        }
                         Err(e) => eprintln!("[tauri] Backend startup warning: {}", e),
                     }
                 });
