@@ -6,9 +6,12 @@ use std::sync::Mutex;
 use std::time::Duration;
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
+mod activation;
+
 const BACKEND_BINARY: &str = "backend-app";
 const BACKEND_PORT: u16 = 5001;
 const SETUP_WINDOW_LABEL: &str = "setup";
+const ACTIVATION_WINDOW_LABEL: &str = "activation";
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
@@ -162,6 +165,35 @@ fn open_setup_window(handle: &tauri::AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+/// Opens the native activation window shown when no valid license exists.
+fn open_activation_window(handle: &tauri::AppHandle) -> Result<(), String> {
+    if handle.get_webview_window(ACTIVATION_WINDOW_LABEL).is_some() {
+        return Ok(());
+    }
+    WebviewWindowBuilder::new(
+        handle,
+        ACTIVATION_WINDOW_LABEL,
+        WebviewUrl::App("activation/index.html".into()),
+    )
+    .title("Business POS System - Activation")
+    .inner_size(560.0, 700.0)
+    .min_inner_size(560.0, 700.0)
+    .resizable(false)
+    .maximizable(false)
+    .center()
+    .build()
+    .map(|_| ())
+    .map_err(|e| e.to_string())
+}
+
+/// Reveals the hidden main window once a license has been accepted.
+fn show_main_window(handle: &tauri::AppHandle) {
+    if let Some(window) = handle.get_webview_window("main") {
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+}
+
 #[tauri::command]
 fn restart_backend(app_handle: tauri::AppHandle) -> Result<(), String> {
     if let Some(state) = app_handle.try_state::<BackendProcess>() {
@@ -224,6 +256,9 @@ pub fn run() {
                     if !done {
                         app_handle.exit(0);
                     }
+                } else if window.label() == ACTIVATION_WINDOW_LABEL {
+                    eprintln!("[tauri] Activation window closed, exiting...");
+                    app_handle.exit(0);
                 }
             }
         })
@@ -238,6 +273,20 @@ pub fn run() {
             }
 
             app.manage(SetupComplete(Mutex::new(false)));
+
+            // ------------------------------------------------------------------
+            // LICENSE GATE
+            // ------------------------------------------------------------------
+            // If the machine does not hold a valid license, the backend and the
+            // application frontend must NOT start. Only the activation window is
+            // shown. The main window stays hidden (created with visible=false).
+            if !activation::license_gate_passed() {
+                eprintln!("[tauri] No valid license found, opening activation window...");
+                return open_activation_window(app.handle())
+                    .map_err(|e| -> Box<dyn std::error::Error> { e.into() });
+            }
+
+            show_main_window(app.handle());
 
             let resource_dir = app_resource_dir(app.handle())?;
             let child = spawn_backend(&resource_dir)?;
@@ -264,7 +313,15 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![restart_backend, cancel_setup])
+        .invoke_handler(tauri::generate_handler![
+            restart_backend,
+            cancel_setup,
+            activation::get_hardware_id,
+            activation::get_activation_status,
+            activation::pick_license_file,
+            activation::activate_license,
+            activation::cancel_activation
+        ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
 

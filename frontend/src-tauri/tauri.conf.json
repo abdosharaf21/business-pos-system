@@ -7,7 +7,7 @@
     "frontendDist": "loading",
     "devUrl": "http://localhost:5001",
     "beforeDevCommand": "npm run start-flask",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": "npm run ensure-env && npm run build"
   },
   "app": {
     "withGlobalTauri": true,
@@ -21,7 +21,8 @@
         "minHeight": 700,
         "resizable": true,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "visible": false
       }
     ],
     "security": {
@@ -42,7 +43,8 @@
     "windows": {
       "wix": null,
       "nsis": {
-        "installMode": "currentUser"
+        "installMode": "currentUser",
+        "installerHooks": "nsis/uninstaller.nsh"
       }
     },
     "android": {

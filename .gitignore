@@ -33,6 +33,13 @@ instance/
 secrets/
 credentials/
 
+# Licensing
+# The private key and generated licenses must NEVER be committed.
+licensing-tools/license-gen/keys/
+*.dat
+# The embedded public key is safe and required for builds.
+!licensing-core/src/license_public_key.pem
+
 # =============================================================================
 # Node / React / Vite
 # =============================================================================

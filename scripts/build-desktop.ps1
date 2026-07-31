@@ -16,6 +16,14 @@ Set-Location $ProjectRoot
 Log "Building backend (PyInstaller)..."
 python backend/build.py
 
+# 2b. Build the License Generator (vendor-only tool; holds the private key)
+Log "Building license generator (Rust, release)..."
+Push-Location "licensing-tools\license-gen"
+cargo build --release
+if ($LASTEXITCODE -ne 0) { throw "license-gen build failed" }
+Pop-Location
+Log "License generator ready: licensing-tools\license-gen\target\release\license-gen.exe"
+
 # 3. Prepare resources directory for Tauri
 $ResourcesDir = "frontend\src-tauri\resources"
 Log "Preparing resources in $ResourcesDir..."

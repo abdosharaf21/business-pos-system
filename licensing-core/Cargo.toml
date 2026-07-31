@@ -1,0 +1,17 @@
+[package]
+name = "licensing-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77.2"
+description = "Shared offline licensing logic for the Business POS System (app + generator)."
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+base64 = "0.22"
+rsa = { version = "0.9", features = ["pem", "sha2"] }
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+wmi = "0.14"
