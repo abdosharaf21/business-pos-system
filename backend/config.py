@@ -5,9 +5,35 @@ import sys
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_cwd = os.getcwd()
+
+
+def _load_env_file() -> None:
+    """Load the .env file from the standard search paths, if present.
+
+    Packaged app places the .env at ``resources/.env`` next to the
+    executable; development places it at the project root.
+    """
+    candidates = []
+    env_file = os.environ.get("ENV_FILE")
+    if env_file:
+        candidates.append(env_file)
+    candidates.extend([
+        os.path.join(_cwd, '.env'),
+        os.path.join(_cwd, 'resources', '.env'),
+        os.path.join(_project_root, '.env'),
+        os.path.join(_project_root, 'resources', '.env'),
+        os.path.normpath(os.path.join(_project_root, '..', '.env')),
+    ])
+    for path in candidates:
+        if path and os.path.isfile(path):
+            load_dotenv(path, override=False)
+            return
+    load_dotenv()
+
+
+_load_env_file()
 
 
 class BaseConfig:
@@ -48,10 +74,13 @@ class BaseConfig:
         "http://localhost:3000,http://localhost:5174",
     ).split(",")
 
-    FRONTEND_DIST = os.environ.get(
+    _frontend_dist = os.environ.get(
         "FRONTEND_DIST",
         os.path.join(_project_root, "frontend", "dist"),
     )
+    if _frontend_dist and _frontend_dist.startswith("\\\\?\\"):
+        _frontend_dist = _frontend_dist[4:]
+    FRONTEND_DIST = _frontend_dist
     SERVE_STATIC = False
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 

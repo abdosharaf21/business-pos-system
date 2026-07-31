@@ -50,7 +50,7 @@ DB_PASSWORD=123456
 DB_POOL_NAME=pos_pool
 DB_POOL_SIZE=5
 CORS_ORIGINS=http://localhost:5001
-"@ | Out-File -Encoding utf8 "$ResourcesDir\.env"
+        "@ | Out-File -Encoding ascii "$ResourcesDir\.env"
 }
 
 Log "Resources prepared:"

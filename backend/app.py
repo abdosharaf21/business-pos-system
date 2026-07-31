@@ -8,11 +8,33 @@ from datetime import timedelta
 
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _cwd = os.getcwd()
+
+
+def _candidate_env_files():
+    """Return the ordered list of .env file paths to try.
+
+    Packaged app places the .env at ``resources/.env`` next to the
+    executable; development places it at the project root.
+    """
+    candidates = []
+    env_file = os.environ.get("ENV_FILE")
+    if env_file:
+        candidates.append(env_file)
+    candidates.extend([
+        os.path.join(_cwd, '.env'),
+        os.path.join(_cwd, 'resources', '.env'),
+        os.path.join(_project_root, '.env'),
+        os.path.join(_project_root, 'resources', '.env'),
+        os.path.normpath(os.path.join(_project_root, '..', '.env')),
+    ])
+    return candidates
+
+
 _env_debug = []
-for _env_path in [os.path.join(_cwd, '.env'), os.path.join(_project_root, '.env')]:
+for _env_path in _candidate_env_files():
     _env_debug.append(f"checking: {_env_path} exists={os.path.isfile(_env_path)}")
     if os.path.isfile(_env_path):
-        with open(_env_path) as _f:
+        with open(_env_path, encoding='utf-8-sig') as _f:
             for _line in _f:
                 _line = _line.strip()
                 if not _line or _line.startswith('#'):
@@ -23,8 +45,11 @@ for _env_path in [os.path.join(_cwd, '.env'), os.path.join(_project_root, '.env'
                     if _k and _k not in os.environ:
                         os.environ[_k] = _v
 _env_debug.append(f"SECRET_KEY in environ: {'SECRET_KEY' in os.environ}")
-with open(os.path.join(_cwd, 'env_debug.log'), 'w') as _f:
-    _f.write('\n'.join(_env_debug))
+try:
+    with open(os.path.join(_cwd, 'env_debug.log'), 'w') as _f:
+        _f.write('\n'.join(_env_debug))
+except OSError:
+    pass
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 from flask import Flask, jsonify, request, g, send_from_directory
