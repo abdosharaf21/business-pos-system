@@ -395,7 +395,11 @@ mod tests {
 
     #[test]
     fn scenario07_fake_license_is_corrupt() {
-        let result = read_license_from(Path::new("/dev/null"));
+        // Write garbage to a real file (no /dev/null on Windows).
+        let path = std::env::temp_dir().join(format!("bpos-fake-license-{}.dat", std::process::id()));
+        std::fs::write(&path, b"this is not a license").expect("write fake license");
+        let result = read_license_from(&path);
+        let _ = std::fs::remove_file(&path);
         assert!(matches!(result, Err(LicenseError::Corrupt(_))));
     }
 
