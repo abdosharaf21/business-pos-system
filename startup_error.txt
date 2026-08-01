@@ -1,0 +1,14 @@
+MySQL server is not reachable at 127.0.0.1:3399.
+
+The Business POS System could not connect to MySQL Server at 127.0.0.1:3399.
+
+MySQL Server does not appear to be installed or the service is not running.
+
+To install MySQL:
+  1. Download 'MySQL Community Server 8.0' from https://dev.mysql.com/downloads/mysql/
+  2. Run the installer and choose 'Server only' (or Developer Default).
+  3. When prompted, create a root password and keep it somewhere safe.
+  4. After installation, open Windows Services and make sure the MySQL80 service is running.
+  5. Open the application configuration file and set DB_USER / DB_PASSWORD to match your MySQL account:
+     C:\Users\sharaf\Documents\Default Project\business-pos-system\resources\.env
+  6. Reopen the application. It will create the database automatically.

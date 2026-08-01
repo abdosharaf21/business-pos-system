@@ -40,6 +40,7 @@ def main():
         '--hidden-import=backend.database',
         '--hidden-import=backend.database.config',
         '--hidden-import=backend.database.connection',
+        '--hidden-import=backend.database.bootstrap',
         '--hidden-import=backend.middleware',
         '--hidden-import=backend.middleware.cors',
         '--hidden-import=backend.middleware.error_handlers',

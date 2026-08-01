@@ -57,6 +57,8 @@ from flask_jwt_extended import JWTManager
 
 from backend.config import get_config
 from backend.database import Database
+from backend.database.bootstrap import BootstrapError, ensure_database_ready
+from backend import setup_server
 
 from backend.modules.users.routes import users_bp, init_user_service
 from backend.modules.dashboard.routes import dashboard_bp, init_dashboard_service
@@ -119,6 +121,33 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 jwt_blocklist = set()
+
+
+def _startup_error_dir() -> str:
+    """Return the directory used for the startup error diagnostic file.
+
+    Returns:
+        Directory path (resources dir in the packaged app, CWD otherwise).
+    """
+    env_file = os.environ.get("ENV_FILE")
+    if env_file:
+        return os.path.dirname(env_file)
+    return _cwd
+
+
+def _write_startup_error_file(error: BootstrapError) -> None:
+    """Persist the bootstrap error for diagnostic purposes.
+
+    Args:
+        error: The bootstrap failure to record.
+    """
+    try:
+        target = os.path.join(_startup_error_dir(), "startup_error.txt")
+        with open(target, "w", encoding="utf-8") as f:
+            f.write(error.message + "\n\n" + error.instructions)
+        logger.error("Startup error written to %s", target)
+    except OSError as e:
+        logger.warning("Could not write startup error file: %s", e)
 
 
 def create_app(config: dict = None) -> Flask:
@@ -325,6 +354,11 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(pos_bp)
     app.register_blueprint(reports_bp)
 
+    @app.get("/api/setup/status")
+    def setup_status():
+        """Signal that the normal application is ready (no setup needed)."""
+        return jsonify({"success": True, "setup_required": False})
+
     if config_class.SERVE_STATIC:
         frontend_dir = config_class.FRONTEND_DIST
         if os.path.isdir(frontend_dir):
@@ -358,6 +392,25 @@ def create_app(config: dict = None) -> Flask:
 
 if __name__ == "__main__":
     config_class = get_config()
+
+    try:
+        bootstrap_result = ensure_database_ready()
+        logger.info("Database bootstrap complete: %s", bootstrap_result)
+    except BootstrapError as bootstrap_error:
+        _write_startup_error_file(bootstrap_error)
+        logger.error(
+            "Database setup required (%s); starting setup wizard", bootstrap_error.message
+        )
+        setup_app = setup_server.create_setup_app(
+            env_file=os.environ.get("ENV_FILE"),
+        )
+        setup_app.run(
+            host=config_class.SERVER_HOST,
+            port=config_class.SERVER_PORT,
+            debug=False,
+        )
+        sys.exit(3)
+
     application = create_app()
     application.run(
         debug=config_class.DEBUG,

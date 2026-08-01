@@ -50,7 +50,16 @@ DB_PASSWORD=123456
 DB_POOL_NAME=pos_pool
 DB_POOL_SIZE=5
 CORS_ORIGINS=http://localhost:5001
-        "@ | Out-File -Encoding ascii "$ResourcesDir\.env"
+"@ | Out-File -Encoding ascii "$ResourcesDir\.env"
+}
+
+# 3d. Copy database schema for first-run bootstrap
+if (Test-Path "db\pos_system.sql") {
+    New-Item -ItemType Directory -Force -Path "$ResourcesDir\db" | Out-Null
+    Copy-Item "db\pos_system.sql" "$ResourcesDir\db\pos_system.sql"
+    Log "Staged db\pos_system.sql for first-run database setup"
+} else {
+    Log "WARNING: db\pos_system.sql not found; first-run database setup unavailable"
 }
 
 Log "Resources prepared:"
