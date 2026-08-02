@@ -9,6 +9,7 @@ class Category:
 
     Attributes:
         id: Unique identifier for the category.
+        parent_id: Identifier of the parent category, None for root categories.
         name: Name of the category.
         description: Description of the category.
         created_at: Timestamp when the category was created.
@@ -18,6 +19,7 @@ class Category:
     def __init__(
         self,
         id: Optional[int] = None,
+        parent_id: Optional[int] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
         created_at: Optional[datetime] = None,
@@ -27,12 +29,14 @@ class Category:
 
         Args:
             id: Unique identifier for the category.
+            parent_id: Identifier of the parent category, None for root categories.
             name: Name of the category.
             description: Description of the category.
             created_at: Timestamp when the category was created.
             updated_at: Timestamp when the category was last updated.
         """
         self.id = id
+        self.parent_id = parent_id
         self.name = name
         self.description = description
         self.created_at = created_at or datetime.now()
@@ -46,6 +50,7 @@ class Category:
         """
         return {
             "id": self.id,
+            "parent_id": self.parent_id,
             "name": self.name,
             "description": self.description,
             "created_at": self.created_at.isoformat() if self.created_at else None,
@@ -72,6 +77,7 @@ class Category:
 
         return cls(
             id=data.get("id"),
+            parent_id=data.get("parent_id"),
             name=data.get("name"),
             description=data.get("description"),
             created_at=created_at,

@@ -15,6 +15,9 @@ import {
   Truck,
   ShoppingCart,
   CreditCard,
+  History,
+  Wallet,
+  ClipboardList,
 } from "lucide-react";
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -49,8 +52,11 @@ export default function Sidebar({ isOpen, onClose }) {
         { to: "/customers", label: t("nav.customers"), icon: Contact2 },
         { to: "/suppliers", label: t("nav.suppliers"), icon: Truck },
         { to: "/purchases", label: t("nav.purchases"), icon: ShoppingCart },
+        { to: "/expenses", label: t("nav.expenses"), icon: Wallet },
         { to: "/categories", label: t("nav.categories"), icon: FolderOpen },
         { to: "/inventory", label: t("nav.inventory"), icon: Package },
+        { to: "/inventory/movements", label: t("nav.movementHistory"), icon: History },
+        { to: "/inventory/audits", label: t("nav.inventoryAudits"), icon: ClipboardList },
       ],
     },
     {

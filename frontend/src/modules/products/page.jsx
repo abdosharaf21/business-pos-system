@@ -6,6 +6,7 @@ import i18n from "../../i18n";
 import { productService } from "./api";
 import { useAuth } from "../../shared/context/AuthContext";
 import { categoryService } from "../categories/api";
+import { buildCategoryTree, flattenCategoryTree } from "../categories/tree";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { DataTable } from "../../shared/components/DataTable";
 import { Modal } from "../../shared/components/Modal";
@@ -82,6 +83,8 @@ export default function ProductsPage() {
       return res.data.data;
     },
   });
+
+  const categoryOptions = useMemo(() => flattenCategoryTree(buildCategoryTree(categories)), [categories]);
 
   const createMutation = useMutation({
     mutationFn: (data) => productService.create(data),
@@ -214,8 +217,8 @@ export default function ProductsPage() {
         </div>
         <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={SELECT_CLASS + " min-w-[160px]"}>
           <option value="">{t("products.allCategories")}</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+          {categoryOptions.map((c) => (
+            <option key={c.id} value={c.id}>{"\u00A0\u00A0".repeat(c.depth)}{c.name}</option>
           ))}
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={SELECT_CLASS + " min-w-[130px]"}>
@@ -231,7 +234,7 @@ export default function ProductsPage() {
         <DataTable columns={columns} data={filtered} />
       )}
 
-      <ProductModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setEditing(null); }} editing={editing} categories={categories} onSubmit={(data) => editing ? updateMutation.mutate({ id: editing.id, data }) : createMutation.mutate(data)} loading={createMutation.isPending || updateMutation.isPending} />
+      <ProductModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setEditing(null); }} editing={editing} categories={categoryOptions} onSubmit={(data) => editing ? updateMutation.mutate({ id: editing.id, data }) : createMutation.mutate(data)} loading={createMutation.isPending || updateMutation.isPending} />
 
       <ConfirmDialog isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={() => deleteMutation.mutate(deleteTarget.id)} title={t("products.confirmDelete.title")} message={t("products.confirmDelete.message", { name: deleteTarget?.name })} confirmText={t("products.confirmDelete.confirm")} loadingText={t("products.confirmDelete.deleting")} loading={deleteMutation.isPending} />
     </div>
@@ -297,7 +300,7 @@ function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading 
           <select {...register("category_id")} className={SELECT_CLASS}>
             <option value="">{t("products.form.categoryPlaceholder")}</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id}>{"\u00A0\u00A0".repeat(c.depth)}{c.name}</option>
             ))}
           </select>
           {errors.category_id && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.category_id.message}</p>}

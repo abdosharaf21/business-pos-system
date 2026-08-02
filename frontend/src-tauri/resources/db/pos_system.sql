@@ -32,11 +32,18 @@ CREATE TABLE IF NOT EXISTS users (
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    parent_id INT DEFAULT NULL,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_categories_name (name)
+    INDEX idx_categories_name (name),
+    INDEX idx_categories_parent_id (parent_id),
+    CONSTRAINT fk_categories_parent
+        FOREIGN KEY (parent_id)
+        REFERENCES categories (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
@@ -206,19 +213,40 @@ CREATE TABLE IF NOT EXISTS purchase_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
+-- Expense Categories
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS expense_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_expense_categories_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
 -- Expenses
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS expenses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
+    category_id INT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    description TEXT DEFAULT NULL,
-    user_id INT NOT NULL,
+    payment_method ENUM('Cash', 'Bank', 'Visa', 'Other') NOT NULL DEFAULT 'Cash',
+    notes TEXT DEFAULT NULL,
+    expense_date DATE NOT NULL,
+    created_by INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_expenses_user (user_id),
-    INDEX idx_expenses_created (created_at),
-    CONSTRAINT fk_expenses_user
-        FOREIGN KEY (user_id)
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_expenses_date (expense_date),
+    INDEX idx_expenses_category_id (category_id),
+    INDEX idx_expenses_created_by (created_by),
+    CONSTRAINT fk_expenses_category
+        FOREIGN KEY (category_id)
+        REFERENCES expense_categories (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_expenses_created_by
+        FOREIGN KEY (created_by)
         REFERENCES users (id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE
@@ -243,6 +271,120 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Inventory (multi-location stock)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS inventory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    location ENUM('warehouse', 'store') NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_inventory_product_location (product_id, location),
+    INDEX idx_inventory_location (location),
+    CONSTRAINT fk_inventory_product
+        FOREIGN KEY (product_id)
+        REFERENCES products (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Stock Movements (history log)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS stock_movements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    from_location ENUM('warehouse', 'store') DEFAULT NULL,
+    to_location ENUM('warehouse', 'store') DEFAULT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    movement_type ENUM('transfer', 'sale', 'purchase', 'return', 'damage', 'adjustment') NOT NULL,
+    reference VARCHAR(50) DEFAULT NULL,
+    notes VARCHAR(255) DEFAULT NULL,
+    user_id INT DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_movements_product (product_id),
+    INDEX idx_movements_type (movement_type),
+    INDEX idx_movements_created (created_at),
+    INDEX idx_movements_from (from_location),
+    INDEX idx_movements_to (to_location),
+    CONSTRAINT fk_movements_product
+        FOREIGN KEY (product_id)
+        REFERENCES products (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_movements_user
+        FOREIGN KEY (user_id)
+        REFERENCES users (id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Inventory Audits (physical stock counts)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS inventory_audits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    location ENUM('warehouse', 'store') NOT NULL,
+    status ENUM('open', 'completed', 'cancelled') NOT NULL DEFAULT 'open',
+    created_by INT NOT NULL,
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_audits_name (name),
+    INDEX idx_audits_location (location),
+    INDEX idx_audits_status (status),
+    INDEX idx_audits_created_by (created_by),
+    INDEX idx_audits_created_at (created_at),
+    CONSTRAINT fk_audits_user
+        FOREIGN KEY (created_by)
+        REFERENCES users (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Inventory Audit Items (counted quantities per product)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS inventory_audit_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    audit_id INT NOT NULL,
+    product_id INT NOT NULL,
+    system_quantity INT NOT NULL DEFAULT 0,
+    counted_quantity INT NULL DEFAULT NULL,
+    difference INT NOT NULL DEFAULT 0,
+    notes VARCHAR(255) DEFAULT NULL,
+    UNIQUE KEY uq_audit_items_audit_product (audit_id, product_id),
+    INDEX idx_audit_items_product (product_id),
+    CONSTRAINT fk_audit_items_audit
+        FOREIGN KEY (audit_id)
+        REFERENCES inventory_audits (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_audit_items_product
+        FOREIGN KEY (product_id)
+        REFERENCES products (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Seed Data: Expense Categories
+-- =============================================================================
+INSERT INTO expense_categories (name, description) VALUES
+    ('Rent', 'Payments for business premises'),
+    ('Electricity', 'Electricity and utility bills'),
+    ('Water', 'Water supply bills'),
+    ('Internet', 'Internet and telecommunication bills'),
+    ('Transportation', 'Shipping, delivery and travel costs'),
+    ('Maintenance', 'Equipment and building maintenance'),
+    ('Marketing', 'Advertising and promotional costs'),
+    ('Taxes', 'Tax payments and government fees'),
+    ('Purchases', 'Operational purchases'),
+    ('Salaries', 'Employee wages and salaries'),
+    ('Other', 'Other business expenses');
 
 -- =============================================================================
 -- Seed Data: Admin User

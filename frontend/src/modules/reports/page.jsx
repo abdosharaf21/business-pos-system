@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer,
+  ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 import { reportService } from "./api";
 import { PageHeader } from "../../shared/components/PageHeader";
@@ -15,8 +15,16 @@ import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import {
   DollarSign, ShoppingCart, Package, AlertTriangle,
   TrendingUp, TrendingDown, Clock, Users, BarChart3,
-  Filter,
+  Filter, Warehouse, Store, ArrowLeftRight, Wallet, ReceiptText,
+  ClipboardList, ClipboardCheck, ArrowUpRight, ArrowDownRight,
+  CheckCircle2, XCircle,
 } from "lucide-react";
+
+const EXPENSE_COLORS = [
+  "#6366f1", "#f59e0b", "#ef4444", "#10b981", "#8b5cf6",
+  "#ec4899", "#0ea5e9", "#f97316", "#14b8a6", "#84cc16",
+  "#64748b",
+];
 
 function DateFilter({ period, onPeriodChange, startDate, endDate, onStartDateChange, onEndDateChange }) {
   const { t } = useTranslation();
@@ -250,6 +258,148 @@ export default function ReportsPage() {
     },
   });
 
+  const [reportYear, setReportYear] = useState(new Date().getFullYear());
+  const [reportMonth, setReportMonth] = useState(new Date().getMonth() + 1);
+
+  const { data: inventoryReport, isLoading: inventoryReportLoading, error: inventoryReportError } = useQuery({
+    queryKey: ["reports-inventory-report"],
+    queryFn: async () => {
+      const res = await reportService.getInventoryReport();
+      return res.data.data.inventory;
+    },
+  });
+
+  const { data: monthlyMovement, isLoading: monthlyLoading, error: monthlyError } = useQuery({
+    queryKey: ["reports-movement-monthly", reportYear, reportMonth],
+    queryFn: async () => {
+      const res = await reportService.getMovementReport({
+        period: "monthly",
+        year: reportYear,
+        month: reportMonth,
+      });
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const { data: yearlyMovement, isLoading: yearlyLoading, error: yearlyError } = useQuery({
+    queryKey: ["reports-movement-yearly", reportYear],
+    queryFn: async () => {
+      const res = await reportService.getMovementReport({
+        period: "yearly",
+        year: reportYear,
+      });
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const { data: mostTransferred, isLoading: mostTransferredLoading, error: mostTransferredError } = useQuery({
+    queryKey: ["reports-most-transferred"],
+    queryFn: async () => {
+      const res = await reportService.getMostTransferred();
+      return res.data.data.most_transferred;
+    },
+  });
+
+  const { data: lowestStock, isLoading: lowestStockLoading, error: lowestStockError } = useQuery({
+    queryKey: ["reports-lowest-stock"],
+    queryFn: async () => {
+      const res = await reportService.getLowestStock();
+      return res.data.data.lowest_stock;
+    },
+  });
+
+  const [expensePeriod, setExpensePeriod] = useState("last_30_days");
+  const expenseDefaults = getDefaultDates(expensePeriod);
+  const [expenseStartDate, setExpenseStartDate] = useState(expenseDefaults.startDate);
+  const [expenseEndDate, setExpenseEndDate] = useState(expenseDefaults.endDate);
+
+  const handleExpensePeriodChange = (newPeriod) => {
+    setExpensePeriod(newPeriod);
+    const d = getDefaultDates(newPeriod);
+    setExpenseStartDate(d.startDate);
+    setExpenseEndDate(d.endDate);
+  };
+
+  const expenseParams = expensePeriod === "custom"
+    ? { start_date: expenseStartDate, end_date: expenseEndDate }
+    : { start_date: expenseStartDate, end_date: expenseEndDate };
+
+  const { data: expensesDaily, isLoading: expensesDailyLoading, error: expensesDailyError } = useQuery({
+    queryKey: ["reports-expenses-daily", expenseStartDate, expenseEndDate],
+    queryFn: async () => {
+      const res = await reportService.getExpensesDaily(expenseParams);
+      return res.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const { data: expensesCategory, isLoading: expensesCategoryLoading, error: expensesCategoryError } = useQuery({
+    queryKey: ["reports-expenses-category", expenseStartDate, expenseEndDate],
+    queryFn: async () => {
+      const res = await reportService.getExpensesCategory(expenseParams);
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const { data: expensesPayment, isLoading: expensesPaymentLoading, error: expensesPaymentError } = useQuery({
+    queryKey: ["reports-expenses-payment", expenseStartDate, expenseEndDate],
+    queryFn: async () => {
+      const res = await reportService.getExpensesPaymentMethod(expenseParams);
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const [expenseComparisonYear, setExpenseComparisonYear] = useState(new Date().getFullYear());
+
+  const { data: expensesMonthlyComparison, isLoading: expensesMonthlyComparisonLoading, error: expensesMonthlyComparisonError } = useQuery({
+    queryKey: ["reports-expenses-monthly-comparison", expenseComparisonYear],
+    queryFn: async () => {
+      const res = await reportService.getExpensesMonthlyComparison({ year: expenseComparisonYear });
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const { data: expensesHighest, isLoading: expensesHighestLoading, error: expensesHighestError } = useQuery({
+    queryKey: ["reports-expenses-highest"],
+    queryFn: async () => {
+      const res = await reportService.getExpensesHighestCategories();
+      return res.data.data.highest_categories;
+    },
+  });
+
+  const [auditComparisonYear, setAuditComparisonYear] = useState(new Date().getFullYear());
+
+  const { data: auditReport, isLoading: auditReportLoading, error: auditReportError } = useQuery({
+    queryKey: ["reports-inventory-audits"],
+    queryFn: async () => {
+      const res = await reportService.getInventoryAuditReport();
+      return res.data.data;
+    },
+  });
+
+  const { data: auditsMonthly, isLoading: auditsMonthlyLoading, error: auditsMonthlyError } = useQuery({
+    queryKey: ["reports-inventory-audits-monthly", auditComparisonYear],
+    queryFn: async () => {
+      const res = await reportService.getInventoryAuditsMonthly({ year: auditComparisonYear });
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
+  const { data: auditsYearly, isLoading: auditsYearlyLoading, error: auditsYearlyError } = useQuery({
+    queryKey: ["reports-inventory-audits-yearly", auditComparisonYear],
+    queryFn: async () => {
+      const res = await reportService.getInventoryAuditsYearly({ from_year: auditComparisonYear - 4, to_year: auditComparisonYear });
+      return res.data.data.data;
+    },
+    keepPreviousData: true,
+  });
+
   if (dashLoading) return <LoadingSpinner />;
   if (dashError) return <ErrorDisplay message={dashError.response?.data?.message || dashError.message} onRetry={refetchDash} />;
 
@@ -406,6 +556,513 @@ export default function ReportsPage() {
             emptyMessage={t("reports.supplierPerformanceSub.empty")}
           />
         )}
+      </div>
+
+      {/* Phase 3 - Inventory Reports */}
+      <div className="mb-8 pt-8 border-t border-surface-200">
+        <SectionHeader icon={Package} title={t("reports.inventoryReport.title")} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className="flex items-center gap-2 mb-4">
+              <Warehouse className="w-5 h-5 text-primary-600" />
+              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.subtitle")}</h3>
+            </div>
+            {inventoryReportLoading ? (
+              <LoadingSpinner />
+            ) : inventoryReportError ? (
+              <ErrorDisplay message={inventoryReportError.response?.data?.message || inventoryReportError.message} />
+            ) : (
+              <DataTable
+                columns={[
+                  { key: "name", label: t("reports.inventoryReport.product") },
+                  { key: "warehouse_qty", label: t("reports.inventoryReport.warehouse") },
+                  { key: "store_qty", label: t("reports.inventoryReport.store") },
+                  { key: "total", label: t("reports.inventoryReport.total"), render: (val) => <span className="font-bold">{val}</span> },
+                ]}
+                data={inventoryReport}
+                emptyMessage={t("reports.inventoryReport.empty")}
+              />
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className="flex items-center gap-2 mb-4">
+              <ArrowLeftRight className="w-5 h-5 text-primary-600" />
+              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.mostTransferred")}</h3>
+            </div>
+            {mostTransferredLoading ? (
+              <LoadingSpinner />
+            ) : mostTransferredError ? (
+              <ErrorDisplay message={mostTransferredError.response?.data?.message || mostTransferredError.message} />
+            ) : (
+              <DataTable
+                columns={[
+                  { key: "name", label: t("reports.inventoryReport.product") },
+                  { key: "total_quantity", label: t("reports.inventoryReport.qtyTransferred") },
+                  { key: "transfer_count", label: t("reports.inventoryReport.transferCount") },
+                ]}
+                data={mostTransferred}
+                emptyMessage={t("reports.inventoryReport.empty")}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Movement charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.monthlyMovement")}</h3>
+              <div className="flex items-center gap-2">
+                <select
+                  value={reportMonth}
+                  onChange={(e) => setReportMonth(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <select
+                  value={reportYear}
+                  onChange={(e) => setReportYear(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                >
+                  {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {monthlyLoading ? (
+              <LoadingSpinner />
+            ) : monthlyError ? (
+              <ErrorDisplay message={monthlyError.response?.data?.message || monthlyError.message} />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={monthlyMovement} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="movement_type"
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => t(`inventory.history.${val}`)}
+                  />
+                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Bar dataKey="quantity" fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.yearlyMovement")}</h3>
+              <select
+                value={reportYear}
+                onChange={(e) => setReportYear(Number(e.target.value))}
+                className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              >
+                {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            {yearlyLoading ? (
+              <LoadingSpinner />
+            ) : yearlyError ? (
+              <ErrorDisplay message={yearlyError.response?.data?.message || yearlyError.message} />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={yearlyMovement} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => `${val}`}
+                  />
+                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Bar dataKey="quantity" fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Lowest stock */}
+        <div className="mt-8 bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className="flex items-center gap-2 mb-4">
+            <Store className="w-5 h-5 text-primary-600" />
+            <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.lowestStock")}</h3>
+          </div>
+          {lowestStockLoading ? (
+            <LoadingSpinner />
+          ) : lowestStockError ? (
+            <ErrorDisplay message={lowestStockError.response?.data?.message || lowestStockError.message} />
+          ) : (
+            <DataTable
+              columns={[
+                { key: "name", label: t("reports.inventoryReport.product") },
+                { key: "warehouse_qty", label: t("reports.inventoryReport.warehouse") },
+                { key: "store_qty", label: t("reports.inventoryReport.store") },
+                { key: "total", label: t("reports.inventoryReport.total"), render: (val) => <span className="font-bold">{val}</span> },
+                { key: "minimum_stock", label: t("reports.inventoryReport.minStock") },
+              ]}
+              data={lowestStock}
+              emptyMessage={t("reports.inventoryReport.empty")}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Phase 4 - Expenses Reports */}
+      <div className="pt-8 border-t border-surface-200">
+        <SectionHeader icon={Wallet} title={t("reports.expenses.title")} />
+        <DateFilter
+          period={expensePeriod}
+          onPeriodChange={handleExpensePeriodChange}
+          startDate={expenseStartDate}
+          endDate={expenseEndDate}
+          onStartDateChange={setExpenseStartDate}
+          onEndDateChange={setExpenseEndDate}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <StatCard label={t("reports.expenses.totalExpenses")} value={formatCurrency(expensesDaily?.total_expenses)} icon={ReceiptText} color="orange" />
+          <StatCard label={t("reports.expenses.highestCategory")} value={expensesHighest?.[0] ? t(`expenses.categories.${expensesHighest[0].category}`) : "—"} icon={TrendingUp} color="purple" />
+          <StatCard label={t("reports.expenses.monthlyComparison")} value={formatCurrency(expensesMonthlyComparison?.reduce?.((sum, r) => sum + Number(r.total || 0), 0))} icon={BarChart3} color="blue" />
+          <StatCard label={t("reports.expenses.periodExpenses")} value={expensesCategory ? `${expensesCategory.length}` : "—"} icon={Wallet} color="green" />
+        </div>
+
+        <div className="mb-8">
+          <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.dailyTrend")}</h3>
+          {expensesDailyLoading ? (
+            <LoadingSpinner />
+          ) : expensesDailyError ? (
+            <ErrorDisplay message={expensesDailyError.response?.data?.message || expensesDailyError.message} />
+          ) : !expensesDaily?.data?.length ? (
+            <div className="bg-white rounded-2xl border border-surface-200/80 p-12 text-center shadow-card">
+              <ReceiptText className="w-12 h-12 text-surface-300 mx-auto mb-3" />
+              <p className="text-surface-400 text-sm font-medium">{t("reports.expenses.noData")}</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={expensesDaily.data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => {
+                      const d = new Date(val + "T00:00:00");
+                      return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
+                    }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => formatCurrency(val)}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Bar dataKey="total" name={t("reports.expenses.totalExpenses")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.categoryBreakdown")}</h3>
+            {expensesCategoryLoading ? (
+              <LoadingSpinner />
+            ) : expensesCategoryError ? (
+              <ErrorDisplay message={expensesCategoryError.response?.data?.message || expensesCategoryError.message} />
+            ) : !expensesCategory?.length ? (
+              <p className="text-surface-400 text-sm font-medium text-center py-8">{t("reports.expenses.noData")}</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={expensesCategory}
+                    dataKey="total"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label={(entry) => t(`expenses.categories.${entry.category}`)}
+                    labelLine={false}
+                  >
+                    {expensesCategory.map((entry, i) => (
+                      <Cell key={entry.category} fill={EXPENSE_COLORS[i % EXPENSE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                    formatter={(value) => formatCurrency(Number(value))}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.paymentBreakdown")}</h3>
+            {expensesPaymentLoading ? (
+              <LoadingSpinner />
+            ) : expensesPaymentError ? (
+              <ErrorDisplay message={expensesPaymentError.response?.data?.message || expensesPaymentError.message} />
+            ) : (
+              <DataTable
+                columns={[
+                  { key: "payment_method", label: t("reports.expenses.paymentMethod"), render: (val) => t(`expenses.paymentMethods.${val}`) },
+                  { key: "count", label: t("reports.expenses.count") },
+                  { key: "total", label: t("reports.expenses.totalExpenses"), render: (val) => formatCurrency(val) },
+                ]}
+                data={expensesPayment}
+                emptyMessage={t("reports.expenses.noData")}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.expenses.monthlyComparison")}</h3>
+              <select
+                value={expenseComparisonYear}
+                onChange={(e) => setExpenseComparisonYear(Number(e.target.value))}
+                className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              >
+                {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            {expensesMonthlyComparisonLoading ? (
+              <LoadingSpinner />
+            ) : expensesMonthlyComparisonError ? (
+              <ErrorDisplay message={expensesMonthlyComparisonError.response?.data?.message || expensesMonthlyComparisonError.message} />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={expensesMonthlyComparison} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => new Date(2000, val - 1, 1).toLocaleDateString(locale, { month: "short" })}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => formatCurrency(val)}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Bar dataKey="total" name={t("reports.expenses.totalExpenses")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.highestCategories")}</h3>
+            {expensesHighestLoading ? (
+              <LoadingSpinner />
+            ) : expensesHighestError ? (
+              <ErrorDisplay message={expensesHighestError.response?.data?.message || expensesHighestError.message} />
+            ) : (
+              <DataTable
+                columns={[
+                  { key: "category", label: t("reports.expenses.category"), render: (val) => t(`expenses.categories.${val}`) },
+                  { key: "count", label: t("reports.expenses.count") },
+                  { key: "total", label: t("reports.expenses.totalExpenses"), render: (val) => formatCurrency(val) },
+                ]}
+                data={expensesHighest}
+                emptyMessage={t("reports.expenses.noData")}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Phase 5 - Inventory Audit Reports */}
+      <div className="pt-8 border-t border-surface-200">
+        <SectionHeader icon={ClipboardCheck} title={t("reports.audits.title")} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <StatCard label={t("reports.audits.totalAudits")} value={auditReport?.metrics?.total_audits ?? 0} icon={ClipboardList} color="blue" />
+          <StatCard label={t("reports.audits.openAudits")} value={auditReport?.metrics?.open_audits ?? 0} icon={ClipboardCheck} color="orange" />
+          <StatCard label={t("reports.audits.completedAudits")} value={auditReport?.metrics?.completed_audits ?? 0} icon={CheckCircle2} color="green" />
+          <StatCard label={t("reports.audits.unitsAdjusted")} value={`${(auditReport?.metrics?.units_added ?? 0) - (auditReport?.metrics?.units_removed ?? 0)}`} icon={ArrowLeftRight} color="purple" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <StatCard label={t("reports.audits.unitsAdded")} value={auditReport?.metrics?.units_added ?? 0} icon={ArrowUpRight} color="green" />
+          <StatCard label={t("reports.audits.unitsRemoved")} value={auditReport?.metrics?.units_removed ?? 0} icon={ArrowDownRight} color="red" />
+          <StatCard label={t("reports.audits.adjustedItems")} value={auditReport?.metrics?.adjusted_items ?? 0} icon={AlertTriangle} color="orange" />
+          <StatCard label={t("reports.audits.cancelledAudits")} value={auditReport?.metrics?.cancelled_audits ?? 0} icon={XCircle} color="blue" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.audits.monthlyTrend")}</h3>
+              <select
+                value={auditComparisonYear}
+                onChange={(e) => setAuditComparisonYear(Number(e.target.value))}
+                className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              >
+                {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            {auditsMonthlyLoading ? (
+              <LoadingSpinner />
+            ) : auditsMonthlyError ? (
+              <ErrorDisplay message={auditsMonthlyError.response?.data?.message || auditsMonthlyError.message} />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={auditsMonthly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                    tickFormatter={(val) => new Date(2000, val - 1, 1).toLocaleDateString(locale, { month: "short" })}
+                  />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Bar dataKey="audits" name={t("reports.audits.completedAudits")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.audits.yearlyTrend")}</h3>
+            {auditsYearlyLoading ? (
+              <LoadingSpinner />
+            ) : auditsYearlyError ? (
+              <ErrorDisplay message={auditsYearlyError.response?.data?.message || auditsYearlyError.message} />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={auditsYearly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="year"
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#e2e8f0" }}
+                  />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      fontSize: "13px",
+                    }}
+                  />
+                  <Bar dataKey="audits" name={t("reports.audits.completedAudits")} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div>
+            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.audits.largestShortages")}</h3>
+            {auditReportLoading ? (
+              <LoadingSpinner />
+            ) : auditReportError ? (
+              <ErrorDisplay message={auditReportError.response?.data?.message || auditReportError.message} />
+            ) : (
+              <DataTable
+                columns={[
+                  { key: "product_name", label: t("reports.audits.product") },
+                  { key: "audit_name", label: t("reports.audits.audit") },
+                  { key: "difference", label: t("reports.audits.difference"), render: (val) => <span className="font-bold text-red-600">{val}</span> },
+                ]}
+                data={auditReport?.largest_shortages}
+                emptyMessage={t("reports.audits.noData")}
+              />
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.audits.largestOverages")}</h3>
+            {auditReportLoading ? (
+              <LoadingSpinner />
+            ) : auditReportError ? (
+              <ErrorDisplay message={auditReportError.response?.data?.message || auditReportError.message} />
+            ) : (
+              <DataTable
+                columns={[
+                  { key: "product_name", label: t("reports.audits.product") },
+                  { key: "audit_name", label: t("reports.audits.audit") },
+                  { key: "difference", label: t("reports.audits.difference"), render: (val) => <span className="font-bold text-emerald-600">+{val}</span> },
+                ]}
+                data={auditReport?.largest_overages}
+                emptyMessage={t("reports.audits.noData")}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

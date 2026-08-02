@@ -35,10 +35,11 @@ class CategoryRepository:
         """
         return Category(
             id=row[0],
-            name=row[1],
-            description=row[2],
-            created_at=row[3],
-            updated_at=row[4],
+            parent_id=row[1],
+            name=row[2],
+            description=row[3],
+            created_at=row[4],
+            updated_at=row[5],
         )
 
     def create(self, category: Category) -> Category:
@@ -57,10 +58,10 @@ class CategoryRepository:
             cursor = conn.cursor()
             try:
                 query = """
-                    INSERT INTO categories (name, description)
-                    VALUES (%s, %s)
+                    INSERT INTO categories (parent_id, name, description)
+                    VALUES (%s, %s, %s)
                 """
-                cursor.execute(query, (category.name, category.description))
+                cursor.execute(query, (category.parent_id, category.name, category.description))
                 conn.commit()
                 category.id = cursor.lastrowid
                 category.created_at = datetime.now()
@@ -136,10 +137,10 @@ class CategoryRepository:
             try:
                 query = """
                     UPDATE categories
-                    SET name = %s, description = %s
+                    SET parent_id = %s, name = %s, description = %s
                     WHERE id = %s
                 """
-                cursor.execute(query, (category.name, category.description, category.id))
+                cursor.execute(query, (category.parent_id, category.name, category.description, category.id))
                 conn.commit()
                 if cursor.rowcount > 0:
                     cursor.execute("SELECT * FROM categories WHERE id = %s", (category.id,))
@@ -197,6 +198,30 @@ class CategoryRepository:
                 cursor.execute(query, (name,))
                 result = cursor.fetchone()
                 return result[0] > 0
+            except mysql.connector.Error:
+                raise
+            finally:
+                cursor.close()
+
+    def count_children(self, parent_id: int) -> int:
+        """Count direct child categories of the given category.
+
+        Args:
+            parent_id: The unique identifier of the parent category.
+
+        Returns:
+            Number of direct children.
+
+        Raises:
+            mysql.connector.Error: If database operation fails.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor()
+            try:
+                query = "SELECT COUNT(*) FROM categories WHERE parent_id = %s"
+                cursor.execute(query, (parent_id,))
+                result = cursor.fetchone()
+                return result[0]
             except mysql.connector.Error:
                 raise
             finally:

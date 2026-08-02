@@ -66,7 +66,7 @@ class ProductService:
             description=validated.get("description"),
             purchase_price=validated["purchase_price"],
             selling_price=validated["selling_price"],
-            quantity=validated["quantity"],
+            quantity=0,
             minimum_stock=validated["minimum_stock"],
             status=validated["status"],
         )
@@ -165,9 +165,6 @@ class ProductService:
 
         if "selling_price" in validated:
             product.selling_price = validated["selling_price"]
-
-        if "quantity" in validated:
-            product.quantity = validated["quantity"]
 
         if "minimum_stock" in validated:
             product.minimum_stock = validated["minimum_stock"]

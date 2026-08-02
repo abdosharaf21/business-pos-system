@@ -96,6 +96,13 @@ class ProductRepository:
                 ))
                 conn.commit()
                 product.id = cursor.lastrowid
+
+                cursor.execute(
+                    "INSERT IGNORE INTO inventory (product_id, location, quantity) "
+                    "VALUES (%s, 'warehouse', 0), (%s, 'store', 0)",
+                    (product.id, product.id),
+                )
+                conn.commit()
                 return product
             except mysql.connector.Error:
                 conn.rollback()

@@ -8,10 +8,13 @@ import DashboardPage from "../modules/dashboard/page";
 import ReportsPage from "../modules/reports/page";
 import CategoriesPage from "../modules/categories/page";
 import InventoryPage from "../modules/inventory/page";
+import InventoryHistoryPage from "../modules/inventory/history";
+import InventoryAuditsPage from "../modules/inventory_audits/page";
 import ProductsPage from "../modules/products/page";
 import CustomersPage from "../modules/customers/page";
 import SuppliersPage from "../modules/suppliers/page";
 import PurchasesPage from "../modules/purchases/page";
+import ExpensesPage from "../modules/expenses/page";
 import UsersPage from "../modules/users/page";
 import PosPage from "../modules/pos/page";
 import InvoicePage from "../modules/pos/invoice";
@@ -49,10 +52,13 @@ export default function AppRoutes() {
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/inventory/movements" element={<InventoryHistoryPage />} />
+          <Route path="/inventory/audits" element={<InventoryAuditsPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/suppliers" element={<SuppliersPage />} />
           <Route path="/purchases" element={<PurchasesPage />} />
+          <Route path="/expenses" element={<ExpensesPage />} />
           <Route path="/pos" element={<PosPage />} />
           <Route path="/pos/invoice/:saleId" element={<InvoicePage />} />
           <Route path="/users" element={<UsersPage />} />

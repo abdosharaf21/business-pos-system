@@ -9,8 +9,11 @@
     "customers": "Customers",
     "suppliers": "Suppliers",
     "purchases": "Purchases",
+    "expenses": "Expenses",
     "categories": "Categories",
     "inventory": "Inventory",
+    "movementHistory": "Movement History",
+    "inventoryAudits": "Inventory Audits",
     "administration": "Administration",
     "users": "Users"
   },
@@ -61,7 +64,20 @@
     "productsTracked": "{{count}} products tracked",
     "adequatelyStocked": "Products adequately stocked",
     "emptyTitle": "Welcome to POS",
-    "emptyDescription": "Your system is ready. Start by adding products, customers, and making sales to see your business data here."
+    "emptyDescription": "Your system is ready. Start by adding products, customers, and making sales to see your business data here.",
+    "expenses": {
+      "today": "Today's Expenses",
+      "month": "Expenses This Month",
+      "year": "Expenses This Year",
+      "avgMonth": "Avg Monthly Expenses",
+      "highestCategory": "Highest Expense Category",
+      "noExpenses": "No expenses recorded yet"
+    },
+    "audits": {
+      "title": "Inventory Audits",
+      "open": "Open Audits",
+      "completed": "Completed Audits"
+    }
   },
   "products": {
     "title": "Products",
@@ -144,11 +160,15 @@
   },
   "inventory": {
     "title": "Inventory",
-    "subtitle": "Manage product stock levels",
+    "subtitle": "Manage stock across warehouse and store",
     "totalProducts": "Total Products",
     "totalStock": "Total Stock",
     "totalValue": "Inventory Value",
     "lowStockItems": "Low Stock Items",
+    "warehouseStock": "Warehouse Stock",
+    "storeStock": "Store Stock",
+    "warehouse": "Warehouse",
+    "store": "Store",
     "allProducts": "All Products",
     "lowStock": "Low Stock",
     "searchPlaceholder": "Search products...",
@@ -162,44 +182,95 @@
       "product": "Product",
       "category": "Category",
       "stock": "Stock",
+      "warehouse": "Warehouse",
+      "store": "Store",
+      "total": "Total",
       "minStock": "Min Stock",
       "price": "Price",
       "status": "Status",
       "actions": "Actions",
       "history": "History"
     },
+    "transfer": {
+      "title": "Transfer to Store — {{name}}",
+      "from": "From",
+      "to": "To",
+      "currentWarehouse": "Current Warehouse Stock",
+      "afterTransfer": "Warehouse After Transfer",
+      "quantity": "Quantity",
+      "quantityPlaceholder": "e.g. 10",
+      "transfer": "Transfer",
+      "transferring": "Transferring..."
+    },
     "adjust": {
       "title": "Adjust Stock — {{name}}",
       "currentStock": "Current Stock",
       "afterAdjustment": "After Adjustment",
+      "location": "Location",
       "type": "Type",
       "adjustment": "Adjustment",
       "purchase": "Purchase",
       "return": "Return",
       "sale": "Sale",
+      "damage": "Damage",
       "quantity": "Quantity",
       "quantityPlaceholder": "e.g. 10 (positive) or -5 (negative)",
       "quantityHint": "Positive adds stock, negative removes stock",
+      "returnHint": "Returned units are added back to the store",
+      "damageHint": "Damaged units are removed from the selected location",
       "cancel": "Cancel",
       "adjust": "Adjust Stock",
       "adjusting": "Adjusting..."
     },
     "history": {
-      "title": "Transaction History — {{name}}",
-      "noTransactions": "No transactions recorded",
-      "purchase": "Purchase",
+      "title": "Movement History — {{name}}",
+      "noTransactions": "No movements recorded",
+      "transfer": "Transfer",
       "sale": "Sale",
+      "purchase": "Purchase",
+      "return": "Return",
+      "damage": "Damage",
       "adjustment": "Adjustment",
-      "return": "Return"
+      "warehouse": "Warehouse",
+      "store": "Store",
+      "units": "units"
+    },
+    "historyPage": {
+      "title": "Movement History",
+      "subtitle": "Track all stock movements with filters",
+      "filters": "Filters",
+      "clear": "Clear filters",
+      "filtersProduct": "Product",
+      "filtersType": "Movement Type",
+      "allProducts": "All Products",
+      "allTypes": "All Types",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "searchPlaceholder": "Search by product or reference...",
+      "noMovements": "No movements found",
+      "noMovementsHint": "Try adjusting your filters or search",
+      "columns": {
+        "product": "Product",
+        "type": "Type",
+        "from": "From",
+        "to": "To",
+        "qty": "Qty",
+        "reference": "Reference",
+        "date": "Date"
+      }
     },
     "toast": {
       "adjusted": "Stock adjusted",
-      "adjustFailed": "Failed to adjust stock"
+      "adjustFailed": "Failed to adjust stock",
+      "transferred": "Stock transferred to store",
+      "transferFailed": "Failed to transfer stock"
     },
     "validation": {
       "typeRequired": "Type is required",
+      "locationRequired": "Location is required",
       "mustBeWhole": "Must be a whole number",
-      "quantityNotZero": "Quantity cannot be zero"
+      "quantityNotZero": "Quantity cannot be zero",
+      "quantityPositive": "Quantity must be greater than zero"
     }
   },
   "purchases": {
@@ -433,7 +504,8 @@
       "noResultsTitle": "No categories found",
       "noResultsDescription": "Try a different search",
       "noCategoriesDescription": "Add your first category",
-      "addCategory": "Add Category"
+      "addCategory": "Add Category",
+      "noSubcategoriesDescription": "Create categories and organize them in a hierarchy"
     },
     "form": {
       "titleCreate": "New Category",
@@ -445,7 +517,9 @@
       "cancel": "Cancel",
       "saving": "Saving...",
       "create": "Create",
-      "update": "Update"
+      "update": "Update",
+      "parent": "Parent Category",
+      "parentPlaceholder": "No parent (root)"
     },
     "validation": {
       "nameRequired": "Name is required"
@@ -463,7 +537,9 @@
       "message": "Delete \"{{name}}\"? This action cannot be undone."
     },
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "addSubcategory": "Add subcategory",
+    "toggle": "Expand / Collapse"
   },
   "users": {
     "title": "Users",
@@ -661,6 +737,258 @@
       "purchaseCost": "Purchase Cost",
       "grossProfit": "Gross Profit",
       "profitMargin": "Profit Margin"
+    },
+    "inventoryReport": {
+      "title": "Inventory Reports",
+      "subtitle": "Stock levels by location",
+      "product": "Product",
+      "warehouse": "Warehouse",
+      "store": "Store",
+      "total": "Total",
+      "minStock": "Min Stock",
+      "empty": "No inventory data available",
+      "mostTransferred": "Most Transferred",
+      "qtyTransferred": "Qty Transferred",
+      "transferCount": "Transfers",
+      "monthlyMovement": "Monthly Movement",
+      "yearlyMovement": "Yearly Movement",
+      "lowestStock": "Lowest Stock Products"
+    },
+    "expenses": {
+      "title": "Expenses Report",
+      "totalExpenses": "Total Expenses",
+      "highestCategory": "Highest Category",
+      "monthlyComparison": "Monthly Comparison",
+      "periodExpenses": "Categories Used",
+      "dailyTrend": "Daily Expense Trend",
+      "noData": "No expense data available for this period",
+      "categoryBreakdown": "Category Breakdown",
+      "paymentBreakdown": "Payment Method Breakdown",
+      "paymentMethod": "Payment Method",
+      "category": "Category",
+      "count": "Count",
+      "highestCategories": "Highest Categories"
+    },
+    "audits": {
+      "title": "Inventory Audit Report",
+      "totalAudits": "Total Audits",
+      "completedAudits": "Completed",
+      "openAudits": "Open",
+      "cancelledAudits": "Cancelled",
+      "adjustedItems": "Items Adjusted",
+      "unitsAdded": "Units Added",
+      "unitsRemoved": "Units Removed",
+      "unitsAdjusted": "Net Units Adjusted",
+      "monthlySummary": "Monthly Audits",
+      "yearlySummary": "Yearly Audits",
+      "monthlyTrend": "Monthly Audit Trend",
+      "yearlyTrend": "Yearly Audit Trend",
+      "largestShortages": "Largest Shortages",
+      "largestOverages": "Largest Overages",
+      "totalDifference": "Total Difference",
+      "product": "Product",
+      "audit": "Audit",
+      "difference": "Difference",
+      "noData": "No audit data available for this period"
+    }
+  },
+  "expenses": {
+    "title": "Expenses",
+    "subtitle": "Track and manage your business expenses",
+    "today": "Today",
+    "thisMonth": "This Month",
+    "thisYear": "This Year",
+    "avgMonth": "Avg / Month",
+    "totalExpenses": "Total Expenses",
+    "highestCategory": "Highest Category",
+    "noExpenses": "No expenses yet",
+    "noExpensesHint": "Add your first expense to start tracking",
+    "newExpense": "New Expense",
+    "searchPlaceholder": "Search expenses...",
+    "allCategories": "All Categories",
+    "allMethods": "All Methods",
+    "fromDate": "From",
+    "toDate": "To",
+    "sortBy": "Sort",
+    "sortAsc": "Ascending",
+    "sortDesc": "Descending",
+    "showing": "Showing {{count}} of {{total}}",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "previous": "Previous",
+    "next": "Next",
+    "clear": "Clear",
+    "columns": {
+      "title": "Title",
+      "category": "Category",
+      "amount": "Amount",
+      "paymentMethod": "Payment Method",
+      "date": "Date",
+      "createdBy": "Created By",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "categories": {
+      "Rent": "Rent",
+      "Electricity": "Electricity",
+      "Water": "Water",
+      "Internet": "Internet",
+      "Transportation": "Transportation",
+      "Maintenance": "Maintenance",
+      "Marketing": "Marketing",
+      "Taxes": "Taxes",
+      "Purchases": "Purchases",
+      "Salaries": "Salaries",
+      "Other": "Other"
+    },
+    "paymentMethods": {
+      "Cash": "Cash",
+      "Bank": "Bank",
+      "Visa": "Visa",
+      "Other": "Other"
+    },
+    "form": {
+      "title": "Add Expense",
+      "titleEdit": "Edit Expense",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Enter expense title",
+      "categoryLabel": "Category",
+      "amountLabel": "Amount",
+      "amountPlaceholder": "Enter amount",
+      "dateLabel": "Date",
+      "paymentMethodLabel": "Payment Method",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Add any additional notes (optional)",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "categoryRequired": "Please select a category",
+      "amountPositive": "Amount must be greater than zero",
+      "dateRequired": "Date is required"
+    },
+    "toast": {
+      "created": "Expense added successfully",
+      "updated": "Expense updated successfully",
+      "deleted": "Expense deleted successfully",
+      "createFailed": "Failed to add expense",
+      "updateFailed": "Failed to update expense",
+      "deleteFailed": "Failed to delete expense"
+    },
+    "confirmDelete": {
+      "title": "Delete Expense",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "details": {
+      "title": "Expense Details",
+      "close": "Close"
+    },
+    "charts": {
+      "title": "Expense Analysis",
+      "byCategory": "By Category",
+      "monthlyTrend": "Monthly Trend",
+      "yearlyTrend": "Yearly Trend",
+      "noData": "No expense data available"
+    }
+  },
+  "inventoryAudits": {
+    "title": "Inventory Audits",
+    "subtitle": "Count stock and reconcile discrepancies by location",
+    "newAudit": "New Audit",
+    "totalAudits": "Total Audits",
+    "openAudits": "Open",
+    "completedAudits": "Completed",
+    "adjustedItems": "Items Adjusted",
+    "searchPlaceholder": "Search by name...",
+    "allLocations": "All Locations",
+    "allStatuses": "All Statuses",
+    "sortBy": "Sort",
+    "sortAsc": "Sort ascending",
+    "sortDesc": "Sort descending",
+    "showing": "Showing {{count}} of {{total}}",
+    "clear": "Clear",
+    "noAudits": "No audits found",
+    "noAuditsHint": "Create your first inventory audit to start counting stock",
+    "columns": {
+      "name": "Name",
+      "location": "Location",
+      "status": "Status",
+      "counted": "Counted",
+      "difference": "Difference",
+      "createdBy": "Created By",
+      "startedAt": "Started At",
+      "createdAt": "Created At",
+      "items": "Items",
+      "product": "Product",
+      "system": "System",
+      "actions": "Actions"
+    },
+    "locations": {
+      "warehouse": "Warehouse",
+      "store": "Store"
+    },
+    "statuses": {
+      "open": "Open",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "details": {
+      "title": "Audit Details",
+      "items": "Counted Items",
+      "close": "Close"
+    },
+    "form": {
+      "title": "New Inventory Audit",
+      "countTitle": "Enter Counts",
+      "nameLabel": "Audit Name",
+      "namePlaceholder": "e.g. Monthly warehouse count",
+      "locationLabel": "Location",
+      "hint": "Stock levels will be snapshotted from the selected location.",
+      "countHint": "Enter the physical count for each item. Blank rows stay uncounted. Completing the audit adjusts stock by the difference.",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create Audit",
+      "saving": "Saving...",
+      "save": "Save Counts"
+    },
+    "complete": "Complete",
+    "cancel": "Cancel Audit",
+    "completing": "Completing...",
+    "cancelling": "Cancelling...",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "confirmComplete": {
+      "title": "Complete Audit",
+      "message": "Are you sure you want to complete \"{{name}}\"? Stock will be adjusted for all counted items."
+    },
+    "confirmCancel": {
+      "title": "Cancel Audit",
+      "message": "Are you sure you want to cancel \"{{name}}\"? No stock will be adjusted."
+    },
+    "confirmDelete": {
+      "title": "Delete Audit",
+      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "entered": "{{entered}} of {{total}} items counted",
+    "noItems": "No items in this audit",
+    "enterCount": "Enter count",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "previous": "Previous",
+    "next": "Next",
+    "toast": {
+      "created": "Audit created successfully",
+      "createFailed": "Failed to create audit",
+      "updated": "Counts saved successfully",
+      "updateFailed": "Failed to save counts",
+      "completed": "Audit completed and stock adjusted",
+      "completeFailed": "Failed to complete audit",
+      "deleted": "Audit deleted",
+      "deleteFailed": "Failed to delete audit"
+    },
+    "validation": {
+      "nameRequired": "Audit name is required",
+      "locationRequired": "Location is required"
     }
   },
   "common": {

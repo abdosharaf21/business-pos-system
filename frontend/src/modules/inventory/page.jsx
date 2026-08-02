@@ -16,24 +16,31 @@ import { StatCard } from "../../shared/components/StatCard";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Package, Search, PackagePlus, AlertTriangle, History, PackageOpen, ArrowUpDown } from "lucide-react";
+import {
+  Package, Search, PackagePlus, AlertTriangle, History, PackageOpen,
+  ArrowUpDown, Warehouse, Store, ArrowLeftRight, PackageMinus,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
+const transferSchema = z.object({
+  quantity: z.coerce
+    .number()
+    .int(() => i18n.t("inventory.validation.mustBeWhole"))
+    .positive(() => i18n.t("inventory.validation.quantityPositive")),
+});
+
 const adjustSchema = z.object({
-  type: z.string().min(1, () => i18n.t("inventory.validation.typeRequired")),
-  quantity: z.coerce.number().int(() => i18n.t("inventory.validation.mustBeWhole")).refine((n) => n !== 0, () => i18n.t("inventory.validation.quantityNotZero")),
+  location: z.string().min(1, () => i18n.t("inventory.validation.locationRequired")),
+  movement_type: z.string().min(1, () => i18n.t("inventory.validation.typeRequired")),
+  quantity: z.coerce
+    .number()
+    .int(() => i18n.t("inventory.validation.mustBeWhole"))
+    .refine((n) => n !== 0, () => i18n.t("inventory.validation.quantityNotZero")),
 });
 
 const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
 const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
 const SELECT_CLASS = INPUT_CLASS;
-
-const TYPE_COLORS = {
-  purchase: "success",
-  sale: "danger",
-  adjustment: "warning",
-  return: "info",
-};
 
 export default function InventoryPage() {
   const queryClient = useQueryClient();
@@ -41,6 +48,7 @@ export default function InventoryPage() {
   const { t } = useTranslation();
   const canManage = ["admin", "manager"].includes(user?.role);
   const [search, setSearch] = useState("");
+  const [transferTarget, setTransferTarget] = useState(null);
   const [adjustTarget, setAdjustTarget] = useState(null);
   const [viewHistory, setViewHistory] = useState(null);
   const [tab, setTab] = useState("all");
@@ -48,7 +56,7 @@ export default function InventoryPage() {
   const { data: inventory = [], isLoading, error, refetch } = useQuery({
     queryKey: ["inventory", search],
     queryFn: async () => {
-      const res = await inventoryService.getAll();
+      const res = await inventoryService.getAll(search);
       return res.data.data;
     },
   });
@@ -61,28 +69,44 @@ export default function InventoryPage() {
     },
   });
 
-  const { data: transactions = [] } = useQuery({
-    queryKey: ["inventory-transactions", viewHistory],
+  const { data: movements = [] } = useQuery({
+    queryKey: ["inventory-movements", viewHistory],
     queryFn: async () => {
-      const res = await inventoryService.getTransactions(viewHistory);
+      const res = await inventoryService.getMovements({ product_id: viewHistory });
       return res.data.data;
     },
     enabled: !!viewHistory,
   });
 
+  const invalidateInventory = () => {
+    queryClient.invalidateQueries({ queryKey: ["inventory"] });
+    queryClient.invalidateQueries({ queryKey: ["inventory-summary"] });
+    queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
+    queryClient.invalidateQueries({ queryKey: ["reports-dashboard"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+  };
+
+  const transferMutation = useMutation({
+    mutationFn: (data) => inventoryService.transferStock(data),
+    onSuccess: () => {
+      invalidateInventory();
+      toast.success(t("inventory.toast.transferred"));
+      setTransferTarget(null);
+    },
+    onError: (err) => toast.error(err.response?.data?.message || t("inventory.toast.transferFailed")),
+  });
+
   const adjustMutation = useMutation({
     mutationFn: (data) => inventoryService.adjustStock(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["inventory"] });
-      queryClient.invalidateQueries({ queryKey: ["inventory-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      invalidateInventory();
       toast.success(t("inventory.toast.adjusted"));
       setAdjustTarget(null);
     },
     onError: (err) => toast.error(err.response?.data?.message || t("inventory.toast.adjustFailed")),
   });
 
-  const lowStock = inventory.filter((p) => p.quantity <= p.minimum_stock);
+  const lowStock = inventory.filter((p) => p.total <= p.minimum_stock);
   const displayData = tab === "low" ? lowStock : inventory;
 
   const filtered = displayData.filter(
@@ -115,8 +139,22 @@ export default function InventoryPage() {
       ),
     },
     {
-      key: "quantity",
-      label: t("inventory.columns.stock"),
+      key: "warehouse_qty",
+      label: t("inventory.columns.warehouse"),
+      render: (val) => (
+        <span className="text-[13px] font-semibold text-surface-800">{val}</span>
+      ),
+    },
+    {
+      key: "store_qty",
+      label: t("inventory.columns.store"),
+      render: (val) => (
+        <span className="text-[13px] font-semibold text-surface-800">{val}</span>
+      ),
+    },
+    {
+      key: "total",
+      label: t("inventory.columns.total"),
       render: (val, row) => {
         const isLow = val <= row.minimum_stock;
         return (
@@ -137,15 +175,6 @@ export default function InventoryPage() {
       render: (val) => <span className="text-[13px] text-surface-500">{val}</span>,
     },
     {
-      key: "selling_price",
-      label: t("inventory.columns.price"),
-      render: (val) => (
-        <span className="text-[13px] font-semibold text-surface-800">
-          {formatCurrency(val)}
-        </span>
-      ),
-    },
-    {
       key: "status",
       label: t("inventory.columns.status"),
       render: (val) => <Badge variant={statusBadge(val)}>{val}</Badge>,
@@ -158,8 +187,16 @@ export default function InventoryPage() {
             render: (_, row) => (
               <div className="flex items-center gap-1">
                 <button
+                  onClick={() => setTransferTarget(row)}
+                  disabled={row.warehouse_qty < 1}
+                  className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-surface-400"
+                  title={t("inventory.transfer.title")}
+                >
+                  <ArrowLeftRight className="w-4 h-4" />
+                </button>
+                <button
                   onClick={() => setAdjustTarget(row)}
-                  className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150"
+                  className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150"
                   title={t("inventory.adjust.adjust")}
                 >
                   <PackagePlus className="w-4 h-4" />
@@ -205,6 +242,11 @@ export default function InventoryPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <StatCard label={t("inventory.totalProducts")} value={summary?.total_products ?? 0} icon={Package} color="blue" />
+        <StatCard label={t("inventory.warehouseStock")} value={summary?.warehouse_total ?? 0} icon={Warehouse} color="green" />
+        <StatCard label={t("inventory.storeStock")} value={summary?.store_total ?? 0} icon={Store} color="purple" />
+        <StatCard label={t("inventory.lowStockItems")} value={summary?.low_stock_count ?? 0} icon={AlertTriangle} color="orange" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <StatCard label={t("inventory.totalStock")} value={summary?.total_quantity ?? 0} icon={PackageOpen} color="green" />
         <StatCard
           label={t("inventory.totalValue")}
@@ -212,7 +254,6 @@ export default function InventoryPage() {
           icon={ArrowUpDown}
           color="purple"
         />
-        <StatCard label={t("inventory.lowStockItems")} value={summary?.low_stock_count ?? 0} icon={AlertTriangle} color="orange" />
       </div>
 
       {/* Tabs */}
@@ -264,6 +305,20 @@ export default function InventoryPage() {
         <DataTable columns={columns} data={filtered} />
       )}
 
+      {/* Transfer Modal */}
+      <TransferModal
+        isOpen={!!transferTarget}
+        onClose={() => setTransferTarget(null)}
+        product={transferTarget}
+        onSubmit={(data) =>
+          transferMutation.mutate({
+            product_id: transferTarget.id,
+            ...data,
+          })
+        }
+        loading={transferMutation.isPending}
+      />
+
       {/* Adjust Stock Modal */}
       <AdjustStockModal
         isOpen={!!adjustTarget}
@@ -278,14 +333,93 @@ export default function InventoryPage() {
         loading={adjustMutation.isPending}
       />
 
-      {/* Transaction History Modal */}
-      <TransactionHistoryModal
+      {/* Movement History Modal */}
+      <MovementHistoryModal
         isOpen={!!viewHistory}
         onClose={() => setViewHistory(null)}
-        transactions={transactions}
+        movements={movements}
         product={inventory.find((p) => p.id === viewHistory)}
       />
     </div>
+  );
+}
+
+function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
+  const { t } = useTranslation();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(transferSchema),
+    defaultValues: { quantity: 0 },
+  });
+
+  const quantity = Number(watch("quantity", 0)) || 0;
+  const remaining = product ? Number(product.warehouse_qty) - quantity : 0;
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.transfer.title", { name: product?.name || "" })}>
+      <form
+        onSubmit={handleSubmit((data) => {
+          onSubmit(data);
+          reset();
+        })}
+        className="space-y-5"
+      >
+        <div className="bg-surface-50 rounded-xl p-4 space-y-2">
+          <div className="flex justify-between text-[13px]">
+            <span className="text-surface-500">{t("inventory.transfer.from")}</span>
+            <span className="font-bold text-surface-800">{t("inventory.warehouse")}</span>
+          </div>
+          <div className="flex justify-between text-[13px]">
+            <span className="text-surface-500">{t("inventory.transfer.to")}</span>
+            <span className="font-bold text-surface-800">{t("inventory.store")}</span>
+          </div>
+          <div className="flex justify-between text-[13px] pt-2 border-t border-surface-200">
+            <span className="text-surface-500">{t("inventory.transfer.currentWarehouse")}</span>
+            <span className="font-bold text-surface-800">{product?.warehouse_qty ?? 0}</span>
+          </div>
+          <div className="flex justify-between text-[13px]">
+            <span className="text-surface-500">{t("inventory.transfer.afterTransfer")}</span>
+            <span className={`font-bold ${remaining < 0 ? "text-red-600" : "text-surface-800"}`}>
+              {remaining}
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <label className={LABEL_CLASS}>{t("inventory.transfer.quantity")}</label>
+          <input
+            type="number"
+            min="1"
+            {...register("quantity")}
+            className={INPUT_CLASS}
+            placeholder={t("inventory.transfer.quantityPlaceholder")}
+          />
+          {errors.quantity && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.quantity.message}</p>}
+        </div>
+
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150"
+          >
+            {t("inventory.adjust.cancel")}
+          </button>
+          <button
+            type="submit"
+            disabled={loading || remaining < 0}
+            className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20"
+          >
+            {loading ? t("inventory.transfer.transferring") : t("inventory.transfer.transfer")}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -299,11 +433,17 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(adjustSchema),
-    defaultValues: { type: "adjustment", quantity: 0 },
+    defaultValues: { location: "store", movement_type: "adjustment", quantity: 0 },
   });
 
-  const quantity = watch("quantity", 0);
-  const newStock = product ? Number(product.quantity) + Number(quantity) : 0;
+  const location = watch("location", "store");
+  const quantity = Number(watch("quantity", 0)) || 0;
+  const movementType = watch("movement_type", "adjustment");
+  const currentQty = product
+    ? (location === "warehouse" ? Number(product.warehouse_qty) : Number(product.store_qty))
+    : 0;
+  const delta = movementType === "damage" ? -Math.abs(quantity) : Math.abs(quantity);
+  const newStock = currentQty + (movementType === "adjustment" ? quantity : delta);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.adjust.title", { name: product?.name || "" })}>
@@ -317,7 +457,7 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
         <div className="bg-surface-50 rounded-xl p-4">
           <div className="flex justify-between text-[13px]">
             <span className="text-surface-500">{t("inventory.adjust.currentStock")}</span>
-            <span className="font-bold text-surface-800">{product?.quantity ?? 0}</span>
+            <span className="font-bold text-surface-800">{currentQty}</span>
           </div>
           <div className="flex justify-between text-[13px] mt-1">
             <span className="text-surface-500">{t("inventory.adjust.afterAdjustment")}</span>
@@ -328,14 +468,22 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>{t("inventory.adjust.type")}</label>
-          <select {...register("type")} className={SELECT_CLASS}>
-            <option value="adjustment">{t("inventory.adjust.adjustment")}</option>
-            <option value="purchase">{t("inventory.adjust.purchase")}</option>
-            <option value="return">{t("inventory.adjust.return")}</option>
-            <option value="sale">{t("inventory.adjust.sale")}</option>
+          <label className={LABEL_CLASS}>{t("inventory.adjust.location")}</label>
+          <select {...register("location")} className={SELECT_CLASS}>
+            <option value="store">{t("inventory.store")}</option>
+            <option value="warehouse">{t("inventory.warehouse")}</option>
           </select>
-          {errors.type && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.type.message}</p>}
+          {errors.location && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.location.message}</p>}
+        </div>
+
+        <div>
+          <label className={LABEL_CLASS}>{t("inventory.adjust.type")}</label>
+          <select {...register("movement_type")} className={SELECT_CLASS}>
+            <option value="adjustment">{t("inventory.adjust.adjustment")}</option>
+            <option value="return">{t("inventory.adjust.return")}</option>
+            <option value="damage">{t("inventory.adjust.damage")}</option>
+          </select>
+          {errors.movement_type && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.movement_type.message}</p>}
         </div>
 
         <div>
@@ -347,7 +495,11 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
             placeholder={t("inventory.adjust.quantityPlaceholder")}
           />
           <p className="text-[11px] text-surface-400 mt-1">
-            {t("inventory.adjust.quantityHint")}
+            {movementType === "adjustment"
+              ? t("inventory.adjust.quantityHint")
+              : movementType === "return"
+                ? t("inventory.adjust.returnHint")
+                : t("inventory.adjust.damageHint")}
           </p>
           {errors.quantity && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.quantity.message}</p>}
         </div>
@@ -373,36 +525,52 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
   );
 }
 
-function TransactionHistoryModal({ isOpen, onClose, transactions, product }) {
+const TYPE_ICONS = {
+  transfer: ArrowLeftRight,
+  sale: PackageMinus,
+  purchase: PackagePlus,
+  return: PackageOpen,
+  damage: AlertTriangle,
+  adjustment: PackagePlus,
+};
+
+function MovementHistoryModal({ isOpen, onClose, movements, product }) {
   const { t } = useTranslation();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.history.title", { name: product?.name || "" })}>
       <div className="space-y-4">
-        {transactions.length === 0 ? (
+        {movements.length === 0 ? (
           <p className="text-center text-surface-400 py-8 text-[13px]">{t("inventory.history.noTransactions")}</p>
         ) : (
           <div className="divide-y divide-surface-100 max-h-96 overflow-y-auto">
-            {transactions.map((t) => (
-              <div key={t.id} className="flex items-center justify-between py-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-surface-100 flex items-center justify-center text-[11px] font-bold text-surface-500 shrink-0">
-                    <Package className="w-4 h-4" />
+            {movements.map((m) => {
+              const Icon = TYPE_ICONS[m.movement_type] || Package;
+              return (
+                <div key={m.id} className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-surface-100 flex items-center justify-center text-[11px] font-bold text-surface-500 shrink-0">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-semibold text-surface-800 capitalize">
+                        {t(`inventory.history.${m.movement_type}`)}
+                      </p>
+                      <p className="text-[11px] text-surface-400">
+                        {m.from_location ? t(`inventory.history.${m.from_location}`) : "—"}
+                        {" → "}
+                        {m.to_location ? t(`inventory.history.${m.to_location}`) : "—"}
+                        {" · "}
+                        {new Date(m.created_at).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[13px] font-semibold text-surface-800 capitalize">
-                      {t(`inventory.history.${t.transaction_type}`)}
-                    </p>
-                    <p className="text-[11px] text-surface-400">
-                      {new Date(t.created_at).toLocaleString()}
-                    </p>
-                  </div>
+                  <span className="text-[13px] font-bold text-surface-800">
+                    {m.quantity} {t("inventory.history.units")}
+                  </span>
                 </div>
-                <span className={`text-[13px] font-bold ${t.quantity > 0 ? "text-emerald-600" : "text-red-600"}`}>
-                  {t.quantity > 0 ? "+" : ""}{t.quantity}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

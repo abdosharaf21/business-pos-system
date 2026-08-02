@@ -1,6 +1,6 @@
 """Category validator for category input validation."""
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 
 class CategoryValidator:
@@ -67,6 +67,32 @@ class CategoryValidator:
         return description
 
     @staticmethod
+    def validate_parent_id(parent_id) -> Optional[int]:
+        """Validate a category parent identifier.
+
+        Args:
+            parent_id: The parent category identifier, may be None for a root.
+
+        Returns:
+            The validated parent identifier or None for a root category.
+
+        Raises:
+            ValueError: If parent identifier is invalid.
+        """
+        if parent_id is None or parent_id == "":
+            return None
+
+        try:
+            parent_id = int(parent_id)
+        except (TypeError, ValueError):
+            raise ValueError("Parent category is invalid")
+
+        if parent_id < 1:
+            raise ValueError("Parent category is invalid")
+
+        return parent_id
+
+    @staticmethod
     def validate_create_category(data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate create category data.
 
@@ -85,6 +111,7 @@ class CategoryValidator:
         validated = {
             "name": CategoryValidator.validate_name(data.get("name")),
             "description": CategoryValidator.validate_description(data.get("description")),
+            "parent_id": CategoryValidator.validate_parent_id(data.get("parent_id")),
         }
 
         return validated
@@ -112,6 +139,9 @@ class CategoryValidator:
 
         if "description" in data:
             validated["description"] = CategoryValidator.validate_description(data["description"])
+
+        if "parent_id" in data:
+            validated["parent_id"] = CategoryValidator.validate_parent_id(data["parent_id"])
 
         if not validated:
             raise ValueError("No valid fields to update")

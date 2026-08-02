@@ -72,6 +72,58 @@ class DashboardRepository:
             )
             todays_revenue = float(cursor.fetchone()["revenue"])
 
+            cursor.execute(
+                "SELECT COALESCE(SUM(amount), 0) AS total "
+                "FROM expenses WHERE expense_date = CURDATE()"
+            )
+            today_expenses = float(cursor.fetchone()["total"])
+
+            cursor.execute(
+                "SELECT COALESCE(SUM(amount), 0) AS total "
+                "FROM expenses WHERE DATE_FORMAT(expense_date, '%Y-%m') = "
+                "DATE_FORMAT(CURDATE(), '%Y-%m')"
+            )
+            month_expenses = float(cursor.fetchone()["total"])
+
+            cursor.execute(
+                "SELECT COALESCE(SUM(amount), 0) AS total "
+                "FROM expenses WHERE YEAR(expense_date) = YEAR(CURDATE())"
+            )
+            year_expenses = float(cursor.fetchone()["total"])
+
+            cursor.execute(
+                "SELECT COALESCE(AVG(monthly.total), 0) AS avg_monthly "
+                "FROM ("
+                "  SELECT SUM(amount) AS total "
+                "  FROM expenses "
+                "  WHERE expense_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) "
+                "  GROUP BY DATE_FORMAT(expense_date, '%Y-%m')"
+                ") monthly"
+            )
+            avg_month_expenses = float(cursor.fetchone()["avg_monthly"])
+
+            cursor.execute(
+                "SELECT ec.name AS category FROM expenses e "
+                "JOIN expense_categories ec ON ec.id = e.category_id "
+                "WHERE e.expense_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) "
+                "GROUP BY ec.id, ec.name "
+                "ORDER BY SUM(e.amount) DESC LIMIT 1"
+            )
+            row = cursor.fetchone()
+            highest_expense_category = row["category"] if row else None
+
+            cursor.execute(
+                "SELECT COUNT(*) AS count FROM inventory_audits "
+                "WHERE status = 'open'"
+            )
+            open_audits = cursor.fetchone()["count"]
+
+            cursor.execute(
+                "SELECT COUNT(*) AS count FROM inventory_audits "
+                "WHERE status = 'completed'"
+            )
+            completed_audits = cursor.fetchone()["count"]
+
             cursor.close()
 
         return {
@@ -85,4 +137,11 @@ class DashboardRepository:
             "inventory_value": inventory_value,
             "todays_sales": todays_sales,
             "todays_revenue": todays_revenue,
+            "today_expenses": today_expenses,
+            "month_expenses": month_expenses,
+            "year_expenses": year_expenses,
+            "avg_month_expenses": avg_month_expenses,
+            "highest_expense_category": highest_expense_category,
+            "open_audits": open_audits,
+            "completed_audits": completed_audits,
         }

@@ -369,3 +369,202 @@ class ReportRepository:
             }
             for row in rows
         ]
+
+    # ------------------------------------------------------------------
+    # Inventory reports
+    # ------------------------------------------------------------------
+
+    def get_inventory_report(self) -> List[Dict[str, Any]]:
+        """Get per-product stock levels by location.
+
+        Returns:
+            List of dicts with product info, warehouse_qty, store_qty,
+            total, and stock value.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute(
+                "SELECT p.id, p.name, p.sku, p.barcode, p.minimum_stock, "
+                "p.purchase_price, c.name AS category_name, "
+                "COALESCE(wh.quantity, 0) AS warehouse_qty, "
+                "COALESCE(st.quantity, 0) AS store_qty "
+                "FROM products p "
+                "LEFT JOIN categories c ON c.id = p.category_id "
+                "LEFT JOIN inventory wh ON wh.product_id = p.id "
+                "AND wh.location = 'warehouse' "
+                "LEFT JOIN inventory st ON st.product_id = p.id "
+                "AND st.location = 'store' "
+                "WHERE p.status = 'active' "
+                "ORDER BY p.name ASC"
+            )
+            rows = cursor.fetchall()
+            cursor.close()
+
+        return [
+            {
+                "id": row["id"],
+                "name": row["name"],
+                "sku": row["sku"],
+                "barcode": row["barcode"],
+                "category_name": row["category_name"],
+                "minimum_stock": int(row["minimum_stock"]),
+                "purchase_price": float(row["purchase_price"]),
+                "warehouse_qty": int(row["warehouse_qty"]),
+                "store_qty": int(row["store_qty"]),
+                "total": int(row["warehouse_qty"]) + int(row["store_qty"]),
+            }
+            for row in rows
+        ]
+
+    def get_movement_monthly(self, year: int, month: int) -> List[Dict[str, Any]]:
+        """Get movement summary grouped by type for a month.
+
+        Args:
+            year: Year (e.g. 2026).
+            month: Month number 1-12.
+
+        Returns:
+            List of dicts with movement_type, quantity, and count.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute(
+                "SELECT movement_type, "
+                "COALESCE(SUM(quantity), 0) AS quantity, "
+                "COUNT(*) AS count "
+                "FROM stock_movements "
+                "WHERE YEAR(created_at) = %s AND MONTH(created_at) = %s "
+                "GROUP BY movement_type "
+                "ORDER BY quantity DESC",
+                (year, month),
+            )
+            rows = cursor.fetchall()
+            cursor.close()
+
+        return [
+            {
+                "movement_type": row["movement_type"],
+                "quantity": int(row["quantity"]),
+                "count": int(row["count"]),
+            }
+            for row in rows
+        ]
+
+    def get_movement_yearly(self, year: int) -> List[Dict[str, Any]]:
+        """Get movement summary grouped by month for a year.
+
+        Args:
+            year: Year (e.g. 2026).
+
+        Returns:
+            List of dicts with month (1-12), quantity, and count.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute(
+                "SELECT MONTH(created_at) AS month, "
+                "COALESCE(SUM(quantity), 0) AS quantity, "
+                "COUNT(*) AS count "
+                "FROM stock_movements "
+                "WHERE YEAR(created_at) = %s "
+                "GROUP BY MONTH(created_at) "
+                "ORDER BY month",
+                (year,),
+            )
+            rows = cursor.fetchall()
+            cursor.close()
+
+        return [
+            {
+                "month": int(row["month"]),
+                "quantity": int(row["quantity"]),
+                "count": int(row["count"]),
+            }
+            for row in rows
+        ]
+
+    def get_most_transferred(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get products with the highest total transfer volume.
+
+        Args:
+            limit: Maximum number of products to return.
+
+        Returns:
+            List of dicts with product id, name, total quantity,
+            and transfer count.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute(
+                "SELECT m.product_id, p.name, "
+                "COALESCE(SUM(m.quantity), 0) AS total_quantity, "
+                "COUNT(*) AS transfer_count "
+                "FROM stock_movements m "
+                "JOIN products p ON p.id = m.product_id "
+                "WHERE m.movement_type = 'transfer' "
+                "GROUP BY m.product_id, p.name "
+                "ORDER BY total_quantity DESC LIMIT %s",
+                (limit,),
+            )
+            rows = cursor.fetchall()
+            cursor.close()
+
+        return [
+            {
+                "product_id": row["product_id"],
+                "name": row["name"],
+                "total_quantity": int(row["total_quantity"]),
+                "transfer_count": int(row["transfer_count"]),
+            }
+            for row in rows
+        ]
+
+    def get_lowest_stock(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get products with the lowest total stock.
+
+        Args:
+            limit: Maximum number of products to return.
+
+        Returns:
+            List of dicts with product info and stock levels.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute(
+                "SELECT p.id, p.name, p.sku, p.minimum_stock, "
+                "p.selling_price, c.name AS category_name, "
+                "COALESCE(wh.quantity, 0) AS warehouse_qty, "
+                "COALESCE(st.quantity, 0) AS store_qty "
+                "FROM products p "
+                "LEFT JOIN categories c ON c.id = p.category_id "
+                "LEFT JOIN inventory wh ON wh.product_id = p.id "
+                "AND wh.location = 'warehouse' "
+                "LEFT JOIN inventory st ON st.product_id = p.id "
+                "AND st.location = 'store' "
+                "WHERE p.status = 'active' "
+                "ORDER BY (COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0)) ASC "
+                "LIMIT %s",
+                (limit,),
+            )
+            rows = cursor.fetchall()
+            cursor.close()
+
+        return [
+            {
+                "id": row["id"],
+                "name": row["name"],
+                "sku": row["sku"],
+                "category_name": row["category_name"],
+                "minimum_stock": int(row["minimum_stock"]),
+                "selling_price": float(row["selling_price"]),
+                "warehouse_qty": int(row["warehouse_qty"]),
+                "store_qty": int(row["store_qty"]),
+                "total": int(row["warehouse_qty"]) + int(row["store_qty"]),
+            }
+            for row in rows
+        ]

@@ -280,10 +280,18 @@ class PosRepository:
                     if not product:
                         raise ValueError(f"Product with id {product_id} not found")
 
-                    if product["quantity"] < quantity:
+                    cursor.execute(
+                        "SELECT id, quantity FROM inventory "
+                        "WHERE product_id = %s AND location = 'store' FOR UPDATE",
+                        (product_id,),
+                    )
+                    store_stock = cursor.fetchone()
+                    store_quantity = int(store_stock["quantity"]) if store_stock else 0
+
+                    if store_quantity < quantity:
                         raise ValueError(
-                            f"Insufficient stock for '{product['name']}': "
-                            f"available {product['quantity']}, requested {quantity}"
+                            f"Insufficient store stock for '{product['name']}': "
+                            f"available {store_quantity}, requested {quantity}"
                         )
 
                     cursor.execute(
@@ -297,6 +305,20 @@ class PosRepository:
                     cursor.execute(
                         "UPDATE products SET quantity = quantity - %s WHERE id = %s",
                         (quantity, product_id),
+                    )
+
+                    if store_stock:
+                        cursor.execute(
+                            "UPDATE inventory SET quantity = quantity - %s WHERE id = %s",
+                            (quantity, store_stock["id"]),
+                        )
+
+                    cursor.execute(
+                        "INSERT INTO stock_movements "
+                        "(product_id, from_location, to_location, quantity, "
+                        "movement_type, reference, notes, user_id) "
+                        "VALUES (%s, 'store', NULL, %s, 'sale', %s, %s, %s)",
+                        (product_id, quantity, invoice_number, "POS sale", user_id),
                     )
 
                     cursor.execute(

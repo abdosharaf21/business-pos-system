@@ -36,6 +36,22 @@ def get_all_categories():
     }), 200
 
 
+@categories_bp.route("/tree", methods=["GET"])
+@require_authenticated
+def get_category_tree():
+    """Get all categories as a nested tree.
+
+    Returns:
+        JSON response with the category tree.
+    """
+    tree = _category_service.get_category_tree()
+    return jsonify({
+        "success": True,
+        "message": "Category tree retrieved successfully",
+        "data": tree
+    }), 200
+
+
 @categories_bp.route("/<int:category_id>", methods=["GET"])
 @require_authenticated
 def get_category(category_id):
@@ -116,4 +132,6 @@ def delete_category(category_id):
         _category_service.delete_category(category_id)
         return jsonify({"success": True, "message": "Category deleted successfully"}), 200
     except ValueError as e:
-        return jsonify({"success": False, "message": str(e)}), 404
+        if str(e) == "Category not found":
+            return jsonify({"success": False, "message": str(e)}), 404
+        return jsonify({"success": False, "message": str(e)}), 400

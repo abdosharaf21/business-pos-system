@@ -319,6 +319,21 @@ class PurchaseRepository:
                     )
 
                     cursor.execute(
+                        "INSERT INTO inventory (product_id, location, quantity) "
+                        "VALUES (%s, 'warehouse', %s) "
+                        "ON DUPLICATE KEY UPDATE quantity = quantity + %s",
+                        (product_id, quantity, quantity),
+                    )
+
+                    cursor.execute(
+                        "INSERT INTO stock_movements "
+                        "(product_id, from_location, to_location, quantity, "
+                        "movement_type, reference, notes, user_id) "
+                        "VALUES (%s, NULL, 'warehouse', %s, 'purchase', %s, %s, %s)",
+                        (product_id, quantity, invoice_number, "Purchase", user_id),
+                    )
+
+                    cursor.execute(
                         "INSERT INTO inventory_transactions "
                         "(product_id, transaction_type, quantity, reference_id) "
                         "VALUES (%s, 'purchase', %s, %s)",

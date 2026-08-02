@@ -9,8 +9,11 @@
     "customers": "العملاء",
     "suppliers": "الموردين",
     "purchases": "المشتريات",
+    "expenses": "المصروفات",
     "categories": "التصنيفات",
     "inventory": "المخزون",
+    "movementHistory": "سجل الحركات",
+    "inventoryAudits": "جرد المخزون",
     "administration": "الإدارة العامة",
     "users": "المستخدمين"
   },
@@ -61,7 +64,20 @@
     "productsTracked": "{{count}} منتج متتبع",
     "adequatelyStocked": "المنتجات المخزنة بشكل كافٍ",
     "emptyTitle": "مرحباً بك في نظام نقاط البيع",
-    "emptyDescription": "نظامك جاهز. ابدأ بإضافة المنتجات والعملاء وإجراء المبيعات لرؤية بيانات أعمالك هنا."
+    "emptyDescription": "نظامك جاهز. ابدأ بإضافة المنتجات والعملاء وإجراء المبيعات لرؤية بيانات أعمالك هنا.",
+    "expenses": {
+      "today": "مصروفات اليوم",
+      "month": "مصروفات هذا الشهر",
+      "year": "مصروفات هذا العام",
+      "avgMonth": "متوسط المصروفات الشهرية",
+      "highestCategory": "أعلى فئة مصروفات",
+      "noExpenses": "لا توجد مصروفات مسجلة بعد"
+    },
+    "audits": {
+      "title": "جرد المخزون",
+      "open": "جرد مفتوح",
+      "completed": "جرد مكتمل"
+    }
   },
   "products": {
     "title": "المنتجات",
@@ -144,11 +160,15 @@
   },
   "inventory": {
     "title": "المخزون",
-    "subtitle": "إدارة مستويات مخزون المنتجات",
+    "subtitle": "إدارة المخزون في المستودع والمتجر",
     "totalProducts": "إجمالي المنتجات",
     "totalStock": "إجمالي المخزون",
     "totalValue": "قيمة المخزون",
     "lowStockItems": "المنتجات منخفضة المخزون",
+    "warehouseStock": "مخزون المستودع",
+    "storeStock": "مخزون المتجر",
+    "warehouse": "المستودع",
+    "store": "المتجر",
     "allProducts": "جميع المنتجات",
     "lowStock": "مخزون منخفض",
     "searchPlaceholder": "ابحث عن المنتجات...",
@@ -162,44 +182,95 @@
       "product": "المنتج",
       "category": "التصنيف",
       "stock": "المخزون",
+      "warehouse": "المستودع",
+      "store": "المتجر",
+      "total": "الإجمالي",
       "minStock": "الحد الأدنى",
       "price": "السعر",
       "status": "الحالة",
       "actions": "الإجراءات",
       "history": "السجل"
     },
+    "transfer": {
+      "title": "تحويل إلى المتجر — {{name}}",
+      "from": "من",
+      "to": "إلى",
+      "currentWarehouse": "مخزون المستودع الحالي",
+      "afterTransfer": "المستودع بعد التحويل",
+      "quantity": "الكمية",
+      "quantityPlaceholder": "مثال: 10",
+      "transfer": "تحويل",
+      "transferring": "جارٍ التحويل..."
+    },
     "adjust": {
       "title": "تعديل المخزون — {{name}}",
       "currentStock": "المخزون الحالي",
       "afterAdjustment": "بعد التعديل",
+      "location": "الموقع",
       "type": "النوع",
       "adjustment": "تعديل",
       "purchase": "شراء",
       "return": "مرتجع",
       "sale": "بيع",
+      "damage": "تالف",
       "quantity": "الكمية",
       "quantityPlaceholder": "مثال: 10 (موجب) أو 5- (سالب)",
       "quantityHint": "القيمة الموجبة تضيف مخزونًا، والسالبة تطرحه",
+      "returnHint": "تضاف الكميات المرتجعة إلى المتجر",
+      "damageHint": "تُطرح الكميات التالفة من الموقع المحدد",
       "cancel": "إلغاء",
       "adjust": "تعديل المخزون",
       "adjusting": "جارٍ التعديل..."
     },
     "history": {
-      "title": "سجل المعاملات — {{name}}",
-      "noTransactions": "لا توجد معاملات مسجلة",
-      "purchase": "شراء",
+      "title": "سجل الحركات — {{name}}",
+      "noTransactions": "لا توجد حركات مسجلة",
+      "transfer": "تحويل",
       "sale": "بيع",
+      "purchase": "شراء",
+      "return": "مرتجع",
+      "damage": "تالف",
       "adjustment": "تعديل",
-      "return": "مرتجع"
+      "warehouse": "المستودع",
+      "store": "المتجر",
+      "units": "وحدة"
+    },
+    "historyPage": {
+      "title": "سجل الحركات",
+      "subtitle": "تتبع جميع حركات المخزون مع عوامل التصفية",
+      "filters": "عوامل التصفية",
+      "clear": "مسح عوامل التصفية",
+      "filtersProduct": "المنتج",
+      "filtersType": "نوع الحركة",
+      "allProducts": "جميع المنتجات",
+      "allTypes": "جميع الأنواع",
+      "fromDate": "من تاريخ",
+      "toDate": "إلى تاريخ",
+      "searchPlaceholder": "ابحث حسب المنتج أو المرجع...",
+      "noMovements": "لا توجد حركات",
+      "noMovementsHint": "جرّب تعديل عوامل التصفية أو البحث",
+      "columns": {
+        "product": "المنتج",
+        "type": "النوع",
+        "from": "من",
+        "to": "إلى",
+        "qty": "الكمية",
+        "reference": "المرجع",
+        "date": "التاريخ"
+      }
     },
     "toast": {
       "adjusted": "تم تعديل المخزون",
-      "adjustFailed": "فشل تعديل المخزون"
+      "adjustFailed": "فشل تعديل المخزون",
+      "transferred": "تم تحويل المخزون إلى المتجر",
+      "transferFailed": "فشل تحويل المخزون"
     },
     "validation": {
       "typeRequired": "النوع مطلوب",
+      "locationRequired": "الموقع مطلوب",
       "mustBeWhole": "يجب أن يكون رقمًا صحيحًا",
-      "quantityNotZero": "لا يمكن أن تكون الكمية صفرًا"
+      "quantityNotZero": "لا يمكن أن تكون الكمية صفرًا",
+      "quantityPositive": "يجب أن تكون الكمية أكبر من صفر"
     }
   },
   "purchases": {
@@ -433,7 +504,8 @@
       "noResultsTitle": "لم يتم العثور على تصنيفات",
       "noResultsDescription": "جرب بحثًا مختلفًا",
       "noCategoriesDescription": "أضف تصنيفك الأول",
-      "addCategory": "إضافة تصنيف"
+      "addCategory": "إضافة تصنيف",
+      "noSubcategoriesDescription": "أنشئ تصنيفات ونظمها بشكل هرمي"
     },
     "form": {
       "titleCreate": "تصنيف جديد",
@@ -445,7 +517,9 @@
       "cancel": "إلغاء",
       "saving": "جارٍ الحفظ...",
       "create": "إنشاء",
-      "update": "تحديث"
+      "update": "تحديث",
+      "parent": "التصنيف الأب",
+      "parentPlaceholder": "بدون تصنيف أب (رئيسي)"
     },
     "validation": {
       "nameRequired": "الاسم مطلوب"
@@ -463,7 +537,9 @@
       "message": "حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
     },
     "edit": "تعديل",
-    "delete": "حذف"
+    "delete": "حذف",
+    "addSubcategory": "إضافة تصنيف فرعي",
+    "toggle": "توسيع / طي"
   },
   "users": {
     "title": "المستخدمين",
@@ -661,6 +737,258 @@
       "purchaseCost": "تكلفة الشراء",
       "grossProfit": "إجمالي الربح",
       "profitMargin": "هامش الربح"
+    },
+    "inventoryReport": {
+      "title": "تقارير المخزون",
+      "subtitle": "مستويات المخزون حسب الموقع",
+      "product": "المنتج",
+      "warehouse": "المستودع",
+      "store": "المتجر",
+      "total": "الإجمالي",
+      "minStock": "الحد الأدنى",
+      "empty": "لا توجد بيانات مخزون متاحة",
+      "mostTransferred": "الأكثر تحويلًا",
+      "qtyTransferred": "الكمية المحولة",
+      "transferCount": "عدد التحويلات",
+      "monthlyMovement": "الحركة الشهرية",
+      "yearlyMovement": "الحركة السنوية",
+      "lowestStock": "المنتجات الأقل مخزونًا"
+    },
+    "expenses": {
+      "title": "تقرير المصروفات",
+      "totalExpenses": "إجمالي المصروفات",
+      "highestCategory": "أعلى فئة",
+      "monthlyComparison": "المقارنة الشهرية",
+      "periodExpenses": "الفئات المستخدمة",
+      "dailyTrend": "اتجاه المصروفات اليومي",
+      "noData": "لا توجد بيانات مصروفات لهذه الفترة",
+      "categoryBreakdown": "توزيع الفئات",
+      "paymentBreakdown": "توزيع طرق الدفع",
+      "paymentMethod": "طريقة الدفع",
+      "category": "الفئة",
+      "count": "العدد",
+      "highestCategories": "أعلى الفئات"
+    },
+    "audits": {
+      "title": "تقرير جرد المخزون",
+      "totalAudits": "إجمالي الجرد",
+      "completedAudits": "مكتمل",
+      "openAudits": "مفتوح",
+      "cancelledAudits": "ملغى",
+      "adjustedItems": "العناصر المعدلة",
+      "unitsAdded": "وحدات مضافة",
+      "unitsRemoved": "وحدات منقوصة",
+      "unitsAdjusted": "صافي الوحدات المعدلة",
+      "monthlySummary": "الجرد الشهري",
+      "yearlySummary": "الجرد السنوي",
+      "monthlyTrend": "اتجاه الجرد الشهري",
+      "yearlyTrend": "اتجاه الجرد السنوي",
+      "largestShortages": "أكبر العجوزات",
+      "largestOverages": "أكبر الزيادات",
+      "totalDifference": "إجمالي الفرق",
+      "product": "المنتج",
+      "audit": "الجرد",
+      "difference": "الفرق",
+      "noData": "لا توجد بيانات جرد لهذه الفترة"
+    }
+  },
+  "expenses": {
+    "title": "المصروفات",
+    "subtitle": "تتبع وإدارة مصروفات أعمالك",
+    "today": "اليوم",
+    "thisMonth": "هذا الشهر",
+    "thisYear": "هذا العام",
+    "avgMonth": "المتوسط / الشهر",
+    "totalExpenses": "إجمالي المصروفات",
+    "highestCategory": "أعلى فئة",
+    "noExpenses": "لا توجد مصروفات بعد",
+    "noExpensesHint": "أضف أول مصروف لبدء التتبع",
+    "newExpense": "مصروف جديد",
+    "searchPlaceholder": "ابحث في المصروفات...",
+    "allCategories": "كل الفئات",
+    "allMethods": "كل الطرق",
+    "fromDate": "من",
+    "toDate": "إلى",
+    "sortBy": "ترتيب",
+    "sortAsc": "تصاعدي",
+    "sortDesc": "تنازلي",
+    "showing": "عرض {{count}} من {{total}}",
+    "pageOf": "صفحة {{page}} من {{pages}}",
+    "previous": "السابق",
+    "next": "التالي",
+    "clear": "مسح",
+    "columns": {
+      "title": "العنوان",
+      "category": "الفئة",
+      "amount": "المبلغ",
+      "paymentMethod": "طريقة الدفع",
+      "date": "التاريخ",
+      "createdBy": "أُنشئ بواسطة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "إجراءات"
+    },
+    "categories": {
+      "Rent": "إيجار",
+      "Electricity": "كهرباء",
+      "Water": "مياه",
+      "Internet": "إنترنت",
+      "Transportation": "مواصلات",
+      "Maintenance": "صيانة",
+      "Marketing": "تسويق",
+      "Taxes": "ضرائب",
+      "Purchases": "مشتريات",
+      "Salaries": "رواتب",
+      "Other": "أخرى"
+    },
+    "paymentMethods": {
+      "Cash": "نقدي",
+      "Bank": "بنك",
+      "Visa": "فيزا",
+      "Other": "أخرى"
+    },
+    "form": {
+      "title": "إضافة مصروف",
+      "titleEdit": "تعديل مصروف",
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "أدخل عنوان المصروف",
+      "categoryLabel": "الفئة",
+      "amountLabel": "المبلغ",
+      "amountPlaceholder": "أدخل المبلغ",
+      "dateLabel": "التاريخ",
+      "paymentMethodLabel": "طريقة الدفع",
+      "notesLabel": "ملاحظات",
+      "notesPlaceholder": "أضف أي ملاحظات إضافية (اختياري)",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ..."
+    },
+    "validation": {
+      "titleRequired": "العنوان مطلوب",
+      "categoryRequired": "يرجى اختيار الفئة",
+      "amountPositive": "يجب أن يكون المبلغ أكبر من صفر",
+      "dateRequired": "التاريخ مطلوب"
+    },
+    "toast": {
+      "created": "تمت إضافة المصروف بنجاح",
+      "updated": "تم تحديث المصروف بنجاح",
+      "deleted": "تم حذف المصروف بنجاح",
+      "createFailed": "فشل إضافة المصروف",
+      "updateFailed": "فشل تحديث المصروف",
+      "deleteFailed": "فشل حذف المصروف"
+    },
+    "confirmDelete": {
+      "title": "حذف المصروف",
+      "message": "هل أنت متأكد من رغبتك في حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "details": {
+      "title": "تفاصيل المصروف",
+      "close": "إغلاق"
+    },
+    "charts": {
+      "title": "تحليل المصروفات",
+      "byCategory": "حسب الفئة",
+      "monthlyTrend": "الاتجاه الشهري",
+      "yearlyTrend": "الاتجاه السنوي",
+      "noData": "لا توجد بيانات مصروفات متاحة"
+    }
+  },
+  "inventoryAudits": {
+    "title": "جرد المخزون",
+    "subtitle": "عدّ المخزون ومطابقة الفروقات حسب الموقع",
+    "newAudit": "جرد جديد",
+    "totalAudits": "إجمالي الجرد",
+    "openAudits": "مفتوح",
+    "completedAudits": "مكتمل",
+    "adjustedItems": "العناصر المعدلة",
+    "searchPlaceholder": "ابحث بالاسم...",
+    "allLocations": "كل المواقع",
+    "allStatuses": "كل الحالات",
+    "sortBy": "ترتيب",
+    "sortAsc": "ترتيب تصاعدي",
+    "sortDesc": "ترتيب تنازلي",
+    "showing": "عرض {{count}} من {{total}}",
+    "clear": "مسح",
+    "noAudits": "لا يوجد جرد",
+    "noAuditsHint": "أنشئ أول جرد مخزون لبدء عدّ المخزون",
+    "columns": {
+      "name": "الاسم",
+      "location": "الموقع",
+      "status": "الحالة",
+      "counted": "تم عدّه",
+      "difference": "الفرق",
+      "createdBy": "أنشأه",
+      "startedAt": "تاريخ البدء",
+      "createdAt": "تاريخ الإنشاء",
+      "items": "العناصر",
+      "product": "المنتج",
+      "system": "النظام",
+      "actions": "إجراءات"
+    },
+    "locations": {
+      "warehouse": "المستودع",
+      "store": "المتجر"
+    },
+    "statuses": {
+      "open": "مفتوح",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "details": {
+      "title": "تفاصيل الجرد",
+      "items": "العناصر المعدودة",
+      "close": "إغلاق"
+    },
+    "form": {
+      "title": "جرد مخزون جديد",
+      "countTitle": "إدخال الأعداد",
+      "nameLabel": "اسم الجرد",
+      "namePlaceholder": "مثال: جرد المستودع الشهري",
+      "locationLabel": "الموقع",
+      "hint": "سيتم التقاط مستويات المخزون من الموقع المحدد.",
+      "countHint": "أدخل العدد الفعلي لكل عنصر. الخانات الفارغة تبقى غير معدودة. عند إكمال الجرد يتم تعديل المخزون حسب الفرق.",
+      "cancel": "إلغاء",
+      "creating": "جارٍ الإنشاء...",
+      "create": "إنشاء الجرد",
+      "saving": "جارٍ الحفظ...",
+      "save": "حفظ الأعداد"
+    },
+    "complete": "إكمال",
+    "cancel": "إلغاء الجرد",
+    "completing": "جارٍ الإكمال...",
+    "cancelling": "جارٍ الإلغاء...",
+    "delete": "حذف",
+    "deleting": "جارٍ الحذف...",
+    "confirmComplete": {
+      "title": "إكمال الجرد",
+      "message": "هل أنت متأكد من إكمال \"{{name}}\"؟ سيتم تعديل المخزون لكل العناصر المعدودة."
+    },
+    "confirmCancel": {
+      "title": "إلغاء الجرد",
+      "message": "هل أنت متأكد من إلغاء \"{{name}}\"؟ لن يتم تعديل أي مخزون."
+    },
+    "confirmDelete": {
+      "title": "حذف الجرد",
+      "message": "هل أنت متأكد من حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "entered": "تم عدّ {{entered}} من {{total}} عنصر",
+    "noItems": "لا توجد عناصر في هذا الجرد",
+    "enterCount": "أدخل العدد",
+    "pageOf": "صفحة {{page}} من {{pages}}",
+    "previous": "السابق",
+    "next": "التالي",
+    "toast": {
+      "created": "تم إنشاء الجرد بنجاح",
+      "createFailed": "فشل إنشاء الجرد",
+      "updated": "تم حفظ الأعداد بنجاح",
+      "updateFailed": "فشل حفظ الأعداد",
+      "completed": "تم إكمال الجرد وتعديل المخزون",
+      "completeFailed": "فشل إكمال الجرد",
+      "deleted": "تم حذف الجرد",
+      "deleteFailed": "فشل حذف الجرد"
+    },
+    "validation": {
+      "nameRequired": "اسم الجرد مطلوب",
+      "locationRequired": "الموقع مطلوب"
     }
   },
   "common": {

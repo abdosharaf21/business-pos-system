@@ -103,6 +103,17 @@ from backend.modules.reports.routes import reports_bp, init_report_service
 from backend.modules.reports.repository import ReportRepository
 from backend.modules.reports.service import ReportService
 
+from backend.modules.expenses.routes import expenses_bp, init_expense_service
+from backend.modules.expenses.repository import ExpenseRepository
+from backend.modules.expenses.service import ExpenseService
+
+from backend.modules.inventory_audits.routes import (
+    inventory_audits_bp,
+    init_audit_service,
+)
+from backend.modules.inventory_audits.repository import InventoryAuditRepository
+from backend.modules.inventory_audits.service import InventoryAuditService
+
 from backend.middleware import (
     register_error_handlers,
     register_security_headers,
@@ -336,8 +347,16 @@ def create_app(config: dict = None) -> Flask:
     pos_service = PosService(pos_repo)
     init_pos_service(pos_service)
 
+    expense_repo = ExpenseRepository(database)
+    expense_service = ExpenseService(expense_repo)
+    init_expense_service(expense_service)
+
+    audit_repo = InventoryAuditRepository(database)
+    audit_service = InventoryAuditService(audit_repo)
+    init_audit_service(audit_service)
+
     report_repo = ReportRepository(database)
-    report_service = ReportService(report_repo)
+    report_service = ReportService(report_repo, expense_repo, audit_repo)
     init_report_service(report_service)
 
     atexit.register(database.close_all)
@@ -353,6 +372,8 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(suppliers_bp)
     app.register_blueprint(pos_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(expenses_bp)
+    app.register_blueprint(inventory_audits_bp)
 
     @app.get("/api/setup/status")
     def setup_status():
