@@ -1,6 +1,7 @@
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
 import { productService } from "./api";
@@ -48,6 +49,7 @@ function Badge({ children, variant = "default" }) {
     success: "bg-emerald-50 text-emerald-700",
     inactive: "bg-surface-100 text-surface-400",
     warning: "bg-amber-50 text-amber-700",
+    danger: "bg-red-50 text-red-700",
   };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${variants[variant]}`}>
@@ -61,12 +63,14 @@ export default function ProductsPage() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const canManage = ["admin", "manager"].includes(user?.role);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const productParam = searchParams.get("product");
 
   const { data: products = [], isLoading, error, refetch } = useQuery({
     queryKey: ["products"],
@@ -83,6 +87,19 @@ export default function ProductsPage() {
       return res.data.data;
     },
   });
+
+  useEffect(() => {
+    if (!productParam || isLoading || products.length === 0) return;
+    const target = products.find((p) => String(p.id) === productParam);
+    if (!target) return;
+    if (canManage) {
+      setEditing(target);
+      setModalOpen(true);
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("product");
+    setSearchParams(next, { replace: true });
+  }, [productParam, isLoading, products, searchParams, canManage, setSearchParams]);
 
   const categoryOptions = useMemo(() => flattenCategoryTree(buildCategoryTree(categories)), [categories]);
 
@@ -139,12 +156,12 @@ export default function ProductsPage() {
     {
       key: "purchase_price",
       label: t("products.columns.purchasePrice"),
-      render: (val) => <span className="text-[13px] text-surface-600">{formatCurrency(val)}</span>,
+      render: (val) => <span className="text-[13px] text-surface-600 tabular-nums whitespace-nowrap">{formatCurrency(val)}</span>,
     },
     {
       key: "selling_price",
       label: t("products.columns.sellingPrice"),
-      render: (val) => <span className="text-[13px] font-semibold text-surface-800">{formatCurrency(val)}</span>,
+      render: (val) => <span className="text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{formatCurrency(val)}</span>,
     },
     {
       key: "quantity",
@@ -152,7 +169,7 @@ export default function ProductsPage() {
       render: (val, row) => {
         const isLow = val <= row.minimum_stock;
         return (
-          <span className={`text-[13px] font-semibold ${isLow ? "text-red-600" : "text-surface-800"}`}>
+          <span className={`text-[13px] font-semibold tabular-nums whitespace-nowrap ${isLow ? "text-red-600" : "text-surface-800"}`}>
             {val}
           </span>
         );
@@ -161,7 +178,30 @@ export default function ProductsPage() {
     {
       key: "minimum_stock",
       label: t("products.columns.minStock"),
-      render: (val) => <span className="text-[13px] text-surface-500">{val}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 tabular-nums whitespace-nowrap">{val}</span>,
+    },
+    {
+      key: "expiration_date",
+      label: t("products.columns.expiration"),
+      render: (val, row) => {
+        const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+        const badgeVariant =
+          row.expiration_status === "expired" ? "danger"
+            : row.expiration_status === "expiring_soon" ? "warning"
+              : row.expiration_status === "normal" ? "success" : "default";
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] text-surface-600 whitespace-nowrap">
+              {val ? new Date(val + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
+            </span>
+            {row.expiration_status && (
+              <Badge variant={badgeVariant}>
+                {t(`products.expiration.statuses.${row.expiration_status}`)}
+              </Badge>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "status",
@@ -313,12 +353,12 @@ function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={LABEL_CLASS}>{t("products.form.purchasePrice")}</label>
-            <input {...register("purchase_price")} type="number" step="0.01" min="0" placeholder={t("products.form.placeholderDecimal")} className={INPUT_CLASS} />
+            <input {...register("purchase_price")} type="number" step="0.01" min="0" placeholder={t("products.form.placeholderDecimal")} className={`${INPUT_CLASS} numeric-grow min-w-14`} />
             {errors.purchase_price && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.purchase_price.message}</p>}
           </div>
           <div>
             <label className={LABEL_CLASS}>{t("products.form.sellingPrice")}</label>
-            <input {...register("selling_price")} type="number" step="0.01" min="0" placeholder={t("products.form.placeholderDecimal")} className={`${INPUT_CLASS} ${showPriceWarning ? "border-amber-300" : ""}`} />
+            <input {...register("selling_price")} type="number" step="0.01" min="0" placeholder={t("products.form.placeholderDecimal")} className={`${INPUT_CLASS} numeric-grow min-w-14 ${showPriceWarning ? "border-amber-300" : ""}`} />
             {errors.selling_price && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.selling_price.message}</p>}
             {showPriceWarning && !errors.selling_price && (
               <p className="text-[11px] text-amber-600 mt-1 font-medium">{t("products.validation.priceNotLower")}</p>
@@ -328,12 +368,12 @@ function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={LABEL_CLASS}>{t("products.form.quantity")}</label>
-            <input {...register("quantity")} type="number" min="0" step="1" placeholder={t("products.form.placeholderZero")} className={INPUT_CLASS} />
+            <input {...register("quantity")} type="number" min="0" step="1" placeholder={t("products.form.placeholderZero")} className={`${INPUT_CLASS} numeric-grow min-w-14`} />
             {errors.quantity && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.quantity.message}</p>}
           </div>
           <div>
             <label className={LABEL_CLASS}>{t("products.form.minStock")}</label>
-            <input {...register("minimum_stock")} type="number" min="0" step="1" placeholder={t("products.form.placeholderZero")} className={INPUT_CLASS} />
+            <input {...register("minimum_stock")} type="number" min="0" step="1" placeholder={t("products.form.placeholderZero")} className={`${INPUT_CLASS} numeric-grow min-w-14`} />
             {errors.minimum_stock && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.minimum_stock.message}</p>}
           </div>
         </div>

@@ -20,6 +20,11 @@ export function StatCard({ label, value, icon: Icon, color = "blue" }) {
       value: "text-amber-600",
       accent: "from-amber-500/5 to-transparent",
     },
+    red: {
+      icon: "bg-red-50 text-red-600 ring-red-100",
+      value: "text-red-600",
+      accent: "from-red-500/5 to-transparent",
+    },
   };
 
   const s = colorStyles[color] || colorStyles.blue;
@@ -30,9 +35,9 @@ export function StatCard({ label, value, icon: Icon, color = "blue" }) {
       <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center ring-1 ${s.icon}`}>
         <Icon className="w-[22px] h-[22px]" strokeWidth={1.8} />
       </div>
-      <div className="relative">
+      <div className="relative min-w-0">
         <p className="text-[12px] font-semibold text-surface-400 uppercase tracking-wide">{label}</p>
-        <p className="text-2xl font-bold text-surface-900 tracking-tight mt-0.5">{value}</p>
+        <p className="numeric-value text-2xl font-bold text-surface-900 tracking-tight mt-0.5 leading-snug">{value}</p>
       </div>
     </div>
   );

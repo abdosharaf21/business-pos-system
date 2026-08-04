@@ -272,7 +272,7 @@ export default function InventoryAuditsPage() {
                     </td>
                     <td className="px-5 py-3.5 whitespace-nowrap">
                       {audit.total_difference !== 0 ? (
-                        <span className={`text-[13px] font-bold ${audit.total_difference > 0 ? "text-emerald-600" : "text-red-600"}`}>
+                        <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${audit.total_difference > 0 ? "text-emerald-600" : "text-red-600"}`}>
                           {audit.total_difference > 0 ? "+" : ""}{audit.total_difference}
                         </span>
                       ) : (
@@ -531,7 +531,7 @@ function CountModal({ audit, onClose, onSubmit, loading }) {
                       <p className="text-[13px] font-semibold text-surface-800">{row.product_name}</p>
                       {row.barcode && <p className="text-[11px] text-surface-400">{row.barcode}</p>}
                     </td>
-                    <td className="px-4 py-2.5 text-center text-[13px] text-surface-600">{row.system_quantity}</td>
+                    <td className="px-4 py-2.5 text-center text-[13px] text-surface-600 tabular-nums whitespace-nowrap">{row.system_quantity}</td>
                     <td className="px-4 py-2.5 text-center">
                       <input
                         type="number"
@@ -539,12 +539,12 @@ function CountModal({ audit, onClose, onSubmit, loading }) {
                         value={row.counted_quantity ?? ""}
                         placeholder={t("inventoryAudits.enterCount")}
                         onChange={(e) => updateRow(row.product_id, e.target.value)}
-                        className="w-24 px-3 py-1.5 text-center border border-surface-200 bg-surface-50 rounded-lg text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
+                        className="numeric-grow min-w-24 px-3 py-1.5 text-center border border-surface-200 bg-surface-50 rounded-lg text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
                       />
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       {row.counted_quantity !== null && row.difference !== 0 ? (
-                        <span className={`text-[13px] font-bold ${row.difference > 0 ? "text-emerald-600" : "text-red-600"}`}>
+                        <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${row.difference > 0 ? "text-emerald-600" : "text-red-600"}`}>
                           {row.difference > 0 ? "+" : ""}{row.difference}
                         </span>
                       ) : (
@@ -642,17 +642,17 @@ function AuditDetailsModal({ audit, onClose, onCount }) {
                         <p className="text-[13px] font-semibold text-surface-800">{item.product_name}</p>
                         {item.barcode && <p className="text-[11px] text-surface-400">{item.barcode}</p>}
                       </td>
-                      <td className="px-4 py-2.5 text-center text-[13px] text-surface-600">{item.system_quantity}</td>
-                      <td className="px-4 py-2.5 text-center text-[13px] text-surface-600">
+                      <td className="px-4 py-2.5 text-center text-[13px] text-surface-600 tabular-nums whitespace-nowrap">{item.system_quantity}</td>
+                      <td className="px-4 py-2.5 text-center text-[13px] text-surface-600 tabular-nums whitespace-nowrap">
                         {item.counted_quantity === null ? "—" : item.counted_quantity}
                       </td>
                       <td className="px-4 py-2.5 text-center">
                         {item.difference !== 0 ? (
-                          <span className={`text-[13px] font-bold ${item.difference > 0 ? "text-emerald-600" : "text-red-600"}`}>
+                          <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${item.difference > 0 ? "text-emerald-600" : "text-red-600"}`}>
                             {item.difference > 0 ? "+" : ""}{item.difference}
                           </span>
                         ) : (
-                          <span className="text-[13px] text-surface-300">0</span>
+                          <span className="text-[13px] text-surface-300 tabular-nums">0</span>
                         )}
                       </td>
                     </tr>

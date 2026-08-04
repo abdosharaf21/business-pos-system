@@ -1,16 +1,17 @@
 """Inventory repository for database operations on inventory and stock_movements."""
 
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any
 
 import mysql.connector
 
 from backend.database import Database
+from backend.utils.expiration import normalize_expiration_date
 
 
 class InventoryRepository:
     """Repository for inventory database operations.
 
-    Handles per-location stock queries, transfers, adjustments, and
+    Handles per-location stock queries, transfers, and
     stock movement logging using parameterized queries and a shared
     connection pool. Multi-statement operations run in a single
     transaction with commit on success and rollback on error.
@@ -44,18 +45,27 @@ class InventoryRepository:
                     "SELECT p.id, p.name, p.barcode, p.status, p.minimum_stock, "
                     "p.purchase_price, p.selling_price, "
                     "COALESCE(wh.quantity, 0) AS warehouse_qty, "
-                    "COALESCE(st.quantity, 0) AS store_qty "
+                    "COALESCE(st.quantity, 0) AS store_qty, "
+                    "e.expiration_date "
                     "FROM products p "
                     "LEFT JOIN inventory wh ON wh.product_id = p.id "
                     "AND wh.location = 'warehouse' "
                     "LEFT JOIN inventory st ON st.product_id = p.id "
                     "AND st.location = 'store' "
+                    "LEFT JOIN ("
+                    "SELECT product_id, MIN(expiration_date) AS expiration_date "
+                    "FROM purchase_items WHERE expiration_date IS NOT NULL "
+                    "GROUP BY product_id"
+                    ") e ON e.product_id = p.id "
                     "WHERE p.id = %s",
                     (product_id,),
                 )
                 row = cursor.fetchone()
                 if row:
                     row["total"] = int(row["warehouse_qty"]) + int(row["store_qty"])
+                    row["expiration_date"] = normalize_expiration_date(
+                        row.get("expiration_date")
+                    )
                 return row
             except mysql.connector.Error:
                 raise
@@ -81,13 +91,19 @@ class InventoryRepository:
                     "p.purchase_price, p.selling_price, p.status, p.category_id, "
                     "c.name AS category_name, "
                     "COALESCE(wh.quantity, 0) AS warehouse_qty, "
-                    "COALESCE(st.quantity, 0) AS store_qty "
+                    "COALESCE(st.quantity, 0) AS store_qty, "
+                    "e.expiration_date "
                     "FROM products p "
                     "LEFT JOIN categories c ON c.id = p.category_id "
                     "LEFT JOIN inventory wh ON wh.product_id = p.id "
                     "AND wh.location = 'warehouse' "
                     "LEFT JOIN inventory st ON st.product_id = p.id "
                     "AND st.location = 'store' "
+                    "LEFT JOIN ("
+                    "SELECT product_id, MIN(expiration_date) AS expiration_date "
+                    "FROM purchase_items WHERE expiration_date IS NOT NULL "
+                    "GROUP BY product_id"
+                    ") e ON e.product_id = p.id "
                 )
                 params: tuple = ()
 
@@ -104,6 +120,9 @@ class InventoryRepository:
                     row["warehouse_qty"] = int(row["warehouse_qty"])
                     row["store_qty"] = int(row["store_qty"])
                     row["total"] = row["warehouse_qty"] + row["store_qty"]
+                    row["expiration_date"] = normalize_expiration_date(
+                        row.get("expiration_date")
+                    )
                 return rows
             except mysql.connector.Error:
                 raise
@@ -317,28 +336,6 @@ class InventoryRepository:
             (product_id, product_id),
         )
 
-    @staticmethod
-    def _movement_locations(
-        movement_type: str, location: str, delta: int
-    ) -> Tuple[Optional[str], Optional[str]]:
-        """Determine from/to locations for a movement record.
-
-        Args:
-            movement_type: Type of movement (return, damage, adjustment).
-            location: Location the movement applies to.
-            delta: Signed quantity change.
-
-        Returns:
-            Tuple of (from_location, to_location).
-        """
-        if movement_type == "return":
-            return None, "store"
-        if movement_type == "damage":
-            return location, None
-        if delta >= 0:
-            return None, location
-        return location, None
-
     def transfer(
         self,
         product_id: int,
@@ -411,99 +408,6 @@ class InventoryRepository:
                     "to_location": "store",
                     "reference": reference,
                     "notes": notes,
-                }
-            except Exception:
-                conn.rollback()
-                raise
-            finally:
-                cursor.close()
-
-    def adjust(
-        self,
-        product_id: int,
-        location: str,
-        quantity: int,
-        movement_type: str,
-        user_id: Optional[int] = None,
-        reference: Optional[str] = None,
-        notes: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Apply a signed quantity change to a location in one transaction.
-
-        Args:
-            product_id: ID of the product to adjust.
-            location: Location to adjust (warehouse or store).
-            quantity: Signed quantity change (positive adds, negative removes).
-            movement_type: Type of movement (adjustment, damage, return).
-            user_id: ID of the user performing the adjustment.
-            reference: Optional external reference.
-            notes: Optional note.
-
-        Returns:
-            Dictionary describing the adjustment.
-
-        Raises:
-            ValueError: If the location has no record or stock would go negative.
-            mysql.connector.Error: If the database operation fails.
-        """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
-            try:
-                cursor.execute(
-                    "SELECT id, quantity FROM inventory "
-                    "WHERE product_id = %s AND location = %s FOR UPDATE",
-                    (product_id, location),
-                )
-                stock = cursor.fetchone()
-                if stock is None:
-                    cursor.execute(
-                        "INSERT IGNORE INTO inventory "
-                        "(product_id, location, quantity) VALUES (%s, %s, 0)",
-                        (product_id, location),
-                    )
-                    cursor.execute(
-                        "SELECT id, quantity FROM inventory "
-                        "WHERE product_id = %s AND location = %s FOR UPDATE",
-                        (product_id, location),
-                    )
-                    stock = cursor.fetchone()
-
-                new_quantity = int(stock["quantity"]) + quantity
-                if new_quantity < 0:
-                    raise ValueError(
-                        f"Insufficient {location} stock: current "
-                        f"{stock['quantity']}, requested change {quantity}"
-                    )
-
-                cursor.execute(
-                    "UPDATE inventory SET quantity = %s WHERE id = %s",
-                    (new_quantity, stock["id"]),
-                )
-
-                from_location, to_location = self._movement_locations(
-                    movement_type, location, quantity
-                )
-
-                cursor.execute(
-                    "INSERT INTO stock_movements "
-                    "(product_id, from_location, to_location, quantity, "
-                    "movement_type, reference, notes, user_id) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (product_id, from_location, to_location, abs(quantity),
-                     movement_type, reference, notes, user_id),
-                )
-
-                self._sync_product_total(cursor, product_id)
-                conn.commit()
-
-                return {
-                    "product_id": product_id,
-                    "location": location,
-                    "quantity": quantity,
-                    "movement_type": movement_type,
-                    "reference": reference,
-                    "notes": notes,
-                    "new_quantity": new_quantity,
                 }
             except Exception:
                 conn.rollback()

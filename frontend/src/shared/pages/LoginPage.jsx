@@ -6,12 +6,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Building2, Loader2, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
+import { useLoginBranding } from "../../modules/store-settings/hooks";
+import { getAssetUrl } from "../../modules/store-settings/cache";
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const { login } = useAuth();
+  const { data: branding } = useLoginBranding();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const backgroundUrl = branding?.login_background_path
+    ? getAssetUrl("/store-settings/login-background")
+    : null;
+  const logoUrl = branding?.login_logo_path
+    ? getAssetUrl("/store-settings/login-logo")
+    : null;
+  const welcomeTitle = branding?.login_title || t("storeSettings.loginDefaults.title");
+  const welcomeSubtitle =
+    branding?.login_subtitle || t("storeSettings.loginDefaults.subtitle");
 
   const schema = useMemo(() => z.object({
     email: z.string().min(1, t("auth.validation.emailRequired")).email(t("auth.validation.emailInvalid")),
@@ -40,20 +53,33 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left decorative panel */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-primary-300 rounded-full blur-3xl" />
-        </div>
+      <div className={`hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden ${backgroundUrl ? "bg-primary-900" : "bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900"}`}>
+        {backgroundUrl ? (
+          <img
+            src={backgroundUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-primary-300 rounded-full blur-3xl" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-primary-900/55" />
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 w-full">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
-              <Building2 className="w-7 h-7 text-white" />
+              {logoUrl ? (
+                <img src={logoUrl} alt={welcomeTitle} className="w-7 h-7 object-contain" />
+              ) : (
+                <Building2 className="w-7 h-7 text-white" />
+              )}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">{t("common.appName")}</h2>
-              <p className="text-xs text-primary-200 font-medium">{t("auth.brandSubtitle")}</p>
+              <h2 className="text-2xl font-bold text-white tracking-tight">{welcomeTitle}</h2>
+              <p className="text-xs text-primary-200 font-medium">{welcomeSubtitle}</p>
             </div>
           </div>
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
@@ -85,9 +111,16 @@ export default function LoginPage() {
           {/* Mobile-only brand */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
             <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/25">
-              <Building2 className="w-6 h-6 text-white" />
+              {logoUrl ? (
+                <img src={logoUrl} alt={welcomeTitle} className="w-6 h-6 object-contain" />
+              ) : (
+                <Building2 className="w-6 h-6 text-white" />
+              )}
             </div>
-            <span className="text-xl font-bold text-surface-900 tracking-tight">{t("common.appName")}</span>
+            <div className="min-w-0">
+              <span className="block text-xl font-bold text-surface-900 tracking-tight truncate">{welcomeTitle}</span>
+              <span className="block text-xs text-surface-400 truncate">{welcomeSubtitle}</span>
+            </div>
           </div>
 
           <div className="mb-8">

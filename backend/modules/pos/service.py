@@ -8,7 +8,7 @@ from backend.modules.pos.repository import PosRepository
 class PosService:
     """Contains business logic for the POS interface."""
 
-    VALID_PAYMENT_METHODS = {"cash", "card", "transfer", "mixed"}
+    VALID_PAYMENT_METHODS = {"cash", "card", "transfer", "mixed", "vodafone_cash"}
 
     def __init__(self, pos_repository: PosRepository) -> None:
         self._pos_repository = pos_repository

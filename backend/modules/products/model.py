@@ -38,6 +38,8 @@ class Product:
         minimum_stock: int = 0,
         status: str = "active",
         category_name: Optional[str] = None,
+        expiration_date: Optional[str] = None,
+        expiration_status: Optional[str] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
     ) -> None:
@@ -56,6 +58,8 @@ class Product:
             minimum_stock: Minimum stock level before alert.
             status: Product status.
             category_name: Optional category name from join.
+            expiration_date: Optional oldest batch expiration date (YYYY-MM-DD).
+            expiration_status: Optional expiration classification.
             created_at: Timestamp when the product was created.
             updated_at: Timestamp when the product was last updated.
         """
@@ -71,6 +75,8 @@ class Product:
         self.minimum_stock = minimum_stock
         self.status = status
         self.category_name = category_name
+        self.expiration_date = expiration_date
+        self.expiration_status = expiration_status
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
 
@@ -97,6 +103,10 @@ class Product:
         }
         if self.category_name is not None:
             result["category_name"] = self.category_name
+        if self.expiration_date is not None:
+            result["expiration_date"] = self.expiration_date
+        if self.expiration_status is not None:
+            result["expiration_status"] = self.expiration_status
         return result
 
     @classmethod

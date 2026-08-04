@@ -1,110 +1,69 @@
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useState, useRef, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { purchaseService, supplierService } from "./api";
 import { useAuth } from "../../shared/context/AuthContext";
 import { PageHeader } from "../../shared/components/PageHeader";
-import { DataTable } from "../../shared/components/DataTable";
-import { Modal } from "../../shared/components/Modal";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
-import { Plus, Search, ShoppingCart, Trash2, Eye, X, Minus, Plus as PlusIcon } from "lucide-react";
+import { Plus, Search, ShoppingCart, Trash2, Eye, X, Minus, Plus as PlusIcon, Filter, ChevronLeft, ChevronRight, ReceiptText } from "lucide-react";
 import toast from "react-hot-toast";
 
 const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
 const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
 const SELECT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer";
 
+const PAYMENT_METHODS = ["cash", "card", "transfer", "mixed", "vodafone_cash"];
+
 export default function PurchasesPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const canManage = ["admin", "manager"].includes(user?.role);
-  const [search, setSearch] = useState("");
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [viewPurchase, setViewPurchase] = useState(null);
-  const [viewInvoice, setViewInvoice] = useState(null);
+  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
 
-  const { data: purchases = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["purchases"],
+  const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
+  const perPage = 10;
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["purchases", search, date, dateFrom, dateTo, page],
     queryFn: async () => {
-      const res = await purchaseService.getAll();
+      const res = await purchaseService.getAll({
+        search: search || undefined,
+        date: date || undefined,
+        date_from: dateFrom || undefined,
+        date_to: dateTo || undefined,
+        page,
+        per_page: perPage,
+      });
       return res.data.data;
     },
+    keepPreviousData: true,
   });
 
-  const filtered = purchases.filter((p) => {
-    const term = search.toLowerCase();
-    return !search ||
-      p.invoice_number?.toLowerCase().includes(term) ||
-      p.supplier_name?.toLowerCase().includes(term);
-  });
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const pages = data?.pages ?? 0;
+  const hasFilters = Boolean(search || date || dateFrom || dateTo);
 
-  const columns = [
-    {
-      key: "invoice_number",
-      label: t("purchases.columns.invoice"),
-      render: (val) => <span className="text-[13px] font-mono font-semibold text-surface-800">{val}</span>,
-    },
-    {
-      key: "supplier_name",
-      label: t("purchases.columns.supplier"),
-      render: (val) => <span className="text-[13px] text-surface-600">{val || "-"}</span>,
-    },
-    {
-      key: "total_amount",
-      label: t("purchases.columns.total"),
-      render: (val) => <span className="text-[13px] font-semibold text-surface-800">{formatCurrency(val)}</span>,
-    },
-    {
-      key: "status",
-      label: t("purchases.columns.status"),
-      render: (val) => {
-        const labels = {
-          completed: t("purchases.statusCompleted"),
-          pending: t("purchases.statusPending"),
-          cancelled: t("purchases.statusCancelled"),
-        };
-        return (
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-            val === "completed" ? "bg-emerald-50 text-emerald-700" :
-            val === "pending" ? "bg-amber-50 text-amber-700" :
-            "bg-surface-100 text-surface-400"
-          }`}>{labels[val] || val}</span>
-        );
-      },
-    },
-    {
-      key: "created_at",
-      label: t("purchases.columns.date"),
-      render: (val) => <span className="text-[13px] text-surface-500">{val ? new Date(val).toLocaleDateString() : "-"}</span>,
-    },
-    {
-      key: "id",
-      label: t("purchases.columns.actions"),
-      render: (_, row) => (
-        <div className="flex items-center gap-1">
-          <button onClick={() => setViewPurchase(row)} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("purchases.viewDetails")}>
-            <Eye className="w-4 h-4" />
-          </button>
-          <button onClick={() => handleViewInvoice(row)} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("purchases.invoice")}>
-            <ShoppingCart className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ];
-
-  const handleViewInvoice = async (purchase) => {
-    try {
-      const res = await purchaseService.getInvoice(purchase.id);
-      setViewInvoice(res.data.data);
-    } catch {
-      toast.error(t("purchases.failedToLoadInvoice"));
-    }
+  const clearFilters = () => {
+    setSearch("");
+    setDate("");
+    setDateFrom("");
+    setDateTo("");
+    setPage(1);
   };
+
+  const paymentLabel = (method) => t(`purchases.paymentMethods.${method}`) || method;
 
   if (isLoading) return <LoadingSpinner />;
   if (error) return <ErrorDisplay message={error.response?.data?.message || error.message} onRetry={refetch} />;
@@ -128,6 +87,7 @@ export default function PurchasesPage() {
         <CreatePurchaseForm
           onDone={() => {
             setShowCreateForm(false);
+            setPage(1);
             queryClient.invalidateQueries({ queryKey: ["purchases"] });
           }}
           onCancel={() => setShowCreateForm(false)}
@@ -136,22 +96,121 @@ export default function PurchasesPage() {
 
       {!showCreateForm && (
         <>
-          <div className="mb-6 relative">
-            <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-            <input type="text" placeholder={t("purchases.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label={t("purchases.searchAriaLabel")} />
+          {/* Filters */}
+          <div className="p-4 bg-white rounded-2xl border border-surface-200/80 shadow-card mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+                <input type="text" placeholder={t("purchases.searchPlaceholder")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-full ps-10 pe-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150" aria-label={t("purchases.searchAriaLabel")} />
+              </div>
+              <div>
+                <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.filters.date")}</label>
+                <input type="date" value={date} onChange={(e) => { setDate(e.target.value); setPage(1); }} className={INPUT_CLASS} />
+              </div>
+              <div>
+                <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.filters.from")}</label>
+                <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1); }} className={INPUT_CLASS} />
+              </div>
+              <div>
+                <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.filters.to")}</label>
+                <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1); }} className={INPUT_CLASS} />
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface-100">
+              <div className="flex items-center gap-2 text-[12px] text-surface-400">
+                <Filter className="w-4 h-4" />
+                <span>{t("purchases.showing", { count: items.length, total })}</span>
+              </div>
+              {hasFilters && (
+                <button onClick={clearFilters} className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-surface-500 bg-surface-50 hover:bg-surface-100 rounded-lg transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                  {t("purchases.clear")}
+                </button>
+              )}
+            </div>
           </div>
 
-          {filtered.length === 0 ? (
-            <EmptyState icon={ShoppingCart} title={t("purchases.noPurchasesFound")} description={search ? t("purchases.tryDifferentSearch") : t("purchases.createYourFirst")} action={!search && canManage && <button onClick={() => setShowCreateForm(true)} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("purchases.newPurchase")}</button>} />
+          {/* Table */}
+          {items.length === 0 ? (
+            <EmptyState
+              icon={ShoppingCart}
+              title={t("purchases.noPurchasesFound")}
+              description={hasFilters ? t("purchases.tryDifferentSearch") : t("purchases.createYourFirst")}
+              action={!hasFilters && canManage && <button onClick={() => setShowCreateForm(true)} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("purchases.newPurchase")}</button>}
+            />
           ) : (
-            <DataTable columns={columns} data={filtered} />
+            <div className="bg-white rounded-2xl border border-surface-200/80 overflow-hidden shadow-card">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm" role="table">
+                  <thead>
+                    <tr className="border-b border-surface-100 bg-surface-50/60">
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.invoice")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.supplier")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.date")}</th>
+                      <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.total")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.paymentMethod")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.createdBy")}</th>
+                      <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.actions")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-surface-100">
+                    {items.map((purchase) => (
+                      <tr key={purchase.id} onClick={() => navigate(`/purchases/${purchase.id}`)} className="hover:bg-surface-50/50 transition-colors duration-100 cursor-pointer">
+                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] font-mono font-semibold text-surface-800">{purchase.invoice_number}</td>
+                        <td className="px-5 py-3.5 text-[13px] text-surface-600">{purchase.supplier_name || "—"}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500">
+                          {purchase.created_at ? new Date(purchase.created_at).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-end text-[13px] font-semibold text-surface-800 tabular-nums">{formatCurrency(purchase.total_amount)}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary-50 text-primary-700 capitalize">
+                            {paymentLabel(purchase.payment_method)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500">{purchase.user_name || "—"}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-end">
+                          <div className="inline-flex items-center gap-1">
+                            <button onClick={(e) => { e.stopPropagation(); navigate(`/purchases/${purchase.id}`); }} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("purchases.viewDetails")}>
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); navigate(`/purchases/${purchase.id}`); }} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("purchases.invoice")}>
+                              <ReceiptText className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {pages > 1 && (
+                <div className="flex items-center justify-between px-5 py-3.5 border-t border-surface-100">
+                  <p className="text-[12px] text-surface-400">{t("purchases.pageOf", { page, pages })}</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page <= 1}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      {t("purchases.previous")}
+                    </button>
+                    <button
+                      onClick={() => setPage((p) => Math.min(pages, p + 1))}
+                      disabled={page >= pages}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {t("purchases.next")}
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </>
       )}
-
-      <PurchaseDetailModal purchase={viewPurchase} onClose={() => setViewPurchase(null)} />
-
-      <InvoiceModal invoice={viewInvoice} onClose={() => setViewInvoice(null)} />
     </div>
   );
 }
@@ -164,6 +223,8 @@ function CreatePurchaseForm({ onDone, onCancel }) {
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);
   const [items, setItems] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showAddSupplier, setShowAddSupplier] = useState(false);
   const [supplierForm, setSupplierForm] = useState({ name: "", phone: "", email: "", address: "" });
@@ -227,6 +288,7 @@ function CreatePurchaseForm({ onDone, onCancel }) {
       product_name: product.name,
       quantity: 1,
       cost_price: parseFloat(product.purchase_price) || 0,
+      expiration_date: "",
     }]);
     setProductSearch("");
     setSearchResults([]);
@@ -235,7 +297,13 @@ function CreatePurchaseForm({ onDone, onCancel }) {
 
   const updateItem = (index, field, value) => {
     const updated = [...items];
-    updated[index][field] = field === "quantity" ? Math.max(1, parseInt(value) || 1) : parseFloat(value) || 0;
+    if (field === "quantity") {
+      updated[index][field] = Math.max(1, parseInt(value) || 1);
+    } else if (field === "expiration_date") {
+      updated[index][field] = value;
+    } else {
+      updated[index][field] = parseFloat(value) || 0;
+    }
     setItems(updated);
   };
 
@@ -285,10 +353,13 @@ function CreatePurchaseForm({ onDone, onCancel }) {
     try {
       await purchaseService.create({
         supplier_id: parseInt(supplierId),
+        payment_method: paymentMethod,
+        notes: notes.trim() || null,
         items: items.map((i) => ({
           product_id: i.product_id,
           quantity: i.quantity,
           cost_price: i.cost_price,
+          expiration_date: i.expiration_date || null,
         })),
       });
       toast.success(t("purchases.toast.purchaseCreated"));
@@ -442,9 +513,10 @@ function CreatePurchaseForm({ onDone, onCancel }) {
               <thead>
                 <tr className="border-b border-surface-200">
                   <th className="text-start py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.items.product")}</th>
-                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[100px]">{t("purchases.items.qty")}</th>
-                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[120px]">{t("purchases.items.costPrice")}</th>
-                  <th className="text-right py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[100px]">{t("purchases.items.subtotal")}</th>
+                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[130px]">{t("purchases.items.qty")}</th>
+                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[140px]">{t("purchases.items.costPrice")}</th>
+                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[150px]">{t("purchases.items.expiration")}</th>
+                  <th className="text-end py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[140px]">{t("purchases.items.subtotal")}</th>
                   <th className="py-2.5 px-3 w-[40px]"></th>
                 </tr>
               </thead>
@@ -455,14 +527,23 @@ function CreatePurchaseForm({ onDone, onCancel }) {
                     <td className="py-2.5 px-3">
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => updateItem(i, "quantity", item.quantity - 1)} className="p-1 text-surface-400 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all"><Minus className="w-3.5 h-3.5" /></button>
-                        <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(i, "quantity", e.target.value)} className="w-14 text-center px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                        <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(i, "quantity", e.target.value)} className="numeric-grow min-w-16 text-center px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                         <button onClick={() => updateItem(i, "quantity", item.quantity + 1)} className="p-1 text-surface-400 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all"><PlusIcon className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                     <td className="py-2.5 px-3">
                       <input type="number" step="0.01" min="0" value={item.cost_price} onChange={(e) => updateItem(i, "cost_price", e.target.value)} className="w-full px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 text-center focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                     </td>
-                    <td className="py-2.5 px-3 text-right text-[13px] font-semibold text-surface-800">{formatCurrency(item.quantity * item.cost_price)}</td>
+                    <td className="py-2.5 px-3">
+                      <input
+                        type="date"
+                        value={item.expiration_date}
+                        onChange={(e) => updateItem(i, "expiration_date", e.target.value)}
+                        aria-label={t("purchases.items.expirationAria")}
+                        className="w-full px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                      />
+                    </td>
+                    <td className="py-2.5 px-3 text-end text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{formatCurrency(item.quantity * item.cost_price)}</td>
                     <td className="py-2.5 px-3">
                       <button onClick={() => removeItem(i)} className="p-1.5 text-surface-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
                     </td>
@@ -472,13 +553,35 @@ function CreatePurchaseForm({ onDone, onCancel }) {
             </table>
           </div>
           <div className="flex justify-end mt-4 pt-4 border-t border-surface-200">
-            <div className="text-right">
+            <div className="text-end min-w-0">
               <span className="text-[12px] text-surface-500 font-medium">{t("purchases.form.total")}</span>
-              <p className="text-xl font-bold text-surface-900">{formatCurrency(subtotal)}</p>
+              <p className="numeric-value text-xl font-bold text-surface-900">{formatCurrency(subtotal)}</p>
             </div>
           </div>
         </div>
       )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <div>
+          <label className={LABEL_CLASS}>{t("purchases.form.paymentMethod")}</label>
+          <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className={SELECT_CLASS}>
+            {PAYMENT_METHODS.map((m) => (
+              <option key={m} value={m}>{t(`purchases.paymentMethods.${m}`)}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={LABEL_CLASS}>{t("purchases.form.notes")}</label>
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={t("purchases.form.notesPlaceholder")}
+            maxLength={1000}
+            className={INPUT_CLASS}
+          />
+        </div>
+      </div>
 
       <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
         <button onClick={onCancel} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("purchases.form.cancel")}</button>
@@ -487,136 +590,5 @@ function CreatePurchaseForm({ onDone, onCancel }) {
         </button>
       </div>
     </div>
-  );
-}
-
-function PurchaseDetailModal({ purchase, onClose }) {
-  const { t } = useTranslation();
-  const { data: details, isLoading } = useQuery({
-    queryKey: ["purchase", purchase?.id],
-    queryFn: async () => {
-      if (!purchase?.id) return null;
-      const res = await purchaseService.getById(purchase.id);
-      return res.data.data;
-    },
-    enabled: !!purchase?.id,
-  });
-
-  return (
-    <Modal isOpen={!!purchase} onClose={onClose} title={t("purchases.detail.title", { number: details?.invoice_number || "" })} size="lg">
-      {isLoading ? <LoadingSpinner /> : details ? (
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-[12px] font-semibold text-surface-400 uppercase tracking-wider">{t("purchases.detail.supplier")}</span>
-              <p className="text-[14px] font-semibold text-surface-800 mt-0.5">{details.supplier_name || "-"}</p>
-            </div>
-            <div className="text-right">
-              <span className="text-[12px] font-semibold text-surface-400 uppercase tracking-wider">{t("purchases.detail.date")}</span>
-              <p className="text-[14px] text-surface-800 mt-0.5">{details.created_at ? new Date(details.created_at).toLocaleDateString() : "-"}</p>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-surface-200">
-                  <th className="text-start py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.detail.items.product")}</th>
-                  <th className="text-center py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.detail.items.qty")}</th>
-                  <th className="text-right py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.detail.items.cost")}</th>
-                  <th className="text-right py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.detail.items.subtotal")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {details.items?.map((item, i) => (
-                  <tr key={i} className="border-b border-surface-100">
-                    <td className="py-2.5 text-[13px] text-surface-800">{item.product_name}</td>
-                    <td className="py-2.5 text-center text-[13px] text-surface-600">{item.quantity}</td>
-                    <td className="py-2.5 text-right text-[13px] text-surface-600">{formatCurrency(item.cost_price)}</td>
-                    <td className="py-2.5 text-right text-[13px] font-semibold text-surface-800">{formatCurrency(item.subtotal)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex justify-end pt-3 border-t border-surface-200">
-            <div className="text-right">
-              <span className="text-[12px] text-surface-500 font-medium">{t("purchases.detail.totalAmount")}</span>
-              <p className="text-xl font-bold text-surface-900">{formatCurrency(details.total_amount)}</p>
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </Modal>
-  );
-}
-
-function InvoiceModal({ invoice, onClose }) {
-  const { t } = useTranslation();
-  if (!invoice) return null;
-  return (
-    <Modal isOpen={!!invoice} onClose={onClose} title={t("purchases.invoiceModal.title", { number: invoice.invoice_number })} size="lg">
-      <div className="space-y-5">
-        <div className="text-center pb-4 border-b border-surface-200">
-          <h2 className="text-lg font-bold text-surface-900">{t("purchases.invoiceModal.header")}</h2>
-          <p className="text-[13px] text-surface-500">#{invoice.invoice_number}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-[12px] font-semibold text-surface-400 uppercase tracking-wider">{t("purchases.invoiceModal.supplier")}</span>
-            <p className="text-[14px] font-semibold text-surface-800 mt-0.5">{invoice.supplier_name || "-"}</p>
-            {invoice.supplier_phone && <p className="text-[12px] text-surface-500">{invoice.supplier_phone}</p>}
-            {invoice.supplier_email && <p className="text-[12px] text-surface-500">{invoice.supplier_email}</p>}
-            {invoice.supplier_address && <p className="text-[12px] text-surface-500">{invoice.supplier_address}</p>}
-          </div>
-          <div className="text-right">
-            <span className="text-[12px] font-semibold text-surface-400 uppercase tracking-wider">{t("purchases.invoiceModal.date")}</span>
-            <p className="text-[14px] text-surface-800 mt-0.5">{invoice.created_at ? new Date(invoice.created_at).toLocaleDateString() : "-"}</p>
-            <span className="text-[12px] font-semibold text-surface-400 uppercase tracking-wider block mt-3">{t("purchases.invoiceModal.processedBy")}</span>
-            <p className="text-[14px] text-surface-800 mt-0.5">{invoice.user_name || "-"}</p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-surface-200">
-                <th className="text-start py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.invoiceModal.columns.num")}</th>
-                <th className="text-start py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.invoiceModal.columns.product")}</th>
-                <th className="text-center py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.invoiceModal.columns.barcode")}</th>
-                <th className="text-center py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.invoiceModal.columns.qty")}</th>
-                <th className="text-right py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.invoiceModal.columns.price")}</th>
-                <th className="text-right py-2.5 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.invoiceModal.columns.total")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoice.items?.map((item, i) => (
-                <tr key={i} className="border-b border-surface-100">
-                  <td className="py-2.5 text-[13px] text-surface-500">{i + 1}</td>
-                  <td className="py-2.5 text-[13px] font-medium text-surface-800">{item.product_name}</td>
-                  <td className="py-2.5 text-center text-[13px] font-mono text-surface-500">{item.barcode || "-"}</td>
-                  <td className="py-2.5 text-center text-[13px] text-surface-600">{item.quantity}</td>
-                  <td className="py-2.5 text-right text-[13px] text-surface-600">{formatCurrency(item.cost_price)}</td>
-                  <td className="py-2.5 text-right text-[13px] font-semibold text-surface-800">{formatCurrency(item.subtotal)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex justify-end pt-3 border-t border-surface-200">
-          <div className="text-right">
-            <span className="text-[12px] text-surface-500 font-medium">{t("purchases.invoiceModal.totalAmount")}</span>
-            <p className="text-2xl font-bold text-surface-900">{formatCurrency(invoice.total_amount)}</p>
-          </div>
-        </div>
-
-        <div className="text-center pt-4 border-t border-surface-200">
-          <p className="text-[11px] text-surface-400">{t("purchases.invoiceModal.footer")}</p>
-        </div>
-      </div>
-    </Modal>
   );
 }

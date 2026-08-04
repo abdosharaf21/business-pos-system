@@ -14,8 +14,10 @@ import ProductsPage from "../modules/products/page";
 import CustomersPage from "../modules/customers/page";
 import SuppliersPage from "../modules/suppliers/page";
 import PurchasesPage from "../modules/purchases/page";
+import PurchaseInvoicePage from "../modules/purchases/invoice";
 import ExpensesPage from "../modules/expenses/page";
 import UsersPage from "../modules/users/page";
+import StoreSettingsPage from "../modules/store-settings/page";
 import PosPage from "../modules/pos/page";
 import InvoicePage from "../modules/pos/invoice";
 
@@ -58,10 +60,12 @@ export default function AppRoutes() {
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/suppliers" element={<SuppliersPage />} />
           <Route path="/purchases" element={<PurchasesPage />} />
+          <Route path="/purchases/:purchaseId" element={<PurchaseInvoicePage />} />
           <Route path="/expenses" element={<ExpensesPage />} />
           <Route path="/pos" element={<PosPage />} />
           <Route path="/pos/invoice/:saleId" element={<InvoicePage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/store-settings" element={<StoreSettingsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

@@ -2,10 +2,12 @@
 
 from typing import Optional, List
 
+from backend.config import Config
 from backend.modules.products.model import Product
 from backend.modules.products.repository import ProductRepository
 from backend.modules.products.validator import ProductValidator
 from backend.modules.categories.repository import CategoryRepository
+from backend.utils.expiration import classify_expiration
 
 
 class ProductService:
@@ -90,6 +92,13 @@ class ProductService:
         product = self._product_repository.get_by_id(product_id)
         if product is None:
             raise ValueError("Product not found")
+
+        expiration_date = self._product_repository.get_oldest_expiration(product_id)
+        if expiration_date is not None:
+            product.expiration_date = expiration_date
+            product.expiration_status = classify_expiration(
+                expiration_date, expiring_soon_days=Config.EXPIRING_SOON_DAYS
+            )
         return product
 
     def get_all_products(
@@ -106,11 +115,20 @@ class ProductService:
             status: Optional status filter.
 
         Returns:
-            List of Product instances.
+            List of Product instances with expiration classification.
         """
-        return self._product_repository.get_all(
+        products = self._product_repository.get_all(
             search=search, category_id=category_id, status=status
         )
+
+        for product in products:
+            if product.expiration_date is not None:
+                product.expiration_status = classify_expiration(
+                    product.expiration_date,
+                    expiring_soon_days=Config.EXPIRING_SOON_DAYS,
+                )
+
+        return products
 
     def update_product(self, product_id: int, data: dict) -> Product:
         """Update an existing product.

@@ -108,7 +108,7 @@ export default function InventoryHistoryPage() {
       key: "quantity",
       label: t("inventory.historyPage.columns.qty"),
       render: (val) => (
-        <span className="text-[13px] font-bold text-surface-800">{val}</span>
+        <span className="text-[13px] font-bold text-surface-800 tabular-nums whitespace-nowrap">{val}</span>
       ),
     },
     {

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
 import { inventoryService } from "./api";
+import { auditService } from "../inventory_audits/api";
 import { useAuth } from "../../shared/context/AuthContext";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { DataTable } from "../../shared/components/DataTable";
@@ -17,8 +18,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  Package, Search, PackagePlus, AlertTriangle, History, PackageOpen,
-  ArrowUpDown, Warehouse, Store, ArrowLeftRight, PackageMinus,
+  Package, Search, AlertTriangle, History, PackageOpen,
+  ArrowUpDown, Warehouse, Store, ArrowLeftRight, ClipboardCheck,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -29,18 +30,16 @@ const transferSchema = z.object({
     .positive(() => i18n.t("inventory.validation.quantityPositive")),
 });
 
-const adjustSchema = z.object({
-  location: z.string().min(1, () => i18n.t("inventory.validation.locationRequired")),
-  movement_type: z.string().min(1, () => i18n.t("inventory.validation.typeRequired")),
-  quantity: z.coerce
-    .number()
-    .int(() => i18n.t("inventory.validation.mustBeWhole"))
-    .refine((n) => n !== 0, () => i18n.t("inventory.validation.quantityNotZero")),
+const quickAuditSchema = z.object({
+  counted_quantity: z
+    .string()
+    .min(1, () => i18n.t("inventory.validation.quantityRequired"))
+    .refine((v) => Number.isInteger(Number(v)), () => i18n.t("inventory.validation.mustBeWhole"))
+    .refine((v) => Number(v) >= 0, () => i18n.t("inventory.validation.quantityNonNegative")),
 });
 
 const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
 const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
-const SELECT_CLASS = INPUT_CLASS;
 
 export default function InventoryPage() {
   const queryClient = useQueryClient();
@@ -49,14 +48,16 @@ export default function InventoryPage() {
   const canManage = ["admin", "manager"].includes(user?.role);
   const [search, setSearch] = useState("");
   const [transferTarget, setTransferTarget] = useState(null);
-  const [adjustTarget, setAdjustTarget] = useState(null);
+  const [quickAuditTarget, setQuickAuditTarget] = useState(null);
   const [viewHistory, setViewHistory] = useState(null);
   const [tab, setTab] = useState("all");
+  const [expirationFilter, setExpirationFilter] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
   const { data: inventory = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["inventory", search],
+    queryKey: ["inventory", search, expirationFilter, sortBy],
     queryFn: async () => {
-      const res = await inventoryService.getAll(search);
+      const res = await inventoryService.getAll(search, expirationFilter, sortBy);
       return res.data.data;
     },
   });
@@ -96,14 +97,23 @@ export default function InventoryPage() {
     onError: (err) => toast.error(err.response?.data?.message || t("inventory.toast.transferFailed")),
   });
 
-  const adjustMutation = useMutation({
-    mutationFn: (data) => inventoryService.adjustStock(data),
+  const quickAuditMutation = useMutation({
+    mutationFn: async ({ product, location, counted_quantity, reason }) => {
+      const name = `Quick Audit - ${product.name}`;
+      const createRes = await auditService.create({ name, location });
+      const auditId = createRes.data.data.id;
+      await auditService.update(auditId, {
+        items: [{ product_id: product.id, counted_quantity, notes: reason || null }],
+      });
+      const completeRes = await auditService.complete(auditId);
+      return completeRes.data.data;
+    },
     onSuccess: () => {
       invalidateInventory();
-      toast.success(t("inventory.toast.adjusted"));
-      setAdjustTarget(null);
+      toast.success(t("inventory.toast.quickAudited"));
+      setQuickAuditTarget(null);
     },
-    onError: (err) => toast.error(err.response?.data?.message || t("inventory.toast.adjustFailed")),
+    onError: (err) => toast.error(err.response?.data?.message || t("inventory.toast.quickAuditFailed")),
   });
 
   const lowStock = inventory.filter((p) => p.total <= p.minimum_stock);
@@ -142,14 +152,14 @@ export default function InventoryPage() {
       key: "warehouse_qty",
       label: t("inventory.columns.warehouse"),
       render: (val) => (
-        <span className="text-[13px] font-semibold text-surface-800">{val}</span>
+        <span className="text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{val}</span>
       ),
     },
     {
       key: "store_qty",
       label: t("inventory.columns.store"),
       render: (val) => (
-        <span className="text-[13px] font-semibold text-surface-800">{val}</span>
+        <span className="text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{val}</span>
       ),
     },
     {
@@ -159,7 +169,7 @@ export default function InventoryPage() {
         const isLow = val <= row.minimum_stock;
         return (
           <div className="flex items-center gap-2">
-            <span className={`text-[13px] font-bold ${isLow ? "text-red-600" : "text-surface-800"}`}>
+            <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${isLow ? "text-red-600" : "text-surface-800"}`}>
               {val}
             </span>
             {isLow && (
@@ -172,7 +182,26 @@ export default function InventoryPage() {
     {
       key: "minimum_stock",
       label: t("inventory.columns.minStock"),
-      render: (val) => <span className="text-[13px] text-surface-500">{val}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 tabular-nums whitespace-nowrap">{val}</span>,
+    },
+    {
+      key: "expiration_date",
+      label: t("inventory.columns.expiration"),
+      render: (val, row) => {
+        const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] text-surface-600 whitespace-nowrap">
+              {val ? new Date(val + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
+            </span>
+            {row.expiration_status && (
+              <Badge variant={statusBadge(row.expiration_status)}>
+                {t(`inventory.expiration.statuses.${row.expiration_status}`)}
+              </Badge>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "status",
@@ -195,11 +224,11 @@ export default function InventoryPage() {
                   <ArrowLeftRight className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => setAdjustTarget(row)}
-                  className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150"
-                  title={t("inventory.adjust.adjust")}
+                  onClick={() => setQuickAuditTarget(row)}
+                  className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150"
+                  title={t("inventory.quickAudit.button")}
                 >
-                  <PackagePlus className="w-4 h-4" />
+                  <ClipboardCheck className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewHistory(row.id)}
@@ -295,6 +324,39 @@ export default function InventoryPage() {
         />
       </div>
 
+      {/* Expiration filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div>
+          <label className="block text-[11px] font-semibold text-surface-500 uppercase tracking-wider mb-1">
+            {t("inventory.expiration.filterLabel")}
+          </label>
+          <select
+            value={expirationFilter}
+            onChange={(e) => setExpirationFilter(e.target.value)}
+            className="px-3 py-2 border border-surface-200 bg-white rounded-xl text-[13px] text-surface-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer"
+          >
+            <option value="">{t("inventory.expiration.all")}</option>
+            <option value="expired">{t("inventory.expiration.statuses.expired")}</option>
+            <option value="expiring_soon">{t("inventory.expiration.statuses.expiring_soon")}</option>
+            <option value="normal">{t("inventory.expiration.statuses.normal")}</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] font-semibold text-surface-500 uppercase tracking-wider">&nbsp;</span>
+          <button
+            onClick={() => setSortBy(sortBy === "expiration" ? "" : "expiration")}
+            className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-[13px] font-semibold transition-all duration-150 ${
+              sortBy === "expiration"
+                ? "border-primary-200 bg-primary-50 text-primary-700"
+                : "border-surface-200 bg-white text-surface-600 hover:bg-surface-50"
+            }`}
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+            {t("inventory.expiration.sortByExpiration")}
+          </button>
+        </div>
+      </div>
+
       {filtered.length === 0 ? (
         <EmptyState
           icon={Package}
@@ -319,18 +381,18 @@ export default function InventoryPage() {
         loading={transferMutation.isPending}
       />
 
-      {/* Adjust Stock Modal */}
-      <AdjustStockModal
-        isOpen={!!adjustTarget}
-        onClose={() => setAdjustTarget(null)}
-        product={adjustTarget}
+      {/* Quick Audit Modal */}
+      <QuickAuditModal
+        isOpen={!!quickAuditTarget}
+        onClose={() => setQuickAuditTarget(null)}
+        product={quickAuditTarget}
         onSubmit={(data) =>
-          adjustMutation.mutate({
-            product_id: adjustTarget.id,
+          quickAuditMutation.mutate({
+            product: quickAuditTarget,
             ...data,
           })
         }
-        loading={adjustMutation.isPending}
+        loading={quickAuditMutation.isPending}
       />
 
       {/* Movement History Modal */}
@@ -396,7 +458,7 @@ function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
             type="number"
             min="1"
             {...register("quantity")}
-            className={INPUT_CLASS}
+            className={`${INPUT_CLASS} numeric-grow min-w-14`}
             placeholder={t("inventory.transfer.quantityPlaceholder")}
           />
           {errors.quantity && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.quantity.message}</p>}
@@ -408,7 +470,7 @@ function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
             onClick={onClose}
             className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150"
           >
-            {t("inventory.adjust.cancel")}
+            {t("common.cancel")}
           </button>
           <button
             type="submit"
@@ -423,7 +485,7 @@ function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
   );
 }
 
-function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
+function QuickAuditModal({ isOpen, onClose, product, onSubmit, loading }) {
   const { t } = useTranslation();
   const {
     register,
@@ -432,77 +494,64 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
     watch,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(adjustSchema),
-    defaultValues: { location: "store", movement_type: "adjustment", quantity: 0 },
+    resolver: zodResolver(quickAuditSchema),
+    defaultValues: { location: "store", counted_quantity: "", reason: "" },
   });
 
   const location = watch("location", "store");
-  const quantity = Number(watch("quantity", 0)) || 0;
-  const movementType = watch("movement_type", "adjustment");
   const currentQty = product
     ? (location === "warehouse" ? Number(product.warehouse_qty) : Number(product.store_qty))
     : 0;
-  const delta = movementType === "damage" ? -Math.abs(quantity) : Math.abs(quantity);
-  const newStock = currentQty + (movementType === "adjustment" ? quantity : delta);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.adjust.title", { name: product?.name || "" })}>
+    <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.quickAudit.title", { name: product?.name || "" })}>
       <form
         onSubmit={handleSubmit((data) => {
-          onSubmit(data);
+          onSubmit({ ...data, counted_quantity: Number(data.counted_quantity) });
           reset();
         })}
         className="space-y-5"
       >
-        <div className="bg-surface-50 rounded-xl p-4">
-          <div className="flex justify-between text-[13px]">
-            <span className="text-surface-500">{t("inventory.adjust.currentStock")}</span>
-            <span className="font-bold text-surface-800">{currentQty}</span>
-          </div>
-          <div className="flex justify-between text-[13px] mt-1">
-            <span className="text-surface-500">{t("inventory.adjust.afterAdjustment")}</span>
-            <span className={`font-bold ${newStock < 0 ? "text-red-600" : "text-surface-800"}`}>
-              {newStock}
-            </span>
-          </div>
-        </div>
-
-        <div>
-          <label className={LABEL_CLASS}>{t("inventory.adjust.location")}</label>
-          <select {...register("location")} className={SELECT_CLASS}>
+        <div className="bg-surface-50 rounded-xl p-4 flex justify-between text-[13px]">
+          <span className="text-surface-500">{t("inventory.quickAudit.location")}</span>
+          <select {...register("location")} className="px-2 py-1 border border-surface-200 bg-white rounded-lg text-[13px] text-surface-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer">
             <option value="store">{t("inventory.store")}</option>
             <option value="warehouse">{t("inventory.warehouse")}</option>
           </select>
-          {errors.location && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.location.message}</p>}
+        </div>
+
+        <div className="bg-surface-50 rounded-xl p-4 flex justify-between text-[13px]">
+          <span className="text-surface-500">{t("inventory.quickAudit.currentQuantity")}</span>
+          <span className="font-bold text-surface-800 tabular-nums">{currentQty}</span>
         </div>
 
         <div>
-          <label className={LABEL_CLASS}>{t("inventory.adjust.type")}</label>
-          <select {...register("movement_type")} className={SELECT_CLASS}>
-            <option value="adjustment">{t("inventory.adjust.adjustment")}</option>
-            <option value="return">{t("inventory.adjust.return")}</option>
-            <option value="damage">{t("inventory.adjust.damage")}</option>
-          </select>
-          {errors.movement_type && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.movement_type.message}</p>}
-        </div>
-
-        <div>
-          <label className={LABEL_CLASS}>{t("inventory.adjust.quantity")}</label>
+          <label className={LABEL_CLASS}>{t("inventory.quickAudit.countedQuantity")}</label>
           <input
             type="number"
-            {...register("quantity")}
-            className={INPUT_CLASS}
-            placeholder={t("inventory.adjust.quantityPlaceholder")}
+            min="0"
+            step="1"
+            {...register("counted_quantity")}
+            className={`${INPUT_CLASS} numeric-grow min-w-14`}
+            placeholder="0"
           />
-          <p className="text-[11px] text-surface-400 mt-1">
-            {movementType === "adjustment"
-              ? t("inventory.adjust.quantityHint")
-              : movementType === "return"
-                ? t("inventory.adjust.returnHint")
-                : t("inventory.adjust.damageHint")}
-          </p>
-          {errors.quantity && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.quantity.message}</p>}
+          {errors.counted_quantity && (
+            <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.counted_quantity.message}</p>
+          )}
         </div>
+
+        <div>
+          <label className={LABEL_CLASS}>{t("inventory.quickAudit.reason")}</label>
+          <input
+            type="text"
+            maxLength={255}
+            {...register("reason")}
+            className={INPUT_CLASS}
+            placeholder={t("inventory.quickAudit.reasonPlaceholder")}
+          />
+        </div>
+
+        <p className="text-[11px] text-surface-400 -mt-2">{t("inventory.quickAudit.hint")}</p>
 
         <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
           <button
@@ -510,14 +559,14 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
             onClick={onClose}
             className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150"
           >
-            {t("inventory.adjust.cancel")}
+            {t("inventory.quickAudit.cancel")}
           </button>
           <button
             type="submit"
-            disabled={loading || newStock < 0}
+            disabled={loading}
             className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20"
           >
-            {loading ? t("inventory.adjust.adjusting") : t("inventory.adjust.adjust")}
+            {loading ? t("inventory.quickAudit.applying") : t("inventory.quickAudit.apply")}
           </button>
         </div>
       </form>
@@ -527,11 +576,11 @@ function AdjustStockModal({ isOpen, onClose, product, onSubmit, loading }) {
 
 const TYPE_ICONS = {
   transfer: ArrowLeftRight,
-  sale: PackageMinus,
-  purchase: PackagePlus,
+  sale: Package,
+  purchase: Package,
   return: PackageOpen,
   damage: AlertTriangle,
-  adjustment: PackagePlus,
+  adjustment: ClipboardCheck,
 };
 
 function MovementHistoryModal({ isOpen, onClose, movements, product }) {
@@ -563,9 +612,14 @@ function MovementHistoryModal({ isOpen, onClose, movements, product }) {
                         {" · "}
                         {new Date(m.created_at).toLocaleString()}
                       </p>
+                      {m.notes && (
+                        <p className="text-[11px] text-surface-400 mt-0.5">
+                          {t("inventory.history.source")}: {m.notes}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <span className="text-[13px] font-bold text-surface-800">
+                  <span className="text-[13px] font-bold text-surface-800 tabular-nums whitespace-nowrap">
                     {m.quantity} {t("inventory.history.units")}
                   </span>
                 </div>

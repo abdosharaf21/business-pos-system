@@ -83,7 +83,7 @@ def create_checkout():
     Body:
         items: List of {product_id, quantity, unit_price}.
         customer_id: Optional customer ID.
-        payment_method: Payment method (cash, card, transfer, mixed).
+        payment_method: Payment method (cash, card, transfer, mixed, vodafone_cash).
         discount: Optional discount amount.
 
     Returns:

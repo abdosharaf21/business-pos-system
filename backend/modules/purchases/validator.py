@@ -1,6 +1,9 @@
 """Purchase validator for purchase input validation."""
 
+from datetime import datetime
 from typing import Dict, Any, List
+
+from backend.modules.purchases.model import Purchase
 
 
 class PurchaseValidator:
@@ -9,6 +12,58 @@ class PurchaseValidator:
     Handles all validation logic for purchase-related operations.
     Does not access the database or execute business logic.
     """
+
+    @staticmethod
+    def validate_payment_method(value: Any) -> str:
+        """Validate purchase payment method.
+
+        Args:
+            value: Payment method value.
+
+        Returns:
+            Validated payment method string.
+
+        Raises:
+            ValueError: If the payment method is invalid.
+        """
+        if value is None or str(value).strip() == "":
+            return "cash"
+
+        method = str(value).strip().lower()
+
+        if method not in Purchase.VALID_PAYMENT_METHODS:
+            raise ValueError(
+                "Invalid payment method. Allowed values: cash, card, "
+                "transfer, mixed, vodafone_cash"
+            )
+
+        return method
+
+    @staticmethod
+    def validate_notes(value: Any) -> str:
+        """Validate optional purchase notes.
+
+        Args:
+            value: Notes value.
+
+        Returns:
+            Stripped notes string, or None.
+
+        Raises:
+            ValueError: If notes exceed the maximum length.
+        """
+        if not value:
+            return None
+
+        notes = str(value).strip()
+
+        if not notes:
+            return None
+
+        if len(notes) > 1000:
+            raise ValueError("Notes must not exceed 1000 characters")
+
+        return notes
 
     @staticmethod
     def validate_quantity(value: Any) -> int:
@@ -80,6 +135,33 @@ class PurchaseValidator:
         return pid
 
     @staticmethod
+    def validate_expiration_date(value: Any) -> str:
+        """Validate an optional item expiration date.
+
+        Args:
+            value: Expiration date as a YYYY-MM-DD string, or None/empty.
+
+        Returns:
+            Normalized YYYY-MM-DD string, or None when not provided.
+
+        Raises:
+            ValueError: If the value is not a valid date.
+        """
+        if value is None or str(value).strip() == "":
+            return None
+
+        raw = str(value).strip()
+
+        try:
+            parsed = datetime.strptime(raw, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(
+                "Expiration date must be a valid date in YYYY-MM-DD format"
+            )
+
+        return parsed.strftime("%Y-%m-%d")
+
+    @staticmethod
     def validate_supplier_id(value: Any) -> int:
         """Validate supplier ID.
 
@@ -110,7 +192,8 @@ class PurchaseValidator:
         """Validate a single purchase item.
 
         Args:
-            item: Item dictionary with product_id, quantity, cost_price.
+            item: Item dictionary with product_id, quantity, cost_price,
+                and optional expiration_date.
             index: Zero-based index of the item for error messages.
 
         Returns:
@@ -126,6 +209,9 @@ class PurchaseValidator:
             "product_id": PurchaseValidator.validate_product_id(item.get("product_id")),
             "quantity": PurchaseValidator.validate_quantity(item.get("quantity")),
             "cost_price": PurchaseValidator.validate_cost_price(item.get("cost_price")),
+            "expiration_date": PurchaseValidator.validate_expiration_date(
+                item.get("expiration_date")
+            ),
         }
 
         return validated
@@ -273,6 +359,8 @@ class PurchaseValidator:
 
         validated = {
             "supplier_id": PurchaseValidator.validate_supplier_id(data.get("supplier_id")),
+            "payment_method": PurchaseValidator.validate_payment_method(data.get("payment_method")),
+            "notes": PurchaseValidator.validate_notes(data.get("notes")),
             "items": [],
         }
 

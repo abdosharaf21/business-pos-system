@@ -1,5 +1,6 @@
 """Purchase service for purchase-related business logic."""
 
+from math import ceil
 from typing import Optional, List, Dict, Any
 
 from backend.modules.purchases.model import Purchase
@@ -14,6 +15,8 @@ class PurchaseService:
     validation, and retrieval. Communicates only with PurchaseRepository
     for data access.
     """
+
+    MAX_PER_PAGE = 100
 
     def __init__(self, purchase_repository: PurchaseRepository) -> None:
         """Initialize PurchaseService with a PurchaseRepository.
@@ -30,7 +33,8 @@ class PurchaseService:
         then creates the purchase with stock updates in one transaction.
 
         Args:
-            data: Dictionary with supplier_id and items.
+            data: Dictionary with supplier_id, items, and optional
+                payment_method and notes.
             user_id: ID of the creating user.
 
         Returns:
@@ -60,6 +64,8 @@ class PurchaseService:
             supplier_id=validated["supplier_id"],
             user_id=user_id,
             items_data=validated["items"],
+            payment_method=validated["payment_method"],
+            notes=validated["notes"],
         )
 
         if supplier.get("name"):
@@ -87,13 +93,19 @@ class PurchaseService:
     def get_all_purchases(
         self,
         search: Optional[str] = None,
+        date: Optional[str] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ) -> List[Purchase]:
-        """Retrieve all purchases with optional search.
+        """Retrieve all purchases with optional filters.
 
         Args:
             search: Optional search term for invoice number or supplier name.
+            date: Optional exact purchase date (YYYY-MM-DD).
+            date_from: Optional start of date range (YYYY-MM-DD).
+            date_to: Optional end of date range (YYYY-MM-DD).
             limit: Maximum number of records.
             offset: Pagination offset.
 
@@ -101,8 +113,54 @@ class PurchaseService:
             List of Purchase instances.
         """
         return self._purchase_repository.get_all(
-            search=search, limit=limit, offset=offset
+            search=search,
+            date=date,
+            date_from=date_from,
+            date_to=date_to,
+            limit=limit,
+            offset=offset,
         )
+
+    def list_purchases(self, filters: Dict[str, Any]) -> Dict[str, Any]:
+        """List purchases with filtering and pagination.
+
+        Args:
+            filters: Dictionary with search, date, date_from, date_to,
+                page, and per_page keys.
+
+        Returns:
+            Dictionary with items, total, page, per_page, and pages.
+        """
+        page = max(int(filters.get("page", 1)), 1)
+        per_page = min(
+            max(int(filters.get("per_page", 20)), 1), self.MAX_PER_PAGE
+        )
+        offset = (page - 1) * per_page
+
+        items, total = (
+            self._purchase_repository.get_all(
+                search=filters.get("search") or None,
+                date=filters.get("date") or None,
+                date_from=filters.get("date_from") or None,
+                date_to=filters.get("date_to") or None,
+                limit=per_page,
+                offset=offset,
+            ),
+            self._purchase_repository.get_total_count(
+                search=filters.get("search") or None,
+                date=filters.get("date") or None,
+                date_from=filters.get("date_from") or None,
+                date_to=filters.get("date_to") or None,
+            ),
+        )
+
+        return {
+            "items": [p.to_dict() for p in items],
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "pages": ceil(total / per_page) if total else 0,
+        }
 
     def get_purchase_invoice(self, purchase_id: int) -> Dict[str, Any]:
         """Retrieve formatted invoice data for a purchase.

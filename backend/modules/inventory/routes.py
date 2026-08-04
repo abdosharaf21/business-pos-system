@@ -28,12 +28,25 @@ def get_inventory():
 
     Query params:
         search: Optional term to filter by name or barcode.
+        expiration_status: Optional filter: expired, expiring_soon, normal.
+        sort: Optional sort key: expiration (oldest first).
 
     Returns:
         JSON response with inventory list.
     """
     search = request.args.get("search", "")
-    products = _inventory_service.get_inventory(search=search or None)
+    expiration_status = request.args.get("expiration_status", "")
+    sort = request.args.get("sort", "")
+
+    try:
+        products = _inventory_service.get_inventory(
+            search=search or None,
+            expiration_status=expiration_status or None,
+            sort=sort or None,
+        )
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
     return jsonify({
         "success": True,
         "data": products,
@@ -145,43 +158,4 @@ def transfer_stock():
         return jsonify({"success": False, "message": str(e)}), 400
 
 
-@inventory_bp.route("/adjust", methods=["POST"])
-@require_admin_or_manager
-def adjust_stock():
-    """Adjust stock at a location and record the movement.
 
-    Expects JSON body with product_id, location, quantity, and
-    movement_type (adjustment, damage, return).
-
-    Returns:
-        JSON response with adjustment result.
-    """
-    data = request.get_json(silent=True) or {}
-    try:
-        product_id = data.get("product_id")
-        location = data.get("location")
-        quantity = data.get("quantity")
-        movement_type = data.get("movement_type", "adjustment")
-        notes = data.get("notes")
-
-        if not product_id:
-            return jsonify({"success": False, "message": "Product ID is required"}), 400
-        if not location:
-            return jsonify({"success": False, "message": "Location is required"}), 400
-
-        user_id = int(get_jwt_identity())
-        result = _inventory_service.adjust_stock(
-            product_id=int(product_id),
-            location=location,
-            quantity=int(quantity),
-            movement_type=movement_type,
-            user_id=user_id,
-            notes=notes,
-        )
-        return jsonify({
-            "success": True,
-            "message": "Stock adjusted successfully",
-            "data": result,
-        }), 200
-    except ValueError as e:
-        return jsonify({"success": False, "message": str(e)}), 400

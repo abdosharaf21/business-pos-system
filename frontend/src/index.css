@@ -83,6 +83,15 @@
     font-family: inherit;
   }
 
+  input[type="number"] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    margin-left: 2px;
+  }
+
   ::selection {
     background-color: var(--color-primary-200);
     color: var(--color-primary-900);
@@ -112,6 +121,16 @@
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: var(--color-surface-300);
     border-radius: 9999px;
+  }
+
+  .numeric-grow {
+    field-sizing: content;
+    max-width: 100%;
+  }
+
+  .numeric-value {
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
   }
 
   .animate-in {

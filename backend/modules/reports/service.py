@@ -6,6 +6,8 @@ from typing import Dict, Any, Optional
 from backend.modules.reports.repository import ReportRepository
 from backend.modules.expenses.repository import ExpenseRepository
 from backend.modules.inventory_audits.repository import InventoryAuditRepository
+from backend.config import Config
+from backend.utils.expiration import classify_expiration
 
 
 class ReportService:
@@ -158,12 +160,23 @@ class ReportService:
         return {"suppliers": suppliers}
 
     def get_inventory_report(self) -> Dict[str, Any]:
-        """Get per-product stock levels by location.
+        """Get per-product stock levels by location with expiration status.
 
         Returns:
             Dictionary with an inventory array.
         """
         inventory = self._report_repository.get_inventory_report()
+
+        for row in inventory:
+            expiration_date = row.get("expiration_date")
+            row["expiration_status"] = (
+                classify_expiration(
+                    expiration_date, expiring_soon_days=Config.EXPIRING_SOON_DAYS
+                )
+                if expiration_date is not None
+                else None
+            )
+
         return {"inventory": inventory}
 
     def get_movement_report(

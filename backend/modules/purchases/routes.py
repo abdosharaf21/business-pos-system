@@ -99,26 +99,52 @@ def search_products():
 @purchases_bp.route("/", methods=["GET"])
 @require_authenticated
 def get_all_purchases():
-    """Get all purchases with optional search and pagination.
+    """Get all purchases with optional filters and pagination.
 
     Query params:
         search: Search term for invoice number or supplier name.
-        limit: Records per page (default 50).
-        offset: Pagination offset (default 0).
+        date: Exact purchase date (YYYY-MM-DD).
+        date_from: Start of date range (YYYY-MM-DD).
+        date_to: End of date range (YYYY-MM-DD).
+        page: Page number (default 1).
+        per_page: Records per page (default 20, max 100).
+        limit: Legacy records-per-page alias.
+        offset: Legacy pagination offset.
 
     Returns:
-        JSON response with list of purchases.
+        JSON response with paginated purchase list.
     """
-    search = request.args.get("search", "")
-    limit = request.args.get("limit", 50, type=int)
-    offset = request.args.get("offset", 0, type=int)
-    purchases = _purchase_service.get_all_purchases(
-        search=search or None, limit=limit, offset=offset
-    )
+    filters = {
+        "search": request.args.get("search", "").strip() or None,
+        "date": request.args.get("date", "").strip() or None,
+        "date_from": request.args.get("date_from", "").strip() or None,
+        "date_to": request.args.get("date_to", "").strip() or None,
+    }
+
+    if request.args.get("limit", type=int) is not None:
+        limit = request.args.get("limit", 50, type=int)
+        offset = request.args.get("offset", 0, type=int)
+        purchases = _purchase_service.get_all_purchases(
+            search=filters["search"],
+            date=filters["date"],
+            date_from=filters["date_from"],
+            date_to=filters["date_to"],
+            limit=limit,
+            offset=offset,
+        )
+        return jsonify({
+            "success": True,
+            "message": "Purchases retrieved successfully",
+            "data": [p.to_dict() for p in purchases],
+        }), 200
+
+    filters["page"] = request.args.get("page", 1, type=int)
+    filters["per_page"] = request.args.get("per_page", 20, type=int)
+    data = _purchase_service.list_purchases(filters)
     return jsonify({
         "success": True,
         "message": "Purchases retrieved successfully",
-        "data": [p.to_dict() for p in purchases],
+        "data": data,
     }), 200
 
 

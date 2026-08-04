@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoginPage from "../shared/pages/LoginPage";
 
 const mockLogin = vi.fn();
@@ -9,11 +10,18 @@ vi.mock("../shared/context/AuthContext", () => ({
   useAuth: () => ({ login: mockLogin }),
 }));
 
+vi.mock("../modules/store-settings/hooks", () => ({
+  useLoginBranding: () => ({ data: null }),
+}));
+
 function renderPage() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <BrowserRouter>
-      <LoginPage />
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <LoginPage />
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

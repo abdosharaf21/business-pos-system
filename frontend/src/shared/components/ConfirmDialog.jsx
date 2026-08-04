@@ -35,7 +35,7 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, conf
             className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-red-600/25"
           >
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {loading ? (loadingText || confirmText || t("common.cancel")) : (confirmText || t("common.cancel"))}
+            {loading ? (loadingText || confirmText || t("common.confirm")) : (confirmText || t("common.confirm"))}
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.products.model import Product
+from backend.utils.expiration import normalize_expiration_date
 
 
 class ProductRepository:
@@ -53,13 +54,16 @@ class ProductRepository:
         """Convert a database row tuple (with category join) to a Product instance.
 
         Args:
-            row: Database row as a tuple including category_name.
+            row: Database row as a tuple including category_name and
+                optional expiration_date.
 
         Returns:
             Product instance with category_name populated.
         """
         product = self._row_to_product(row[:13])
         product.category_name = row[13] if len(row) > 13 else None
+        if len(row) > 14:
+            product.expiration_date = normalize_expiration_date(row[14])
         return product
 
     def create(self, product: Product) -> Product:
@@ -161,9 +165,15 @@ class ProductRepository:
             cursor = conn.cursor()
             try:
                 query = """
-                    SELECT p.*, c.name AS category_name
+                    SELECT p.*, c.name AS category_name,
+                        e.expiration_date
                     FROM products p
                     LEFT JOIN categories c ON c.id = p.category_id
+                    LEFT JOIN (
+                        SELECT product_id, MIN(expiration_date) AS expiration_date
+                        FROM purchase_items WHERE expiration_date IS NOT NULL
+                        GROUP BY product_id
+                    ) e ON e.product_id = p.id
                 """
                 conditions = []
                 params = []
@@ -330,6 +340,34 @@ class ProductRepository:
                 cursor.execute(query, (sku,))
                 result = cursor.fetchone()
                 return result[0] > 0
+            except mysql.connector.Error:
+                raise
+            finally:
+                cursor.close()
+
+    def get_oldest_expiration(self, product_id: int) -> Optional[str]:
+        """Retrieve the oldest batch expiration date for a product.
+
+        Args:
+            product_id: The unique identifier of the product.
+
+        Returns:
+            Earliest non-null expiration date (YYYY-MM-DD) across the
+            product's purchase batches, or None if no batch has one.
+
+        Raises:
+            mysql.connector.Error: If database operation fails.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor()
+            try:
+                query = (
+                    "SELECT MIN(expiration_date) FROM purchase_items "
+                    "WHERE product_id = %s AND expiration_date IS NOT NULL"
+                )
+                cursor.execute(query, (product_id,))
+                result = cursor.fetchone()
+                return normalize_expiration_date(result[0] if result else None)
             except mysql.connector.Error:
                 raise
             finally:

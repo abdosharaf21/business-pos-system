@@ -114,6 +114,20 @@ from backend.modules.inventory_audits.routes import (
 from backend.modules.inventory_audits.repository import InventoryAuditRepository
 from backend.modules.inventory_audits.service import InventoryAuditService
 
+from backend.modules.notifications.routes import (
+    notifications_bp,
+    init_notification_service,
+)
+from backend.modules.notifications.repository import NotificationRepository
+from backend.modules.notifications.service import NotificationService
+
+from backend.modules.store_settings.routes import (
+    store_settings_bp,
+    init_store_settings_service,
+)
+from backend.modules.store_settings.repository import StoreSettingsRepository
+from backend.modules.store_settings.service import StoreSettingsService
+
 from backend.middleware import (
     register_error_handlers,
     register_security_headers,
@@ -359,6 +373,14 @@ def create_app(config: dict = None) -> Flask:
     report_service = ReportService(report_repo, expense_repo, audit_repo)
     init_report_service(report_service)
 
+    notification_repo = NotificationRepository(database)
+    notification_service = NotificationService(notification_repo)
+    init_notification_service(notification_service)
+
+    store_settings_repo = StoreSettingsRepository(database)
+    store_settings_service = StoreSettingsService(store_settings_repo)
+    init_store_settings_service(store_settings_service)
+
     atexit.register(database.close_all)
 
     app.register_blueprint(auth_bp)
@@ -374,6 +396,8 @@ def create_app(config: dict = None) -> Flask:
     app.register_blueprint(reports_bp)
     app.register_blueprint(expenses_bp)
     app.register_blueprint(inventory_audits_bp)
+    app.register_blueprint(notifications_bp)
+    app.register_blueprint(store_settings_bp)
 
     @app.get("/api/setup/status")
     def setup_status():

@@ -1,29 +1,16 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
-import {
-  LayoutDashboard,
-  BarChart3,
-  FolderOpen,
-  Package,
-  UserCog,
-  LogOut,
-  X,
-  Building2,
-  ShoppingBag,
-  Contact2,
-  Truck,
-  ShoppingCart,
-  CreditCard,
-  History,
-  Wallet,
-  ClipboardList,
-} from "lucide-react";
+import { LogOut, X, Building2 } from "lucide-react";
+import { getVisibleModules, getVisibleSidebarGroups } from "./navigationConfig";
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose, activeModuleId }) {
   const { logout, user } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
+
+  const modules = getVisibleModules(user?.role);
+  const groups = getVisibleSidebarGroups(activeModuleId, user?.role);
 
   const handleLogout = async () => {
     await logout();
@@ -37,33 +24,6 @@ export default function Sidebar({ isOpen, onClose }) {
         .toUpperCase()
         .slice(0, 2)
     : "?";
-
-  const navGroups = [
-    {
-      label: t("nav.overview"),
-      items: [{ to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard }],
-    },
-    {
-      label: t("nav.management"),
-      items: [
-        { to: "/pos", label: t("nav.pos"), icon: CreditCard },
-        { to: "/reports", label: t("nav.reports"), icon: BarChart3 },
-        { to: "/products", label: t("nav.products"), icon: ShoppingBag },
-        { to: "/customers", label: t("nav.customers"), icon: Contact2 },
-        { to: "/suppliers", label: t("nav.suppliers"), icon: Truck },
-        { to: "/purchases", label: t("nav.purchases"), icon: ShoppingCart },
-        { to: "/expenses", label: t("nav.expenses"), icon: Wallet },
-        { to: "/categories", label: t("nav.categories"), icon: FolderOpen },
-        { to: "/inventory", label: t("nav.inventory"), icon: Package },
-        { to: "/inventory/movements", label: t("nav.movementHistory"), icon: History },
-        { to: "/inventory/audits", label: t("nav.inventoryAudits"), icon: ClipboardList },
-      ],
-    },
-    {
-      label: t("nav.administration"),
-      items: [{ to: "/users", label: t("nav.users"), icon: UserCog, roles: ["admin"] }],
-    },
-  ];
 
   return (
     <>
@@ -79,7 +39,7 @@ export default function Sidebar({ isOpen, onClose }) {
         className={`fixed top-0 start-0 z-50 h-full w-64 bg-white border-e border-surface-200/80 flex flex-col transition-transform duration-300 ease-out
           lg:translate-x-0 ${isOpen ? "translate-x-0" : (isRtl ? "translate-x-full" : "-translate-x-full")}`}
         role="navigation"
-        aria-label="Main navigation"
+        aria-label="Module navigation"
       >
         {/* Brand */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-surface-100">
@@ -101,20 +61,44 @@ export default function Sidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Mobile module switcher */}
+        <div className="lg:hidden px-3 pt-4 pb-1 border-b border-surface-100">
+          <div className="flex gap-1 overflow-x-auto scrollbar-thin">
+            {modules.map((module) => {
+              const Icon = module.icon;
+              const isActive = module.id === activeModuleId;
+              return (
+                <NavLink
+                  key={module.id}
+                  to={module.to}
+                  onClick={onClose}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap transition-all duration-150 ${
+                    isActive
+                      ? "bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/5"
+                      : "text-surface-500 hover:bg-surface-50 hover:text-surface-800"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <Icon
+                    className={`w-4 h-4 ${isActive ? "text-primary-600" : "text-surface-400"}`}
+                    strokeWidth={isActive ? 2.2 : 1.8}
+                  />
+                  {t(module.labelKey)}
+                </NavLink>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Module navigation */}
         <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto scrollbar-thin" aria-label="Sidebar navigation">
-          {navGroups.map((group) => {
-            const visibleItems = group.items.filter(
-              (item) => !item.roles || item.roles.includes(user?.role)
-            );
-            if (visibleItems.length === 0) return null;
-            return (
-              <div key={group.label}>
-                <p className="px-3 mb-2 text-[10px] font-semibold text-surface-400 uppercase tracking-wider">
-                  {group.label}
-                </p>
-                <div className="space-y-0.5">
-                  {visibleItems.map(({ to, label, icon: Icon }) => (
+          {groups.map((group) => (
+            <div key={group.labelKey}>
+              <p className="px-3 mb-2 text-[10px] font-semibold text-surface-400 uppercase tracking-wider">
+                {t(group.labelKey)}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map(({ to, labelKey, icon: Icon }) => (
                   <NavLink
                     key={to}
                     to={to}
@@ -139,15 +123,14 @@ export default function Sidebar({ isOpen, onClose }) {
                           }`}
                           strokeWidth={isActive ? 2.2 : 1.8}
                         />
-                        {label}
+                        {t(labelKey)}
                       </>
                     )}
                   </NavLink>
                 ))}
               </div>
             </div>
-          );
-          })}
+          ))}
         </nav>
 
         {/* User Profile + Logout */}

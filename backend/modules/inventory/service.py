@@ -3,21 +3,35 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
+from backend.config import Config
 from backend.modules.inventory.repository import InventoryRepository
+from backend.utils.expiration import (
+    classify_expiration,
+    EXPIRATION_STATUS_EXPIRED,
+    EXPIRATION_STATUS_EXPIRING_SOON,
+    EXPIRATION_STATUS_NORMAL,
+)
 
 
 VALID_LOCATIONS = {"warehouse", "store"}
 VALID_MOVEMENT_TYPES = {"transfer", "sale", "purchase", "return", "damage", "adjustment"}
-ADJUSTMENT_TYPES = {"adjustment", "damage", "return"}
 MAX_LIMIT = 200
+VALID_EXPIRATION_FILTERS = {
+    EXPIRATION_STATUS_EXPIRED,
+    EXPIRATION_STATUS_EXPIRING_SOON,
+    EXPIRATION_STATUS_NORMAL,
+}
+VALID_EXPIRATION_SORTS = {"expiration"}
 
 
 class InventoryService:
     """Service for inventory business operations.
 
     Handles all stock management business logic including validation,
-    transfers, adjustments, and movement history. Communicates only
-    with InventoryRepository for data access.
+    transfers, and movement history. Manual stock corrections are
+    intentionally not handled here; they are routed exclusively through
+    the Inventory Audit module. Communicates only with
+    InventoryRepository for data access.
     """
 
     def __init__(self, inventory_repository: InventoryRepository) -> None:
@@ -29,17 +43,62 @@ class InventoryService:
         self._repository = inventory_repository
 
     def get_inventory(
-        self, search: Optional[str] = None
+        self,
+        search: Optional[str] = None,
+        expiration_status: Optional[str] = None,
+        sort: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Retrieve all products with per-location stock information.
 
+        Classifies each product's expiration date, optionally filters by
+        expiration status, and optionally sorts by expiration date.
+
         Args:
             search: Optional search term.
+            expiration_status: Optional filter: expired, expiring_soon, normal.
+            sort: Optional sort key: expiration (oldest first).
 
         Returns:
-            List of product dictionaries with stock info.
+            List of product dictionaries with stock info and expiration data.
+
+        Raises:
+            ValueError: If an invalid filter or sort value is provided.
         """
-        return self._repository.get_inventory_with_stock(search=search)
+        if expiration_status is not None:
+            if expiration_status not in VALID_EXPIRATION_FILTERS:
+                raise ValueError(
+                    f"Invalid expiration filter. Must be one of: "
+                    f"{', '.join(sorted(VALID_EXPIRATION_FILTERS))}"
+                )
+
+        if sort is not None and sort not in VALID_EXPIRATION_SORTS:
+            raise ValueError(
+                f"Invalid sort. Must be one of: {', '.join(sorted(VALID_EXPIRATION_SORTS))}"
+            )
+
+        rows = self._repository.get_inventory_with_stock(search=search)
+
+        for row in rows:
+            expiration_date = row.get("expiration_date")
+            if expiration_date is not None:
+                row["expiration_status"] = classify_expiration(
+                    expiration_date, expiring_soon_days=Config.EXPIRING_SOON_DAYS
+                )
+            else:
+                row["expiration_status"] = None
+
+        if expiration_status is not None:
+            rows = [
+                row for row in rows if row["expiration_status"] == expiration_status
+            ]
+
+        if sort == "expiration":
+            def _expiration_key(row: Dict[str, Any]):
+                return (row.get("expiration_date") is None, row.get("expiration_date"))
+
+            rows.sort(key=_expiration_key)
+
+        return rows
 
     def get_summary(self) -> Dict[str, Any]:
         """Get aggregate inventory statistics.
@@ -144,67 +203,4 @@ class InventoryService:
             product_id=product_id,
             quantity=int(quantity),
             user_id=user_id,
-        )
-
-    def adjust_stock(
-        self,
-        product_id: int,
-        location: str,
-        quantity: int,
-        movement_type: str,
-        user_id: Optional[int] = None,
-        notes: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Adjust stock at a location and record the movement.
-
-        Args:
-            product_id: ID of the product to adjust.
-            location: Location to adjust (warehouse or store).
-            quantity: Quantity (signed for adjustment, positive for damage/return).
-            movement_type: Type of movement (adjustment, damage, return).
-            user_id: ID of the user performing the adjustment.
-            notes: Optional note.
-
-        Returns:
-            Dictionary describing the adjustment.
-
-        Raises:
-            ValueError: If any input is invalid.
-        """
-        if movement_type not in ADJUSTMENT_TYPES:
-            raise ValueError(
-                f"Invalid adjustment type. Must be one of: "
-                f"{', '.join(sorted(ADJUSTMENT_TYPES))}"
-            )
-
-        if location not in VALID_LOCATIONS:
-            raise ValueError(
-                f"Invalid location. Must be one of: "
-                f"{', '.join(sorted(VALID_LOCATIONS))}"
-            )
-
-        if quantity is None or quantity == 0:
-            raise ValueError("Quantity must be greater than or less than zero")
-
-        product = self._repository.get_product_by_id(product_id)
-        if product is None:
-            raise ValueError("Product not found")
-        if product["status"] != "active":
-            raise ValueError("Cannot adjust stock for inactive product")
-
-        if movement_type == "return":
-            location = "store"
-            delta = abs(int(quantity))
-        elif movement_type == "damage":
-            delta = -abs(int(quantity))
-        else:
-            delta = int(quantity)
-
-        return self._repository.adjust(
-            product_id=product_id,
-            location=location,
-            quantity=delta,
-            movement_type=movement_type,
-            user_id=user_id,
-            notes=notes,
         )

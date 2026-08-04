@@ -89,7 +89,7 @@ export default function DashboardPage() {
               <p className="text-[11px] text-surface-400">{t("dashboard.transactions", { count: data.todays_sales })}</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-surface-900">{formatCurrency(data.todays_revenue)}</p>
+          <p className="numeric-value text-3xl font-bold text-surface-900 leading-snug">{formatCurrency(data.todays_revenue)}</p>
         </div>
         <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
           <div className="flex items-center gap-3 mb-4">
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                 }}
                 formatter={(value) => formatCurrency(Number(value))}
               />
-              <Bar dataKey="total" name={t("dashboard.expenses.month")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+              <Bar dataKey="total" name={t("dashboard.expenses.month")} fill="var(--color-primary-500, #3b82f6)" radius={[4, 4, 0, 0]} maxBarSize={30} />
             </BarChart>
           </ResponsiveContainer>
         )}

@@ -385,6 +385,7 @@
     "outOfStock": "نفد من المخزون",
     "lowStock": "مخزون منخفض",
     "noProductsFound": "لم يتم العثور على منتجات",
+    "productNotFound": "المنتج غير موجود",
     "failedToLoadProducts": "فشل تحميل المنتجات",
     "cartTitle": "سلة المشتريات",
     "cartEmpty": "السلة فارغة",
@@ -1002,6 +1003,7 @@
     "tryAgain": "حاول مرة أخرى",
     "closeDialog": "إغلاق الحوار",
     "cancel": "إلغاء",
+    "confirm": "تأكيد",
     "noDataAvailable": "لا توجد بيانات متاحة"
   },
   "language": {

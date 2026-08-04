@@ -1,8 +1,9 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { posService } from "./api";
+import { useBarcodeScanner } from "../../shared/hooks/useBarcodeScanner";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { Badge } from "../../shared/components/Badge";
@@ -16,9 +17,7 @@ import {
   Trash2,
   Minus,
   Plus,
-  X,
   Calculator,
-  Tag,
   Package,
   CreditCard,
   User,
@@ -34,9 +33,7 @@ const SELECT_CLASS =
 export default function PosPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [barcodeSearch, setBarcodeSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [cart, setCart] = useState([]);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -126,10 +123,6 @@ export default function PosPage() {
           (p.barcode && p.barcode.toLowerCase().includes(term))
       );
     }
-    if (barcodeSearch) {
-      const term = barcodeSearch.toLowerCase();
-      result = result.filter((p) => p.barcode?.toLowerCase() === term);
-    }
     if (categoryFilter) {
       result = result.filter((p) => {
         const cat = categories.find((c) => String(c.id) === categoryFilter);
@@ -137,7 +130,7 @@ export default function PosPage() {
       });
     }
     return result;
-  }, [products, search, barcodeSearch, categoryFilter, categories]);
+  }, [products, search, categoryFilter, categories]);
 
   const addToCart = useCallback(
     (product) => {
@@ -158,6 +151,39 @@ export default function PosPage() {
     },
     []
   );
+
+  const handleScan = useCallback(
+    (barcode) => {
+      const term = barcode.trim();
+      if (!term) return;
+      const product =
+        products.find(
+          (p) => p.barcode && p.barcode.toLowerCase() === term.toLowerCase()
+        ) ||
+        products.find(
+          (p) => p.sku && p.sku.toLowerCase() === term.toLowerCase()
+        );
+      if (!product) {
+        toast.error(t("pos.productNotFound"));
+        return;
+      }
+      if (product.quantity <= 0) {
+        toast.error(t("pos.outOfStock"));
+        return;
+      }
+      addToCart(product);
+    },
+    [products, addToCart, t]
+  );
+
+  const barcodeInputRef = useBarcodeScanner({
+    onScan: handleScan,
+    enabled: !checkoutOpen,
+  });
+
+  useEffect(() => {
+    barcodeInputRef.current?.focus();
+  }, [barcodeInputRef]);
 
   const updateQuantity = useCallback((productId, delta) => {
     setCart((prev) => {
@@ -214,10 +240,12 @@ export default function PosPage() {
           <div className="relative w-48">
             <Barcode className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
             <input
+              ref={barcodeInputRef}
               type="text"
+              data-testid="barcode-input"
               placeholder={t("pos.barcodePlaceholder")}
-              value={barcodeSearch}
-              onChange={(e) => setBarcodeSearch(e.target.value)}
+              defaultValue=""
+              autoComplete="off"
               className={`${INPUT_CLASS} ps-10`}
             />
           </div>
@@ -264,11 +292,11 @@ export default function PosPage() {
                     {product.barcode}
                   </p>
                 )}
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-primary-600">
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <span className="numeric-value text-lg font-bold text-primary-600 leading-snug">
                     {formatCurrency(product.selling_price)}
                   </span>
-                  <span className="text-xs text-surface-500">
+                  <span className="text-xs text-surface-500 tabular-nums whitespace-nowrap">
                     <Package className="inline w-3 h-3 me-1" />
                     {product.quantity}
                   </span>
@@ -295,7 +323,10 @@ export default function PosPage() {
               </h2>
             </div>
             {cart.length > 0 && (
-              <span className="text-[11px] font-semibold bg-primary-50 text-primary-600 px-2.5 py-1 rounded-full">
+              <span
+                data-testid="cart-count"
+                className="text-[11px] font-semibold bg-primary-50 text-primary-600 px-2.5 py-1 rounded-full"
+              >
                 {cart.reduce((s, i) => s + i.quantity, 0)}
               </span>
             )}
@@ -335,7 +366,7 @@ export default function PosPage() {
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
-                        <span className="w-8 text-center text-sm font-semibold text-surface-800 tabular-nums">
+                        <span className="min-w-8 px-1 text-center text-sm font-semibold text-surface-800 tabular-nums">
                           {item.quantity}
                         </span>
                         <button
@@ -346,8 +377,8 @@ export default function PosPage() {
                           <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <div className="w-20 text-right">
-                        <p className="text-sm font-bold text-surface-800 tabular-nums">
+                      <div className="min-w-20 text-end">
+                        <p className="text-sm font-bold text-surface-800 tabular-nums whitespace-nowrap">
                           {formatCurrency(item.quantity * item.selling_price)}
                         </p>
                       </div>
@@ -393,7 +424,7 @@ export default function PosPage() {
               <span className="text-sm font-bold text-surface-800">
                 {t("pos.grandTotal")}
               </span>
-              <span className="text-lg font-bold text-primary-600 tabular-nums">
+              <span className="numeric-value text-lg font-bold text-primary-600 text-end min-w-0">
                 {formatCurrency(subtotal)}
               </span>
             </div>
@@ -481,6 +512,7 @@ export default function PosPage() {
               <option value="card">{t("pos.card")}</option>
               <option value="transfer">{t("pos.transfer")}</option>
               <option value="mixed">{t("pos.mixed")}</option>
+              <option value="vodafone_cash">{t("pos.vodafoneCash")}</option>
             </select>
           </div>
 
@@ -495,14 +527,14 @@ export default function PosPage() {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-surface-500">{t("pos.subtotal")}</span>
-              <span className="font-semibold text-surface-800">
+              <span className="font-semibold text-surface-800 tabular-nums">
                 {formatCurrency(subtotal)}
               </span>
             </div>
             <hr className="border-surface-100" />
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-surface-800">{t("pos.grandTotal")}</span>
-              <span className="text-lg font-bold text-primary-600">
+              <span className="numeric-value text-lg font-bold text-primary-600 text-end min-w-0">
                 {formatCurrency(subtotal)}
               </span>
             </div>

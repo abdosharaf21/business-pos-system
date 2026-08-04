@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { posService } from "./api";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
+import { useStoreSettings } from "../store-settings/hooks";
 import { Printer, ArrowLeft, Plus } from "lucide-react";
 
 export default function InvoicePage() {
@@ -11,6 +12,7 @@ export default function InvoicePage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
+  const { data: storeSettings } = useStoreSettings();
 
   const { data: invoice, isLoading, error } = useQuery({
     queryKey: ["pos-invoice", saleId],
@@ -86,6 +88,7 @@ export default function InvoicePage() {
     card: t("pos.card"),
     transfer: t("pos.transfer"),
     mixed: t("pos.mixed"),
+    vodafone_cash: t("pos.vodafoneCash"),
   }[invoice.payment_method] || invoice.payment_method;
 
   return (
@@ -142,9 +145,30 @@ export default function InvoicePage() {
       <div id="invoice-content" className="max-w-[210mm] mx-auto py-8 px-6">
         <div className="bg-white rounded-2xl border border-surface-200 p-8 shadow-sm">
           <div className="text-center mb-8">
-            <h2 className="text-xl font-bold text-surface-900">{t("pos.invoice.posSystem")}</h2>
-            <p className="text-sm text-surface-500 mt-0.5">123 Business Avenue, Suite 100</p>
-            <p className="text-sm text-surface-500">+1 (555) 123-4567</p>
+            {storeSettings?.logo_path && (
+              <img
+                src={`${window.location.origin}/api/store-settings/logo`}
+                alt={storeSettings?.store_name || t("pos.invoice.posSystem")}
+                className="w-16 h-16 object-contain mx-auto mb-3"
+              />
+            )}
+            <h2 className="text-xl font-bold text-surface-900">
+              {storeSettings?.store_name || t("pos.invoice.posSystem")}
+            </h2>
+            {storeSettings?.phone && (
+              <p className="text-sm text-surface-500" dir="ltr">{storeSettings.phone}</p>
+            )}
+            {storeSettings?.address && (
+              <p className="text-sm text-surface-500 mt-0.5">{storeSettings.address}</p>
+            )}
+            {storeSettings?.email && (
+              <p className="text-sm text-surface-500" dir="ltr">{storeSettings.email}</p>
+            )}
+            {storeSettings?.tax_number && (
+              <p className="text-sm text-surface-500">
+                {t("pos.invoice.taxNumber")}: {storeSettings.tax_number}
+              </p>
+            )}
           </div>
 
           <hr className="border-surface-200 mb-6" />
@@ -249,6 +273,9 @@ export default function InvoicePage() {
             <p className="text-sm text-surface-500 font-medium">
               {t("pos.invoice.thankYou")}
             </p>
+            {storeSettings?.receipt_footer && (
+              <p className="text-[13px] text-surface-500 mt-1.5">{storeSettings.receipt_footer}</p>
+            )}
           </div>
         </div>
       </div>

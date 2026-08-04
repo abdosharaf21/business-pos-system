@@ -28,6 +28,9 @@ export function statusBadge(status) {
     completed: "success",
     cancelled: "danger",
     archived: "default",
+    expired: "danger",
+    expiring_soon: "warning",
+    normal: "success",
   };
   return map[status] || "default";
 }

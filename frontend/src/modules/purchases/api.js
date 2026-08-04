@@ -1,7 +1,7 @@
 import api from "../../shared/services/axios";
 
 export const purchaseService = {
-  getAll: () => api.get("/purchases/"),
+  getAll: (params) => api.get("/purchases/", { params }),
   getById: (id) => api.get(`/purchases/${id}`),
   create: (data) => api.post("/purchases/", data),
   getInvoice: (id) => api.get(`/purchases/${id}/invoice`),

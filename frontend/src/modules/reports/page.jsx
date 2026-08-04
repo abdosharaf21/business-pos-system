@@ -10,6 +10,7 @@ import { reportService } from "./api";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { StatCard } from "../../shared/components/StatCard";
 import { DataTable } from "../../shared/components/DataTable";
+import { Badge, statusBadge } from "../../shared/components/Badge";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import {
@@ -438,7 +439,7 @@ export default function ReportsPage() {
             columns={[
               { key: "name", label: t("reports.topSelling.product") },
               { key: "total_quantity", label: t("reports.topSelling.qtySold") },
-              { key: "total_revenue", label: t("reports.topSelling.revenue"), render: (val) => formatCurrency(val) },
+              { key: "total_revenue", label: t("reports.topSelling.revenue"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
             ]}
             data={top_selling_products}
             emptyMessage={t("reports.topSelling.empty")}
@@ -452,7 +453,7 @@ export default function ReportsPage() {
           <DataTable
             columns={[
               { key: "invoice_number", label: t("reports.recentSales.invoice") },
-              { key: "total_amount", label: t("reports.recentSales.amount"), render: (val) => formatCurrency(val) },
+              { key: "total_amount", label: t("reports.recentSales.amount"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
               { key: "created_at", label: t("reports.recentSales.date"), render: (val) => val ? new Date(val).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "-" },
             ]}
             data={recent_sales}
@@ -510,7 +511,7 @@ export default function ReportsPage() {
                 columns={[
                   { key: "name", label: t("reports.productPerformanceSub.product") },
                   { key: "quantity_sold", label: t("reports.productPerformanceSub.qtySold") },
-                  { key: "revenue", label: t("reports.productPerformanceSub.revenue"), render: (val) => formatCurrency(val) },
+                  { key: "revenue", label: t("reports.productPerformanceSub.revenue"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
                 ]}
                 data={productData?.top_products}
                 emptyMessage={t("reports.productPerformanceSub.topEmpty")}
@@ -528,7 +529,7 @@ export default function ReportsPage() {
                 columns={[
                   { key: "name", label: t("reports.productPerformanceSub.product") },
                   { key: "quantity_sold", label: t("reports.productPerformanceSub.qtySold") },
-                  { key: "revenue", label: t("reports.productPerformanceSub.revenue"), render: (val) => formatCurrency(val) },
+                  { key: "revenue", label: t("reports.productPerformanceSub.revenue"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
                 ]}
                 data={productData?.slow_products}
                 emptyMessage={t("reports.productPerformanceSub.slowEmpty")}
@@ -549,7 +550,7 @@ export default function ReportsPage() {
           <DataTable
             columns={[
               { key: "name", label: t("reports.supplierPerformanceSub.supplier") },
-              { key: "total_purchases", label: t("reports.supplierPerformanceSub.totalSpent"), render: (val) => formatCurrency(val) },
+              { key: "total_purchases", label: t("reports.supplierPerformanceSub.totalSpent"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
               { key: "purchase_count", label: t("reports.supplierPerformanceSub.orders") },
             ]}
             data={supplierData?.suppliers}
@@ -578,6 +579,22 @@ export default function ReportsPage() {
                   { key: "warehouse_qty", label: t("reports.inventoryReport.warehouse") },
                   { key: "store_qty", label: t("reports.inventoryReport.store") },
                   { key: "total", label: t("reports.inventoryReport.total"), render: (val) => <span className="font-bold">{val}</span> },
+                  {
+                    key: "expiration_date",
+                    label: t("reports.inventoryReport.expiration"),
+                    render: (val, row) => (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[12px] text-surface-600 whitespace-nowrap">
+                          {val ? new Date(val + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
+                        </span>
+                        {row.expiration_status && (
+                          <Badge variant={statusBadge(row.expiration_status)}>
+                            {t(`reports.inventoryReport.statuses.${row.expiration_status}`)}
+                          </Badge>
+                        )}
+                      </div>
+                    ),
+                  },
                 ]}
                 data={inventoryReport}
                 emptyMessage={t("reports.inventoryReport.empty")}
@@ -851,7 +868,7 @@ export default function ReportsPage() {
                 columns={[
                   { key: "payment_method", label: t("reports.expenses.paymentMethod"), render: (val) => t(`expenses.paymentMethods.${val}`) },
                   { key: "count", label: t("reports.expenses.count") },
-                  { key: "total", label: t("reports.expenses.totalExpenses"), render: (val) => formatCurrency(val) },
+                  { key: "total", label: t("reports.expenses.totalExpenses"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
                 ]}
                 data={expensesPayment}
                 emptyMessage={t("reports.expenses.noData")}
@@ -920,7 +937,7 @@ export default function ReportsPage() {
                 columns={[
                   { key: "category", label: t("reports.expenses.category"), render: (val) => t(`expenses.categories.${val}`) },
                   { key: "count", label: t("reports.expenses.count") },
-                  { key: "total", label: t("reports.expenses.totalExpenses"), render: (val) => formatCurrency(val) },
+                  { key: "total", label: t("reports.expenses.totalExpenses"), render: (val) => <span className="tabular-nums whitespace-nowrap">{formatCurrency(val)}</span> },
                 ]}
                 data={expensesHighest}
                 emptyMessage={t("reports.expenses.noData")}

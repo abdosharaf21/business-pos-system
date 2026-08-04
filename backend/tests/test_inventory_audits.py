@@ -404,6 +404,122 @@ class TestDeleteAudit:
         assert response.get_json()["success"] is False
 
 
+class TestQuickAuditFlow:
+    """Tests for the Quick Audit flow.
+
+    The Inventory page's Quick Audit reuses the existing Inventory Audit
+    API by chaining create -> update counted quantity -> complete. Stock
+    is never written directly; every correction produces a normal
+    'adjustment' movement whose notes reference the Inventory Audit.
+    """
+
+    def test_quick_audit_full_flow(self, client, admin_headers):
+        """Test the exact API sequence used by the Quick Audit dialog."""
+        created = _audit_mock(id=7, name="Quick Audit - Test Product", location="store")
+        with patch(
+            "backend.modules.inventory_audits.service.InventoryAuditService.create_audit"
+        ) as mock_create:
+            mock_create.return_value = created
+            response = client.post(
+                "/api/inventory-audits/",
+                headers=admin_headers,
+                json={"name": "Quick Audit - Test Product", "location": "store"},
+            )
+            assert response.status_code == 201
+            audit_id = response.get_json()["data"]["id"]
+            mock_create.assert_called_once()
+            create_kwargs = mock_create.call_args[0][0]
+            assert create_kwargs["name"].startswith("Quick Audit")
+            assert create_kwargs["location"] == "store"
+
+        updated = _audit_mock(id=audit_id, counted_items=1, adjusted_items=1)
+        with patch(
+            "backend.modules.inventory_audits.service.InventoryAuditService.update_audit"
+        ) as mock_update:
+            mock_update.return_value = updated
+            response = client.put(
+                f"/api/inventory-audits/{audit_id}",
+                headers=admin_headers,
+                json={
+                    "items": [
+                        {
+                            "product_id": 10,
+                            "counted_quantity": 18,
+                            "notes": "Physical count completed",
+                        }
+                    ]
+                },
+            )
+            assert response.status_code == 200
+            assert response.get_json()["data"]["counted_items"] == 1
+            mock_update.assert_called_once()
+            payload = mock_update.call_args[0][1]
+            assert payload["items"][0]["product_id"] == 10
+            assert payload["items"][0]["counted_quantity"] == 18
+
+        result = {"adjusted_items": 1, "audit": _audit_dict(id=audit_id, status="completed")}
+        with patch(
+            "backend.modules.inventory_audits.service.InventoryAuditService.complete_audit"
+        ) as mock_complete:
+            mock_complete.return_value = result
+            response = client.post(
+                f"/api/inventory-audits/{audit_id}/complete", headers=admin_headers
+            )
+            assert response.status_code == 200
+            assert response.get_json()["data"]["adjusted_items"] == 1
+            mock_complete.assert_called_once_with(audit_id, 1)
+
+    def test_quick_audit_manager_allowed(self, client, manager_headers):
+        """Test managers can run every step of a quick audit."""
+        with patch(
+            "backend.modules.inventory_audits.service.InventoryAuditService.create_audit"
+        ) as mock_create:
+            mock_create.return_value = _audit_mock(id=9)
+            response = client.post(
+                "/api/inventory-audits/",
+                headers=manager_headers,
+                json={"name": "Quick Audit - Product", "location": "store"},
+            )
+            assert response.status_code == 201
+
+    def test_quick_audit_employee_forbidden(self, client, employee_headers):
+        """Test employees cannot run a quick audit at any step."""
+        response = client.post(
+            "/api/inventory-audits/",
+            headers=employee_headers,
+            json={"name": "Quick Audit - Product", "location": "store"},
+        )
+        assert response.status_code == 403
+
+    def test_quick_audit_negative_count_rejected(self, client, admin_headers):
+        """Test a negative counted quantity is rejected by the validator."""
+        with patch(
+            "backend.modules.inventory_audits.service.InventoryAuditService.update_audit"
+        ) as mock_update:
+            mock_update.side_effect = ValueError("Counted quantity cannot be negative")
+            response = client.put(
+                "/api/inventory-audits/1",
+                headers=admin_headers,
+                json={"items": [{"product_id": 10, "counted_quantity": -3}]},
+            )
+            assert response.status_code == 400
+            assert response.get_json()["success"] is False
+
+    def test_quick_audit_empty_count_rejected(self, client, admin_headers):
+        """Test an empty counted quantity is rejected by the validator."""
+        with patch(
+            "backend.modules.inventory_audits.service.InventoryAuditService.update_audit"
+        ) as mock_update:
+            mock_update.side_effect = ValueError("Counted quantity is required")
+            response = client.put(
+                "/api/inventory-audits/1",
+                headers=admin_headers,
+                json={"items": [{"product_id": 10, "counted_quantity": ""}]},
+            )
+            assert response.status_code == 400
+            assert response.get_json()["success"] is False
+
+
 class TestAuditReports:
     """Tests for the inventory audit report endpoints."""
 

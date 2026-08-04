@@ -8,6 +8,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.purchases.model import Purchase, PurchaseItem
+from backend.utils.expiration import normalize_expiration_date
 
 
 class PurchaseRepository:
@@ -204,11 +205,16 @@ class PurchaseRepository:
 
     # --- Purchase CRUD ---
 
+    _PURCHASE_COLUMNS = (
+        "p.id, p.supplier_id, p.user_id, p.invoice_number, p.total_amount, "
+        "p.status, p.payment_method, p.notes, p.created_at"
+    )
+
     def _row_to_purchase(self, row: tuple) -> Purchase:
         """Convert a database row tuple to a Purchase instance.
 
         Args:
-            row: Database row as a tuple.
+            row: Database row as a tuple matching _PURCHASE_COLUMNS order.
 
         Returns:
             Purchase instance.
@@ -220,22 +226,64 @@ class PurchaseRepository:
             invoice_number=row[3],
             total_amount=row[4],
             status=row[5],
-            created_at=row[6],
+            payment_method=row[6],
+            notes=row[7],
+            created_at=row[8],
         )
 
     def _row_to_purchase_with_joins(self, row: tuple) -> Purchase:
         """Convert a joined database row to a Purchase instance.
 
         Args:
-            row: Database row as a tuple with extra fields.
+            row: Database row as a tuple with supplier_name and user_name.
 
         Returns:
             Purchase instance with supplier_name and user_name.
         """
-        purchase = self._row_to_purchase(row[:7])
-        purchase.supplier_name = row[7] if len(row) > 7 else None
-        purchase.user_name = row[8] if len(row) > 8 else None
+        purchase = self._row_to_purchase(row[:9])
+        purchase.supplier_name = row[9] if len(row) > 9 else None
+        purchase.user_name = row[10] if len(row) > 10 else None
         return purchase
+
+    def _build_filter_where(
+        self,
+        search: Optional[str],
+        date: Optional[str],
+        date_from: Optional[str],
+        date_to: Optional[str],
+    ) -> tuple:
+        """Build a WHERE clause and parameters for purchase list filters.
+
+        Args:
+            search: Search term for invoice number or supplier name.
+            date: Exact date filter (YYYY-MM-DD).
+            date_from: Start of date range (YYYY-MM-DD).
+            date_to: End of date range (YYYY-MM-DD).
+
+        Returns:
+            Tuple of (where_clause, params list).
+        """
+        clauses = []
+        params: list = []
+
+        if search:
+            clauses.append("(p.invoice_number LIKE %s OR s.name LIKE %s)")
+            params.extend([f"%{search}%", f"%{search}%"])
+
+        if date:
+            clauses.append("DATE(p.created_at) = %s")
+            params.append(date)
+
+        if date_from:
+            clauses.append("DATE(p.created_at) >= %s")
+            params.append(date_from)
+
+        if date_to:
+            clauses.append("DATE(p.created_at) <= %s")
+            params.append(date_to)
+
+        where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+        return where, params
 
     def _get_next_invoice_number(self, cursor) -> str:
         """Generate the next sequential invoice number.
@@ -257,6 +305,8 @@ class PurchaseRepository:
         supplier_id: Optional[int],
         user_id: int,
         items_data: List[Dict[str, Any]],
+        payment_method: str = "cash",
+        notes: Optional[str] = None,
     ) -> Purchase:
         """Create a complete purchase with all related records in one transaction.
 
@@ -267,6 +317,8 @@ class PurchaseRepository:
             supplier_id: ID of the supplier (can be None).
             user_id: ID of the creating user.
             items_data: List of item dicts with product_id, quantity, cost_price.
+            payment_method: Payment method used for the purchase.
+            notes: Optional notes attached to the purchase.
 
         Returns:
             Created Purchase instance with items populated.
@@ -282,9 +334,10 @@ class PurchaseRepository:
 
                 cursor.execute(
                     "INSERT INTO purchases "
-                    "(supplier_id, user_id, invoice_number, total_amount, status) "
-                    "VALUES (%s, %s, %s, %s, 'completed')",
-                    (supplier_id, user_id, invoice_number, 0),
+                    "(supplier_id, user_id, invoice_number, total_amount, status, "
+                    "payment_method, notes) "
+                    "VALUES (%s, %s, %s, %s, 'completed', %s, %s)",
+                    (supplier_id, user_id, invoice_number, 0, payment_method, notes),
                 )
                 purchase_id = cursor.lastrowid
 
@@ -295,6 +348,7 @@ class PurchaseRepository:
                     product_id = item["product_id"]
                     quantity = item["quantity"]
                     cost_price = item["cost_price"]
+                    expiration_date = item.get("expiration_date")
                     subtotal = quantity * cost_price
 
                     cursor.execute(
@@ -307,9 +361,11 @@ class PurchaseRepository:
 
                     cursor.execute(
                         "INSERT INTO purchase_items "
-                        "(purchase_id, product_id, quantity, cost_price, subtotal) "
-                        "VALUES (%s, %s, %s, %s, %s)",
-                        (purchase_id, product_id, quantity, cost_price, subtotal),
+                        "(purchase_id, product_id, quantity, cost_price, subtotal, "
+                        "expiration_date) "
+                        "VALUES (%s, %s, %s, %s, %s, %s)",
+                        (purchase_id, product_id, quantity, cost_price, subtotal,
+                         expiration_date),
                     )
                     item_id = cursor.lastrowid
 
@@ -348,6 +404,7 @@ class PurchaseRepository:
                         quantity=quantity,
                         cost_price=cost_price,
                         subtotal=subtotal,
+                        expiration_date=expiration_date,
                     ))
                     total_amount += subtotal
 
@@ -365,6 +422,8 @@ class PurchaseRepository:
                     invoice_number=invoice_number,
                     total_amount=total_amount,
                     status="completed",
+                    payment_method=payment_method,
+                    notes=notes,
                     items=created_items,
                     created_at=datetime.now(),
                 )
@@ -388,7 +447,8 @@ class PurchaseRepository:
             cursor = conn.cursor()
             try:
                 cursor.execute(
-                    "SELECT p.*, s.name AS supplier_name, u.full_name AS user_name "
+                    "SELECT " + self._PURCHASE_COLUMNS +
+                    ", s.name AS supplier_name, u.full_name AS user_name "
                     "FROM purchases p "
                     "LEFT JOIN suppliers s ON s.id = p.supplier_id "
                     "LEFT JOIN users u ON u.id = p.user_id "
@@ -399,17 +459,7 @@ class PurchaseRepository:
                 if not row:
                     return None
 
-                purchase = Purchase(
-                    id=row[0],
-                    supplier_id=row[1],
-                    user_id=row[2],
-                    invoice_number=row[3],
-                    total_amount=row[4],
-                    status=row[5],
-                    created_at=row[6],
-                )
-                purchase.supplier_name = row[7]
-                purchase.user_name = row[8]
+                purchase = self._row_to_purchase_with_joins(row)
 
                 cursor.execute(
                     "SELECT pi.*, pr.name AS product_name, pr.sku AS product_sku "
@@ -426,8 +476,9 @@ class PurchaseRepository:
                         quantity=item_row[3],
                         cost_price=item_row[4],
                         subtotal=item_row[5],
-                        product_name=item_row[6],
-                        product_sku=item_row[7],
+                        expiration_date=normalize_expiration_date(item_row[6]),
+                        product_name=item_row[7],
+                        product_sku=item_row[8],
                     ))
 
                 return purchase
@@ -440,13 +491,19 @@ class PurchaseRepository:
     def get_all(
         self,
         search: Optional[str] = None,
+        date: Optional[str] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
     ) -> List[Purchase]:
-        """Retrieve purchase records with optional search.
+        """Retrieve purchase records with optional filters.
 
         Args:
             search: Optional search term for invoice number or supplier name.
+            date: Optional exact purchase date (YYYY-MM-DD).
+            date_from: Optional start of date range (YYYY-MM-DD).
+            date_to: Optional end of date range (YYYY-MM-DD).
             limit: Maximum number of records.
             offset: Pagination offset.
 
@@ -456,19 +513,19 @@ class PurchaseRepository:
         with self._database.connection() as conn:
             cursor = conn.cursor()
             try:
+                where, params = self._build_filter_where(
+                    search, date, date_from, date_to
+                )
+
                 query = (
-                    "SELECT p.*, s.name AS supplier_name, u.full_name AS user_name "
+                    "SELECT " + self._PURCHASE_COLUMNS +
+                    ", s.name AS supplier_name, u.full_name AS user_name "
                     "FROM purchases p "
                     "LEFT JOIN suppliers s ON s.id = p.supplier_id "
                     "LEFT JOIN users u ON u.id = p.user_id "
+                    + where + " "
+                    "ORDER BY p.created_at DESC, p.id DESC LIMIT %s OFFSET %s"
                 )
-                params = []
-
-                if search:
-                    query += "WHERE p.invoice_number LIKE %s OR s.name LIKE %s "
-                    params.extend([f"%{search}%", f"%{search}%"])
-
-                query += "ORDER BY p.created_at DESC LIMIT %s OFFSET %s"
                 params.extend([limit, offset])
 
                 cursor.execute(query, tuple(params))
@@ -500,7 +557,7 @@ class PurchaseRepository:
             try:
                 cursor.execute(
                     "SELECT p.id, p.invoice_number, p.total_amount, "
-                    "p.status, p.created_at, "
+                    "p.status, p.payment_method, p.notes, p.created_at, "
                     "s.name AS supplier_name, s.phone AS supplier_phone, "
                     "s.email AS supplier_email, s.address AS supplier_address, "
                     "u.full_name AS user_name "
@@ -516,6 +573,7 @@ class PurchaseRepository:
 
                 cursor.execute(
                     "SELECT pi.quantity, pi.cost_price, pi.subtotal, "
+                    "pi.expiration_date, "
                     "pr.name AS product_name, pr.barcode, pr.sku AS product_sku "
                     "FROM purchase_items pi "
                     "JOIN products pr ON pr.id = pi.product_id "
@@ -523,6 +581,10 @@ class PurchaseRepository:
                     (purchase_id,),
                 )
                 invoice["items"] = cursor.fetchall()
+                for invoice_item in invoice["items"]:
+                    invoice_item["expiration_date"] = normalize_expiration_date(
+                        invoice_item["expiration_date"]
+                    )
 
                 return invoice
 
@@ -531,11 +593,20 @@ class PurchaseRepository:
             finally:
                 cursor.close()
 
-    def get_total_count(self, search: Optional[str] = None) -> int:
+    def get_total_count(
+        self,
+        search: Optional[str] = None,
+        date: Optional[str] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+    ) -> int:
         """Get total count of purchases for pagination.
 
         Args:
             search: Optional search term.
+            date: Optional exact purchase date (YYYY-MM-DD).
+            date_from: Optional start of date range (YYYY-MM-DD).
+            date_to: Optional end of date range (YYYY-MM-DD).
 
         Returns:
             Total count.
@@ -543,15 +614,15 @@ class PurchaseRepository:
         with self._database.connection() as conn:
             cursor = conn.cursor()
             try:
+                where, params = self._build_filter_where(
+                    search, date, date_from, date_to
+                )
+
                 query = (
                     "SELECT COUNT(*) FROM purchases p "
                     "LEFT JOIN suppliers s ON s.id = p.supplier_id "
+                    + where
                 )
-                params = []
-
-                if search:
-                    query += "WHERE p.invoice_number LIKE %s OR s.name LIKE %s "
-                    params.extend([f"%{search}%", f"%{search}%"])
 
                 cursor.execute(query, tuple(params))
                 return cursor.fetchone()[0]

@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from typing import Dict, Any, List
 
 from backend.database.connection import Database
+from backend.utils.expiration import normalize_expiration_date
 
 
 class ReportRepository:
@@ -388,13 +389,19 @@ class ReportRepository:
                 "SELECT p.id, p.name, p.sku, p.barcode, p.minimum_stock, "
                 "p.purchase_price, c.name AS category_name, "
                 "COALESCE(wh.quantity, 0) AS warehouse_qty, "
-                "COALESCE(st.quantity, 0) AS store_qty "
+                "COALESCE(st.quantity, 0) AS store_qty, "
+                "e.expiration_date "
                 "FROM products p "
                 "LEFT JOIN categories c ON c.id = p.category_id "
                 "LEFT JOIN inventory wh ON wh.product_id = p.id "
                 "AND wh.location = 'warehouse' "
                 "LEFT JOIN inventory st ON st.product_id = p.id "
                 "AND st.location = 'store' "
+                "LEFT JOIN ("
+                "SELECT product_id, MIN(expiration_date) AS expiration_date "
+                "FROM purchase_items WHERE expiration_date IS NOT NULL "
+                "GROUP BY product_id"
+                ") e ON e.product_id = p.id "
                 "WHERE p.status = 'active' "
                 "ORDER BY p.name ASC"
             )
@@ -413,6 +420,9 @@ class ReportRepository:
                 "warehouse_qty": int(row["warehouse_qty"]),
                 "store_qty": int(row["store_qty"]),
                 "total": int(row["warehouse_qty"]) + int(row["store_qty"]),
+                "expiration_date": normalize_expiration_date(
+                    row["expiration_date"]
+                ),
             }
             for row in rows
         ]

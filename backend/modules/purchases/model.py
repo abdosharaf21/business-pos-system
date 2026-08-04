@@ -16,6 +16,7 @@ class PurchaseItem:
         quantity: Quantity purchased.
         cost_price: Cost price per unit.
         subtotal: Line total (quantity * cost_price).
+        expiration_date: Optional expiration date of the batch (YYYY-MM-DD).
     """
 
     def __init__(
@@ -28,6 +29,7 @@ class PurchaseItem:
         quantity: int = 1,
         cost_price: float = 0.0,
         subtotal: float = 0.0,
+        expiration_date: Optional[str] = None,
     ) -> None:
         """Initialize a PurchaseItem instance.
 
@@ -40,6 +42,7 @@ class PurchaseItem:
             quantity: Quantity purchased.
             cost_price: Cost price per unit.
             subtotal: Line total.
+            expiration_date: Optional expiration date of the batch (YYYY-MM-DD).
         """
         self.id = id
         self.purchase_id = purchase_id
@@ -49,6 +52,7 @@ class PurchaseItem:
         self.quantity = quantity
         self.cost_price = cost_price
         self.subtotal = subtotal
+        self.expiration_date = expiration_date
 
     def to_dict(self) -> dict:
         """Convert PurchaseItem instance to dictionary.
@@ -63,6 +67,7 @@ class PurchaseItem:
             "quantity": self.quantity,
             "cost_price": float(self.cost_price),
             "subtotal": float(self.subtotal),
+            "expiration_date": self.expiration_date,
         }
         if self.product_name is not None:
             result["product_name"] = self.product_name
@@ -94,11 +99,14 @@ class Purchase:
         invoice_number: Auto-generated unique invoice number.
         total_amount: Total amount of the purchase.
         status: Purchase status (pending/completed/cancelled).
+        payment_method: Payment method used for the purchase.
+        notes: Optional notes attached to the purchase.
         items: List of PurchaseItem instances.
         created_at: Timestamp when the purchase was created.
     """
 
     VALID_STATUSES = {"pending", "completed", "cancelled"}
+    VALID_PAYMENT_METHODS = {"cash", "card", "transfer", "mixed", "vodafone_cash"}
 
     def __init__(
         self,
@@ -110,6 +118,8 @@ class Purchase:
         invoice_number: Optional[str] = None,
         total_amount: float = 0.0,
         status: str = "completed",
+        payment_method: str = "cash",
+        notes: Optional[str] = None,
         items: Optional[List[PurchaseItem]] = None,
         created_at: Optional[datetime] = None,
     ) -> None:
@@ -124,6 +134,8 @@ class Purchase:
             invoice_number: Auto-generated unique invoice number.
             total_amount: Total amount of the purchase.
             status: Purchase status.
+            payment_method: Payment method used for the purchase.
+            notes: Optional notes attached to the purchase.
             items: List of PurchaseItem instances.
             created_at: Timestamp when the purchase was created.
         """
@@ -135,6 +147,8 @@ class Purchase:
         self.invoice_number = invoice_number
         self.total_amount = total_amount
         self.status = status
+        self.payment_method = payment_method
+        self.notes = notes
         self.items = items or []
         self.created_at = created_at or datetime.now()
 
@@ -151,6 +165,8 @@ class Purchase:
             "invoice_number": self.invoice_number,
             "total_amount": float(self.total_amount),
             "status": self.status,
+            "payment_method": self.payment_method,
+            "notes": self.notes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
         if self.supplier_name is not None:

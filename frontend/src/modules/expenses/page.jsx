@@ -352,7 +352,7 @@ export default function ExpensesPage() {
                     <td className="px-5 py-3.5 whitespace-nowrap">
                       <CategoryBadge category={exp.category_name} />
                     </td>
-                    <td className="px-5 py-3.5 whitespace-nowrap font-bold text-surface-800">{formatCurrency(exp.amount)}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap font-bold text-surface-800 tabular-nums">{formatCurrency(exp.amount)}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-600">{t(`expenses.paymentMethods.${exp.payment_method}`)}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-600">
                       {new Date(exp.expense_date).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" })}
@@ -601,7 +601,7 @@ function ExpenseModal({ isOpen, onClose, editing, onSubmit, loading, categories 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={LABEL_CLASS}>{t("expenses.form.amountLabel")}</label>
-            <input type="number" step="0.01" min="0" {...register("amount")} placeholder={t("expenses.form.amountPlaceholder")} className={INPUT_CLASS} />
+            <input type="number" step="0.01" min="0" {...register("amount")} placeholder={t("expenses.form.amountPlaceholder")} className={`${INPUT_CLASS} numeric-grow min-w-14`} />
             {errors.amount && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.amount.message}</p>}
           </div>
           <div>
@@ -631,7 +631,7 @@ function ExpenseDetailsModal({ expense, onClose }) {
 
   const rows = [
     { label: t("expenses.columns.category"), value: t(`expenses.categories.${expense.category_name}`) },
-    { label: t("expenses.columns.amount"), value: formatCurrency(expense.amount) },
+    { label: t("expenses.columns.amount"), value: formatCurrency(expense.amount), tabular: true },
     { label: t("expenses.columns.paymentMethod"), value: t(`expenses.paymentMethods.${expense.payment_method}`) },
     { label: t("expenses.columns.date"), value: new Date(expense.expense_date).toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" }) },
     { label: t("expenses.columns.createdBy"), value: expense.created_by_name || "—" },
@@ -650,9 +650,9 @@ function ExpenseDetailsModal({ expense, onClose }) {
         </div>
         <div className="divide-y divide-surface-100">
           {rows.map((row) => (
-            <div key={row.label} className="flex items-center justify-between py-2.5">
+            <div key={row.label} className="flex items-center justify-between gap-3 py-2.5">
               <span className="text-[13px] text-surface-500">{row.label}</span>
-              <span className="text-[13px] font-semibold text-surface-800">{row.value}</span>
+              <span className={`text-[13px] font-semibold text-surface-800 text-end min-w-0 ${row.tabular ? "tabular-nums whitespace-nowrap" : ""}`}>{row.value}</span>
             </div>
           ))}
         </div>

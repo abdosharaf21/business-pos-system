@@ -15,7 +15,12 @@
     "movementHistory": "Movement History",
     "inventoryAudits": "Inventory Audits",
     "administration": "Administration",
-    "users": "Users"
+    "users": "Users",
+    "storeSettings": "Store Settings",
+    "settings": "Settings",
+    "newSale": "New Sale",
+    "stock": "Stock",
+    "dashboardOverview": "Dashboard Overview"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -102,8 +107,16 @@
       "sellingPrice": "Selling Price",
       "qty": "Qty",
       "minStock": "Min Stock",
+      "expiration": "Expiration",
       "status": "Status",
       "actions": "Actions"
+    },
+    "expiration": {
+      "statuses": {
+        "expired": "Expired",
+        "expiring_soon": "Expiring Soon",
+        "normal": "Valid"
+      }
     },
     "edit": "Edit",
     "delete": "Delete",
@@ -186,10 +199,21 @@
       "store": "Store",
       "total": "Total",
       "minStock": "Min Stock",
+      "expiration": "Expiration",
       "price": "Price",
       "status": "Status",
       "actions": "Actions",
       "history": "History"
+    },
+    "expiration": {
+      "filterLabel": "Expiration Status",
+      "all": "All Expiration",
+      "sortByExpiration": "Sort by Expiration",
+      "statuses": {
+        "expired": "Expired",
+        "expiring_soon": "Expiring Soon",
+        "normal": "Valid"
+      }
     },
     "transfer": {
       "title": "Transfer to Store — {{name}}",
@@ -202,25 +226,18 @@
       "transfer": "Transfer",
       "transferring": "Transferring..."
     },
-    "adjust": {
-      "title": "Adjust Stock — {{name}}",
-      "currentStock": "Current Stock",
-      "afterAdjustment": "After Adjustment",
+    "quickAudit": {
+      "button": "Quick Audit",
+      "title": "Quick Audit — {{name}}",
       "location": "Location",
-      "type": "Type",
-      "adjustment": "Adjustment",
-      "purchase": "Purchase",
-      "return": "Return",
-      "sale": "Sale",
-      "damage": "Damage",
-      "quantity": "Quantity",
-      "quantityPlaceholder": "e.g. 10 (positive) or -5 (negative)",
-      "quantityHint": "Positive adds stock, negative removes stock",
-      "returnHint": "Returned units are added back to the store",
-      "damageHint": "Damaged units are removed from the selected location",
+      "currentQuantity": "Current Quantity",
+      "countedQuantity": "Counted Quantity",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "e.g. Physical count completed",
+      "hint": "Counts are applied through an Inventory Audit",
       "cancel": "Cancel",
-      "adjust": "Adjust Stock",
-      "adjusting": "Adjusting..."
+      "apply": "Apply",
+      "applying": "Applying..."
     },
     "history": {
       "title": "Movement History — {{name}}",
@@ -233,7 +250,8 @@
       "adjustment": "Adjustment",
       "warehouse": "Warehouse",
       "store": "Store",
-      "units": "units"
+      "units": "units",
+      "source": "Source"
     },
     "historyPage": {
       "title": "Movement History",
@@ -260,17 +278,16 @@
       }
     },
     "toast": {
-      "adjusted": "Stock adjusted",
-      "adjustFailed": "Failed to adjust stock",
+      "quickAudited": "Quick audit applied",
+      "quickAuditFailed": "Failed to apply quick audit",
       "transferred": "Stock transferred to store",
       "transferFailed": "Failed to transfer stock"
     },
     "validation": {
-      "typeRequired": "Type is required",
-      "locationRequired": "Location is required",
       "mustBeWhole": "Must be a whole number",
-      "quantityNotZero": "Quantity cannot be zero",
-      "quantityPositive": "Quantity must be greater than zero"
+      "quantityPositive": "Quantity must be greater than zero",
+      "quantityRequired": "Counted quantity is required",
+      "quantityNonNegative": "Counted quantity cannot be negative"
     }
   },
   "purchases": {
@@ -282,12 +299,31 @@
     "noPurchasesFound": "No purchases found",
     "tryDifferentSearch": "Try a different search",
     "createYourFirst": "Create your first purchase",
+    "showing": "Showing {{count}} of {{total}}",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "previous": "Previous",
+    "next": "Next",
+    "clear": "Clear",
+    "paymentMethods": {
+      "cash": "Cash",
+      "card": "Card",
+      "transfer": "Transfer",
+      "mixed": "Mixed",
+      "vodafone_cash": "Vodafone Cash"
+    },
+    "filters": {
+      "date": "Date",
+      "from": "From",
+      "to": "To"
+    },
     "columns": {
       "invoice": "Invoice #",
       "supplier": "Supplier",
       "total": "Total",
       "status": "Status",
       "date": "Date",
+      "paymentMethod": "Payment Method",
+      "createdBy": "Created By",
       "actions": "Actions"
     },
     "statusCompleted": "completed",
@@ -304,18 +340,24 @@
       "addProducts": "Add Products",
       "searchPlaceholder": "Search by name, barcode, or SKU...",
       "searching": "Searching...",
-      "noProductsFound": "No products found",
+    "noProductsFound": "No products found",
+    "productNotFound": "Product not found",
       "skuPrefix": "SKU: {{code}}",
       "barcodeFormat": "({{code}})",
       "complete": "Complete Purchase",
       "creating": "Creating...",
       "cancel": "Cancel",
-      "total": "Total"
+      "total": "Total",
+      "paymentMethod": "Payment Method",
+      "notes": "Notes",
+      "notesPlaceholder": "Add any additional notes (optional)"
     },
     "items": {
       "product": "Product",
       "qty": "Qty",
       "costPrice": "Cost Price",
+      "expiration": "Expiration",
+      "expirationAria": "Expiration date",
       "subtotal": "Subtotal"
     },
     "supplierForm": {
@@ -360,6 +402,28 @@
         "price": "Price",
         "total": "Total"
       }
+    },
+    "invoicePage": {
+      "title": "Purchase Details",
+      "notFound": "Purchase Not Found",
+      "notFoundDesc": "The purchase you are looking for does not exist or has been removed.",
+      "backToPurchases": "Back to Purchases",
+      "print": "Print",
+      "posSystem": "POS System",
+      "invoiceLabel": "Purchase Invoice",
+      "supplier": "Supplier",
+      "processedBy": "Processed By",
+      "paymentMethod": "Payment Method",
+      "notes": "Notes",
+      "product": "Product",
+      "barcode": "Barcode",
+      "qty": "Qty",
+      "expiration": "Expiration",
+      "costPrice": "Cost Price",
+      "total": "Total",
+      "grandTotal": "Grand Total",
+      "footer": "Invoice generated automatically by POS System",
+      "taxNumber": "Tax No."
     },
     "validation": {
       "supplierRequired": "Supplier name is required",
@@ -407,6 +471,7 @@
     "card": "Card",
     "transfer": "Transfer",
     "mixed": "Mixed",
+    "vodafoneCash": "Vodafone Cash",
     "cancel": "Cancel",
     "confirmSale": "Confirm Sale",
     "processing": "Processing...",
@@ -432,7 +497,8 @@
       "invoiceDiscount": "Discount",
       "invoiceGrandTotal": "Grand Total",
       "payment": "Payment",
-      "thankYou": "Thank you for your purchase!"
+      "thankYou": "Thank you for your purchase!",
+      "taxNumber": "Tax No."
     }
   },
   "customers": {
@@ -746,6 +812,12 @@
       "store": "Store",
       "total": "Total",
       "minStock": "Min Stock",
+      "expiration": "Expiration",
+      "statuses": {
+        "expired": "Expired",
+        "expiring_soon": "Expiring Soon",
+        "normal": "Valid"
+      },
       "empty": "No inventory data available",
       "mostTransferred": "Most Transferred",
       "qtyTransferred": "Qty Transferred",
@@ -1002,11 +1074,128 @@
     "tryAgain": "Try again",
     "closeDialog": "Close dialog",
     "cancel": "Cancel",
+    "confirm": "Confirm",
     "noDataAvailable": "No data available"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "loading": "Loading notifications...",
+    "markAllRead": "Mark all as read",
+    "empty": "You're all caught up",
+    "emptyDescription": "No notifications to show right now",
+    "filters": {
+      "all": "All",
+      "unread": "Unread",
+      "critical": "Critical"
+    },
+    "types": {
+      "low_stock": "Low stock",
+      "out_of_stock": "Out of stock",
+      "expired": "Expired",
+      "expiring_soon": "Expiring soon"
+    },
+    "message": {
+      "low_stock": "is running low ({{quantity}} left)",
+      "out_of_stock": "is out of stock",
+      "expired": "has an expired batch ({{expirationDate}})",
+      "expiring_soon": "expires soon ({{expirationDate}})"
+    }
   },
   "language": {
     "switch": "Language",
     "english": "English",
     "arabic": "العربية"
+  },
+  "storeSettings": {
+    "title": "Store Settings",
+    "subtitle": "Manage your store identity, contact details, and receipt preferences",
+    "save": "Save Changes",
+    "uploadLogo": "Upload Logo",
+    "uploadImage": "Upload Image",
+    "removeLogo": "Remove Logo",
+    "removeImage": "Remove Image",
+    "logoPreviewAlt": "Store logo preview",
+    "loginBackgroundPreviewAlt": "Login background preview",
+    "loginLogoPreviewAlt": "Login logo preview",
+    "toast": {
+      "saved": "Store settings saved successfully",
+      "saveFailed": "Failed to save store settings",
+      "logoType": "Please choose a valid image file",
+      "logoSize": "Logo must be smaller than 2MB",
+      "loginImageType": "Please choose a valid image (PNG, JPG, JPEG, or WEBP)",
+      "loginImageSize": "Image must be smaller than 5MB"
+    },
+    "validation": {
+      "storeNameRequired": "Store name is required",
+      "required": "This field is required",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneInvalid": "Please enter a valid phone number"
+    },
+    "sections": {
+      "general": {
+        "title": "General Information",
+        "description": "Basic details that identify your store"
+      },
+      "contact": {
+        "title": "Contact Information",
+        "description": "How customers can reach your business"
+      },
+      "business": {
+        "title": "Business Details",
+        "description": "Legal and financial identifiers for receipts"
+      },
+      "receipt": {
+        "title": "Receipt Footer",
+        "description": "Custom message shown at the bottom of receipts"
+      },
+      "branding": {
+        "title": "Store Logo",
+        "description": "Used on receipts and reports"
+      },
+      "loginBranding": {
+        "title": "Login Page Branding",
+        "description": "Customize the logo, background, and welcome text on the login page"
+      }
+    },
+    "fields": {
+      "storeName": "Store Name",
+      "ownerName": "Owner Name",
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "website": "Website",
+      "address": "Address",
+      "taxNumber": "Tax Number",
+      "currency": "Currency",
+      "receiptFooter": "Receipt Footer",
+      "storeLogo": "Store Logo",
+      "loginBackground": "Login Background Image",
+      "loginLogo": "Login Logo",
+      "loginTitle": "Login Welcome Title",
+      "loginSubtitle": "Login Welcome Subtitle"
+    },
+    "placeholders": {
+      "storeName": "e.g. My Store",
+      "ownerName": "e.g. Ahmed Mohamed",
+      "phone": "+1 (555) 000-0000",
+      "email": "contact@store.com",
+      "website": "https://store.com",
+      "address": "123 Business Avenue, Suite 100",
+      "taxNumber": "e.g. 123456789",
+      "receiptFooter": "Thank you for your business!",
+      "loginTitle": "e.g. Sharaf Market",
+      "loginSubtitle": "e.g. Sign in to continue"
+    },
+    "hints": {
+      "logo": "PNG, JPG, JPEG, GIF, WEBP, or SVG. Max 2 MB.",
+      "loginImage": "PNG, JPG, JPEG, or WEBP. Max 5 MB."
+    },
+    "loginPreview": {
+      "title": "Login Page Preview",
+      "description": "Live preview of how your login page will appear"
+    },
+    "loginDefaults": {
+      "title": "Business POS System",
+      "subtitle": "Sign in to continue"
+    }
   }
 }

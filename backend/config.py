@@ -65,6 +65,20 @@ class BaseConfig:
 
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
+    UPLOAD_FOLDER = os.environ.get(
+        "UPLOAD_FOLDER",
+        os.path.join(_project_root, "backend", "uploads"),
+    )
+    LOGO_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, "logos")
+    ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+    MAX_LOGO_SIZE = 2 * 1024 * 1024
+
+    LOGIN_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, "login")
+    ALLOWED_LOGIN_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+    MAX_LOGIN_IMAGE_SIZE = 5 * 1024 * 1024
+
+    EXPIRING_SOON_DAYS = int(os.environ.get("EXPIRING_SOON_DAYS", "30"))
+
     SERVER_HOST = os.environ.get("SERVER_HOST", "0.0.0.0")
     SERVER_PORT = int(os.environ.get("SERVER_PORT", "5001"))
     FLASK_ENV = os.environ.get("FLASK_ENV", "development")
@@ -143,3 +157,7 @@ def get_config() -> BaseConfig:
     if env == "desktop":
         return DesktopConfig
     return DevelopmentConfig
+
+
+Config = BaseConfig
+

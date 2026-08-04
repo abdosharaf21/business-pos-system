@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS sales (
     total_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     discount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     paid_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-    payment_method ENUM('cash', 'card', 'transfer', 'mixed') NOT NULL DEFAULT 'cash',
+    payment_method ENUM('cash', 'card', 'transfer', 'mixed', 'vodafone_cash') NOT NULL DEFAULT 'cash',
     status ENUM('pending', 'completed', 'cancelled', 'refunded') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_sales_customer (customer_id),
@@ -171,6 +171,8 @@ CREATE TABLE IF NOT EXISTS purchases (
     invoice_number VARCHAR(50) NOT NULL UNIQUE,
     total_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     status ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+    payment_method VARCHAR(20) NOT NULL DEFAULT 'cash',
+    notes TEXT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_purchases_supplier (supplier_id),
     INDEX idx_purchases_user (user_id),
@@ -198,6 +200,7 @@ CREATE TABLE IF NOT EXISTS purchase_items (
     quantity INT NOT NULL DEFAULT 1,
     cost_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     subtotal DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    expiration_date DATE NULL,
     INDEX idx_purchase_items_purchase (purchase_id),
     INDEX idx_purchase_items_product (product_id),
     CONSTRAINT fk_purchase_items_purchase
@@ -369,6 +372,55 @@ CREATE TABLE IF NOT EXISTS inventory_audit_items (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Notifications (in-app Notification Center)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    notification_type ENUM('low_stock', 'out_of_stock', 'expired', 'expiring_soon') NOT NULL,
+    priority ENUM('critical', 'warning') NOT NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_notifications_product_type (product_id, notification_type),
+    INDEX idx_notifications_type (notification_type),
+    INDEX idx_notifications_priority (priority),
+    INDEX idx_notifications_read (is_read),
+    CONSTRAINT fk_notifications_product
+        FOREIGN KEY (product_id)
+        REFERENCES products (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Store Settings (single business configuration row)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS store_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    store_name VARCHAR(150) NOT NULL DEFAULT '',
+    owner_name VARCHAR(150) NOT NULL DEFAULT '',
+    phone VARCHAR(20) NOT NULL DEFAULT '',
+    email VARCHAR(150) NOT NULL DEFAULT '',
+    address VARCHAR(255) NOT NULL DEFAULT '',
+    website VARCHAR(150) NOT NULL DEFAULT '',
+    tax_number VARCHAR(50) NOT NULL DEFAULT '',
+    currency VARCHAR(10) NOT NULL DEFAULT 'EGP',
+    receipt_footer VARCHAR(500) NOT NULL DEFAULT '',
+    logo_path VARCHAR(255) NOT NULL DEFAULT '',
+    login_background_path VARCHAR(255) NOT NULL DEFAULT '',
+    login_logo_path VARCHAR(255) NOT NULL DEFAULT '',
+    login_title VARCHAR(150) NOT NULL DEFAULT '',
+    login_subtitle VARCHAR(255) NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO store_settings (id, store_name, owner_name, phone, email, address, website, tax_number, currency, receipt_footer, logo_path)
+VALUES (1, '', '', '', '', '', '', '', 'EGP', '', '')
+ON DUPLICATE KEY UPDATE id = id;
 
 -- =============================================================================
 -- Seed Data: Expense Categories
