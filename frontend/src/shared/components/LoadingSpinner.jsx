@@ -3,7 +3,7 @@ export function LoadingSpinner({ size = "md" }) {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="relative">
-        <div className={`${sizes[size]} border-surface-200 border-t-primary-600 rounded-full animate-spin`} />
+        <div className={`${sizes[size]} border-surface-200 dark:border-surface-700/60 border-t-primary-600 rounded-full animate-spin`} />
       </div>
     </div>
   );

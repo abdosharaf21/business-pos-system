@@ -13,6 +13,7 @@ import { DataTable } from "../../shared/components/DataTable";
 import { Badge, statusBadge } from "../../shared/components/Badge";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
+import { cardClass, filterBarClass } from "../../shared/components/styles";
 import {
   DollarSign, ShoppingCart, Package, AlertTriangle,
   TrendingUp, TrendingDown, Clock, Users, BarChart3,
@@ -27,6 +28,18 @@ const EXPENSE_COLORS = [
   "#64748b",
 ];
 
+const AXIS_TICK = { fontSize: 11, fill: "var(--color-surface-400)" };
+const AXIS_LINE = { stroke: "var(--color-surface-200)" };
+const GRID_LINE = "var(--color-surface-200)";
+const TOOLTIP_STYLE = {
+  borderRadius: "12px",
+  border: "1px solid var(--color-surface-200)",
+  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+  fontSize: "13px",
+  backgroundColor: "var(--color-surface-0)",
+  color: "var(--color-surface-800)",
+};
+
 function DateFilter({ period, onPeriodChange, startDate, endDate, onStartDateChange, onEndDateChange }) {
   const { t } = useTranslation();
   const PERIODS = [
@@ -35,16 +48,16 @@ function DateFilter({ period, onPeriodChange, startDate, endDate, onStartDateCha
     { key: "custom", label: t("reports.filters.custom") },
   ];
   return (
-    <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-white rounded-2xl border border-surface-200/80 shadow-card">
-      <Filter className="w-5 h-5 text-surface-400 shrink-0" />
+    <div className={filterBarClass + " mb-6 flex flex-wrap items-center gap-3"}>
+      <Filter className="w-5 h-5 text-surface-400 dark:text-surface-500 shrink-0" />
       {PERIODS.map((p) => (
         <button
           key={p.key}
           onClick={() => onPeriodChange(p.key)}
           className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 ${
             period === p.key
-              ? "bg-primary-50 text-primary-700 ring-1 ring-primary-200"
-              : "bg-surface-50 text-surface-500 hover:bg-surface-100 hover:text-surface-700"
+              ? "bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 ring-1 ring-primary-200 dark:ring-primary-500/30"
+              : "bg-surface-50 dark:bg-surface-700/40 text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700/60 hover:text-surface-700 dark:hover:text-surface-200"
           }`}
         >
           {p.label}
@@ -56,14 +69,14 @@ function DateFilter({ period, onPeriodChange, startDate, endDate, onStartDateCha
             type="date"
             value={startDate}
             onChange={(e) => onStartDateChange(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-surface-200 text-[13px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+            className="px-3 py-2 rounded-xl border border-surface-200 dark:border-surface-700/60 text-[13px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
           />
-          <span className="text-surface-400 text-[13px]">{t("reports.filters.to")}</span>
+          <span className="text-surface-400 dark:text-surface-500 text-[13px]">{t("reports.filters.to")}</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => onEndDateChange(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-surface-200 text-[13px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+            className="px-3 py-2 rounded-xl border border-surface-200 dark:border-surface-700/60 text-[13px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
           />
         </div>
       )}
@@ -74,10 +87,10 @@ function DateFilter({ period, onPeriodChange, startDate, endDate, onStartDateCha
 function SectionHeader({ icon: Icon, title }) {
   return (
     <div className="flex items-center gap-2 mb-5">
-      <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center ring-1 ring-primary-100">
-        <Icon className="w-4 h-4 text-primary-600" />
+      <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center ring-1 ring-primary-100 dark:ring-primary-500/20">
+        <Icon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
       </div>
-      <h2 className="text-lg font-semibold text-surface-900">{title}</h2>
+      <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{title}</h2>
     </div>
   );
 }
@@ -88,41 +101,36 @@ function SalesTrendChart({ data }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-surface-200/80 p-12 text-center shadow-card">
-        <BarChart3 className="w-12 h-12 text-surface-300 mx-auto mb-3" />
-        <p className="text-surface-400 text-sm font-medium">{t("reports.charts.noSalesData")}</p>
+      <div className={cardClass + " p-12 text-center"}>
+        <BarChart3 className="w-12 h-12 text-surface-300 dark:text-surface-600 mx-auto mb-3" />
+        <p className="text-surface-400 dark:text-surface-500 text-sm font-medium">{t("reports.charts.noSalesData")}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+    <div className={cardClass + " p-6"}>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={AXIS_TICK}
             tickLine={false}
-            axisLine={{ stroke: "#e2e8f0" }}
+            axisLine={AXIS_LINE}
             tickFormatter={(val) => {
               const d = new Date(val + "T00:00:00");
               return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
             }}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: "#94a3b8" }}
+            tick={AXIS_TICK}
             tickLine={false}
-            axisLine={{ stroke: "#e2e8f0" }}
+            axisLine={AXIS_LINE}
             tickFormatter={(val) => formatCurrency(val)}
           />
           <Tooltip
-            contentStyle={{
-              borderRadius: "12px",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-              fontSize: "13px",
-            }}
+            contentStyle={TOOLTIP_STYLE}
             labelFormatter={(val) => {
               const d = new Date(val + "T00:00:00");
               return d.toLocaleDateString(locale, {
@@ -432,8 +440,8 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-12">
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-surface-900">{t("reports.topSelling.title")}</h2>
+            <TrendingUp className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t("reports.topSelling.title")}</h2>
           </div>
           <DataTable
             columns={[
@@ -447,8 +455,8 @@ export default function ReportsPage() {
         </div>
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-primary-600" />
-            <h2 className="text-lg font-semibold text-surface-900">{t("reports.recentSales.title")}</h2>
+            <Clock className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t("reports.recentSales.title")}</h2>
           </div>
           <DataTable
             columns={[
@@ -463,7 +471,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Phase 2 - Sales Analytics */}
-      <div className="mb-8 pt-8 border-t border-surface-200">
+      <div className="mb-8 pt-8 border-t border-surface-200 dark:border-surface-700/60">
         <SectionHeader icon={BarChart3} title={t("reports.salesAnalytics")} />
         <DateFilter
           period={period}
@@ -474,7 +482,7 @@ export default function ReportsPage() {
           onEndDateChange={setEndDate}
         />
         {trendLoading ? (
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-16 shadow-card">
+          <div className={cardClass + " p-16"}>
             <LoadingSpinner />
           </div>
         ) : trendError ? (
@@ -501,7 +509,7 @@ export default function ReportsPage() {
         <SectionHeader icon={Package} title={t("reports.productPerformance")} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div>
-            <p className="text-[13px] font-semibold text-surface-500 mb-3">{t("reports.productPerformanceSub.topPerforming")}</p>
+            <p className="text-[13px] font-semibold text-surface-500 dark:text-surface-400 mb-3">{t("reports.productPerformanceSub.topPerforming")}</p>
             {productLoading ? (
               <LoadingSpinner />
             ) : productError ? (
@@ -519,7 +527,7 @@ export default function ReportsPage() {
             )}
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-surface-500 mb-3">{t("reports.productPerformanceSub.slowMoving")}</p>
+            <p className="text-[13px] font-semibold text-surface-500 dark:text-surface-400 mb-3">{t("reports.productPerformanceSub.slowMoving")}</p>
             {productLoading ? (
               <LoadingSpinner />
             ) : productError ? (
@@ -560,13 +568,13 @@ export default function ReportsPage() {
       </div>
 
       {/* Phase 3 - Inventory Reports */}
-      <div className="mb-8 pt-8 border-t border-surface-200">
+      <div className="mb-8 pt-8 border-t border-surface-200 dark:border-surface-700/60">
         <SectionHeader icon={Package} title={t("reports.inventoryReport.title")} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={cardClass + " p-6"}>
             <div className="flex items-center gap-2 mb-4">
-              <Warehouse className="w-5 h-5 text-primary-600" />
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.subtitle")}</h3>
+              <Warehouse className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.inventoryReport.subtitle")}</h3>
             </div>
             {inventoryReportLoading ? (
               <LoadingSpinner />
@@ -584,7 +592,7 @@ export default function ReportsPage() {
                     label: t("reports.inventoryReport.expiration"),
                     render: (val, row) => (
                       <div className="flex items-center gap-2">
-                        <span className="text-[12px] text-surface-600 whitespace-nowrap">
+                        <span className="text-[12px] text-surface-600 dark:text-surface-300 whitespace-nowrap">
                           {val ? new Date(val + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
                         </span>
                         {row.expiration_status && (
@@ -602,10 +610,10 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={cardClass + " p-6"}>
             <div className="flex items-center gap-2 mb-4">
-              <ArrowLeftRight className="w-5 h-5 text-primary-600" />
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.mostTransferred")}</h3>
+              <ArrowLeftRight className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.inventoryReport.mostTransferred")}</h3>
             </div>
             {mostTransferredLoading ? (
               <LoadingSpinner />
@@ -627,14 +635,14 @@ export default function ReportsPage() {
 
         {/* Movement charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={cardClass + " p-6"}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.monthlyMovement")}</h3>
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.inventoryReport.monthlyMovement")}</h3>
               <div className="flex items-center gap-2">
                 <select
                   value={reportMonth}
                   onChange={(e) => setReportMonth(Number(e.target.value))}
-                  className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 >
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                     <option key={m} value={m}>{m}</option>
@@ -643,7 +651,7 @@ export default function ReportsPage() {
                 <select
                   value={reportYear}
                   onChange={(e) => setReportYear(Number(e.target.value))}
-                  className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                 >
                   {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
                     <option key={y} value={y}>{y}</option>
@@ -658,22 +666,17 @@ export default function ReportsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={monthlyMovement} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
                   <XAxis
                     dataKey="movement_type"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => t(`inventory.history.${val}`)}
                   />
-                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <YAxis tick={AXIS_TICK} tickLine={false} axisLine={AXIS_LINE} />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                   />
                   <Bar dataKey="quantity" fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 </BarChart>
@@ -681,13 +684,13 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={cardClass + " p-6"}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.yearlyMovement")}</h3>
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.inventoryReport.yearlyMovement")}</h3>
               <select
                 value={reportYear}
                 onChange={(e) => setReportYear(Number(e.target.value))}
-                className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
                   <option key={y} value={y}>{y}</option>
@@ -701,22 +704,17 @@ export default function ReportsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={yearlyMovement} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
                   <XAxis
                     dataKey="month"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => `${val}`}
                   />
-                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <YAxis tick={AXIS_TICK} tickLine={false} axisLine={AXIS_LINE} />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                   />
                   <Bar dataKey="quantity" fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
                 </BarChart>
@@ -726,10 +724,10 @@ export default function ReportsPage() {
         </div>
 
         {/* Lowest stock */}
-        <div className="mt-8 bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+        <div className={"mt-8 " + cardClass + " p-6"}>
           <div className="flex items-center gap-2 mb-4">
-            <Store className="w-5 h-5 text-primary-600" />
-            <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.inventoryReport.lowestStock")}</h3>
+            <Store className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.inventoryReport.lowestStock")}</h3>
           </div>
           {lowestStockLoading ? (
             <LoadingSpinner />
@@ -752,7 +750,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Phase 4 - Expenses Reports */}
-      <div className="pt-8 border-t border-surface-200">
+      <div className="pt-8 border-t border-surface-200 dark:border-surface-700/60">
         <SectionHeader icon={Wallet} title={t("reports.expenses.title")} />
         <DateFilter
           period={expensePeriod}
@@ -771,44 +769,39 @@ export default function ReportsPage() {
         </div>
 
         <div className="mb-8">
-          <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.dailyTrend")}</h3>
+          <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.expenses.dailyTrend")}</h3>
           {expensesDailyLoading ? (
             <LoadingSpinner />
           ) : expensesDailyError ? (
             <ErrorDisplay message={expensesDailyError.response?.data?.message || expensesDailyError.message} />
           ) : !expensesDaily?.data?.length ? (
-            <div className="bg-white rounded-2xl border border-surface-200/80 p-12 text-center shadow-card">
-              <ReceiptText className="w-12 h-12 text-surface-300 mx-auto mb-3" />
-              <p className="text-surface-400 text-sm font-medium">{t("reports.expenses.noData")}</p>
+            <div className={cardClass + " p-12 text-center"}>
+              <ReceiptText className="w-12 h-12 text-surface-300 dark:text-surface-600 mx-auto mb-3" />
+              <p className="text-surface-400 dark:text-surface-500 text-sm font-medium">{t("reports.expenses.noData")}</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className={cardClass + " p-6"}>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={expensesDaily.data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
                   <XAxis
                     dataKey="date"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => {
                       const d = new Date(val + "T00:00:00");
                       return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
                     }}
                   />
                   <YAxis
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => formatCurrency(val)}
                   />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                   />
                   <Bar dataKey="total" name={t("reports.expenses.totalExpenses")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 </BarChart>
@@ -818,14 +811,14 @@ export default function ReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
-            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.categoryBreakdown")}</h3>
+          <div className={cardClass + " p-6"}>
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.expenses.categoryBreakdown")}</h3>
             {expensesCategoryLoading ? (
               <LoadingSpinner />
             ) : expensesCategoryError ? (
               <ErrorDisplay message={expensesCategoryError.response?.data?.message || expensesCategoryError.message} />
             ) : !expensesCategory?.length ? (
-              <p className="text-surface-400 text-sm font-medium text-center py-8">{t("reports.expenses.noData")}</p>
+              <p className="text-surface-400 dark:text-surface-500 text-sm font-medium text-center py-8">{t("reports.expenses.noData")}</p>
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
@@ -844,12 +837,7 @@ export default function ReportsPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                     formatter={(value) => formatCurrency(Number(value))}
                   />
                 </PieChart>
@@ -857,8 +845,8 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
-            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.paymentBreakdown")}</h3>
+          <div className={cardClass + " p-6"}>
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.expenses.paymentBreakdown")}</h3>
             {expensesPaymentLoading ? (
               <LoadingSpinner />
             ) : expensesPaymentError ? (
@@ -878,13 +866,13 @@ export default function ReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={cardClass + " p-6"}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.expenses.monthlyComparison")}</h3>
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.expenses.monthlyComparison")}</h3>
               <select
                 value={expenseComparisonYear}
                 onChange={(e) => setExpenseComparisonYear(Number(e.target.value))}
-                className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
                   <option key={y} value={y}>{y}</option>
@@ -898,27 +886,22 @@ export default function ReportsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={expensesMonthlyComparison} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
                   <XAxis
                     dataKey="month"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => new Date(2000, val - 1, 1).toLocaleDateString(locale, { month: "short" })}
                   />
                   <YAxis
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => formatCurrency(val)}
                   />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                   />
                   <Bar dataKey="total" name={t("reports.expenses.totalExpenses")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
                 </BarChart>
@@ -926,8 +909,8 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
-            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.expenses.highestCategories")}</h3>
+          <div className={cardClass + " p-6"}>
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.expenses.highestCategories")}</h3>
             {expensesHighestLoading ? (
               <LoadingSpinner />
             ) : expensesHighestError ? (
@@ -948,7 +931,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Phase 5 - Inventory Audit Reports */}
-      <div className="pt-8 border-t border-surface-200">
+      <div className="pt-8 border-t border-surface-200 dark:border-surface-700/60">
         <SectionHeader icon={ClipboardCheck} title={t("reports.audits.title")} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
@@ -966,13 +949,13 @@ export default function ReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={cardClass + " p-6"}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("reports.audits.monthlyTrend")}</h3>
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("reports.audits.monthlyTrend")}</h3>
               <select
                 value={auditComparisonYear}
                 onChange={(e) => setAuditComparisonYear(Number(e.target.value))}
-                className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               >
                 {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
                   <option key={y} value={y}>{y}</option>
@@ -986,22 +969,17 @@ export default function ReportsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={auditsMonthly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
                   <XAxis
                     dataKey="month"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                     tickFormatter={(val) => new Date(2000, val - 1, 1).toLocaleDateString(locale, { month: "short" })}
                   />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <YAxis allowDecimals={false} tick={AXIS_TICK} tickLine={false} axisLine={AXIS_LINE} />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                   />
                   <Bar dataKey="audits" name={t("reports.audits.completedAudits")} fill="var(--color-primary-500, #6366f1)" radius={[4, 4, 0, 0]} maxBarSize={30} />
                 </BarChart>
@@ -1009,8 +987,8 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
-            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.audits.yearlyTrend")}</h3>
+          <div className={cardClass + " p-6"}>
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.audits.yearlyTrend")}</h3>
             {auditsYearlyLoading ? (
               <LoadingSpinner />
             ) : auditsYearlyError ? (
@@ -1018,21 +996,16 @@ export default function ReportsPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={auditsYearly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID_LINE} />
                   <XAxis
                     dataKey="year"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={AXIS_TICK}
                     tickLine={false}
-                    axisLine={{ stroke: "#e2e8f0" }}
+                    axisLine={AXIS_LINE}
                   />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <YAxis allowDecimals={false} tick={AXIS_TICK} tickLine={false} axisLine={AXIS_LINE} />
                   <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                      fontSize: "13px",
-                    }}
+                    contentStyle={TOOLTIP_STYLE}
                   />
                   <Bar dataKey="audits" name={t("reports.audits.completedAudits")} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
                 </BarChart>
@@ -1043,7 +1016,7 @@ export default function ReportsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div>
-            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.audits.largestShortages")}</h3>
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.audits.largestShortages")}</h3>
             {auditReportLoading ? (
               <LoadingSpinner />
             ) : auditReportError ? (
@@ -1053,7 +1026,7 @@ export default function ReportsPage() {
                 columns={[
                   { key: "product_name", label: t("reports.audits.product") },
                   { key: "audit_name", label: t("reports.audits.audit") },
-                  { key: "difference", label: t("reports.audits.difference"), render: (val) => <span className="font-bold text-red-600">{val}</span> },
+                  { key: "difference", label: t("reports.audits.difference"), render: (val) => <span className="font-bold text-red-600 dark:text-red-400">{val}</span> },
                 ]}
                 data={auditReport?.largest_shortages}
                 emptyMessage={t("reports.audits.noData")}
@@ -1062,7 +1035,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("reports.audits.largestOverages")}</h3>
+            <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("reports.audits.largestOverages")}</h3>
             {auditReportLoading ? (
               <LoadingSpinner />
             ) : auditReportError ? (
@@ -1072,7 +1045,7 @@ export default function ReportsPage() {
                 columns={[
                   { key: "product_name", label: t("reports.audits.product") },
                   { key: "audit_name", label: t("reports.audits.audit") },
-                  { key: "difference", label: t("reports.audits.difference"), render: (val) => <span className="font-bold text-emerald-600">+{val}</span> },
+                  { key: "difference", label: t("reports.audits.difference"), render: (val) => <span className="font-bold text-emerald-600 dark:text-emerald-400">+{val}</span> },
                 ]}
                 data={auditReport?.largest_overages}
                 emptyMessage={t("reports.audits.noData")}

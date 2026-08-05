@@ -53,8 +53,9 @@
     }
   },
   "dashboard": {
-    "title": "POS Dashboard",
-    "subtitle": "Overview of your point of sale system",
+    "title": "Executive Dashboard",
+    "subtitle": "Real-time overview of your business performance",
+    "refresh": "Refresh data",
     "totalProducts": "Total Products",
     "categories": "Categories",
     "customers": "Customers",
@@ -70,6 +71,55 @@
     "adequatelyStocked": "Products adequately stocked",
     "emptyTitle": "Welcome to POS",
     "emptyDescription": "Your system is ready. Start by adding products, customers, and making sales to see your business data here.",
+    "kpis": {
+      "revenue": "Revenue",
+      "monthlyRevenueSubtitle": "this month",
+      "todaySales": "Today's Sales",
+      "todaySalesSubtitle": "{{count}} invoices today",
+      "monthlyPurchases": "Purchases",
+      "monthlyPurchasesSubtitle": "this month",
+      "inventoryValue": "Inventory Value",
+      "inventoryValueSubtitle": "{{count}} active products",
+      "lowStock": "Low Stock",
+      "lowStockSubtitle": "products need restocking",
+      "pendingPurchases": "Pending Purchases",
+      "pendingPurchasesSubtitle": "awaiting completion",
+      "todayExpenses": "Today's Expenses",
+      "openAudits": "Open Audits",
+      "avgInvoice": "Avg Invoice Value"
+    },
+    "charts": {
+      "salesTrend": "Sales Trend",
+      "salesTrendSubtitle": "Last 30 days",
+      "purchasesTrend": "Purchases Trend",
+      "purchasesTrendSubtitle": "Last 30 days",
+      "expensesTrend": "Expenses Trend",
+      "expensesTrendSubtitle": "Last 30 days",
+      "inventoryMovement": "Inventory Movement",
+      "inventoryMovementSubtitle": "Units by month",
+      "topProducts": "Top Selling Products",
+      "topProductsSubtitle": "By revenue",
+      "topCustomers": "Top Customers",
+      "topCustomersSubtitle": "By total spending",
+      "topCustomersEmptyTitle": "Customer analytics coming soon",
+      "topCustomersEmptyDescription": "Once customer sales data is available, your top buyers will appear here.",
+      "noData": "No data available yet",
+      "invoices": "{{count}} invoices",
+      "units": "{{count}} units",
+      "quantity": "Qty sold"
+    },
+    "activity": {
+      "recentSales": "Recent Sales",
+      "recentPurchases": "Recent Purchases",
+      "recentAudits": "Recent Inventory Audits",
+      "notifications": "Notifications",
+      "quickActions": "Quick Actions",
+      "viewAll": "View all",
+      "noSales": "No recent sales",
+      "noPurchases": "No recent purchases",
+      "noAudits": "No audits yet",
+      "noNotifications": "You're all caught up"
+    },
     "expenses": {
       "today": "Today's Expenses",
       "month": "Expenses This Month",
@@ -1075,7 +1125,12 @@
     "closeDialog": "Close dialog",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "noDataAvailable": "No data available"
+    "noDataAvailable": "No data available",
+    "roles": {
+      "admin": "Admin",
+      "manager": "Manager",
+      "employee": "Employee"
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -1197,5 +1252,36 @@
       "title": "Business POS System",
       "subtitle": "Sign in to continue"
     }
+  },
+  "header": {
+    "search": {
+      "placeholder": "Search modules and pages...",
+      "noResults": "No pages found",
+      "noResultsHint": "Try a different keyword"
+    },
+    "clock": {
+      "now": "Current time"
+    },
+    "quickActions": {
+      "label": "Quick actions",
+      "comingSoon": "Coming soon",
+      "exportHint": "Export functionality will be available in a future update.",
+      "backupHint": "Backup functionality will be available in a future update."
+    }
+  },
+  "quickActions": {
+    "newSale": "New Sale",
+    "newPurchase": "New Purchase",
+    "products": "Products",
+    "customers": "Customers",
+    "categories": "Categories",
+    "audits": "Inventory Audits",
+    "suppliers": "Suppliers",
+    "print": "Print",
+    "refresh": "Refresh",
+    "export": "Export",
+    "users": "Users",
+    "storeSettings": "Store Settings",
+    "backup": "Backup"
   }
 }

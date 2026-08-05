@@ -15,7 +15,9 @@
     "movementHistory": "سجل الحركات",
     "inventoryAudits": "جرد المخزون",
     "administration": "الإدارة العامة",
-    "users": "المستخدمين"
+    "users": "المستخدمين",
+    "settings": "الإعدادات",
+    "storeSettings": "إعدادات المتجر"
   },
   "auth": {
     "welcomeBack": "مرحبًا بعودتك",
@@ -48,8 +50,9 @@
     }
   },
   "dashboard": {
-    "title": "لوحة تحكم نقاط البيع",
-    "subtitle": "نظرة عامة على نظام نقاط البيع الخاص بك",
+    "title": "لوحة التحكم التنفيذية",
+    "subtitle": "نظرة عامة لحظية على أداء أعمالك",
+    "refresh": "تحديث البيانات",
     "totalProducts": "إجمالي المنتجات",
     "categories": "التصنيفات",
     "customers": "العملاء",
@@ -65,6 +68,55 @@
     "adequatelyStocked": "المنتجات المخزنة بشكل كافٍ",
     "emptyTitle": "مرحباً بك في نظام نقاط البيع",
     "emptyDescription": "نظامك جاهز. ابدأ بإضافة المنتجات والعملاء وإجراء المبيعات لرؤية بيانات أعمالك هنا.",
+    "kpis": {
+      "revenue": "الإيرادات",
+      "monthlyRevenueSubtitle": "هذا الشهر",
+      "todaySales": "مبيعات اليوم",
+      "todaySalesSubtitle": "{{count}} فاتورة اليوم",
+      "monthlyPurchases": "المشتريات",
+      "monthlyPurchasesSubtitle": "هذا الشهر",
+      "inventoryValue": "قيمة المخزون",
+      "inventoryValueSubtitle": "{{count}} منتج نشط",
+      "lowStock": "مخزون منخفض",
+      "lowStockSubtitle": "منتجات تحتاج إعادة تزويد",
+      "pendingPurchases": "مشتريات معلقة",
+      "pendingPurchasesSubtitle": "في انتظار الاكتمال",
+      "todayExpenses": "مصروفات اليوم",
+      "openAudits": "جرد مفتوح",
+      "avgInvoice": "متوسط قيمة الفاتورة"
+    },
+    "charts": {
+      "salesTrend": "اتجاه المبيعات",
+      "salesTrendSubtitle": "آخر 30 يومًا",
+      "purchasesTrend": "اتجاه المشتريات",
+      "purchasesTrendSubtitle": "آخر 30 يومًا",
+      "expensesTrend": "اتجاه المصروفات",
+      "expensesTrendSubtitle": "آخر 30 يومًا",
+      "inventoryMovement": "حركة المخزون",
+      "inventoryMovementSubtitle": "الوحدات حسب الشهر",
+      "topProducts": "أفضل المنتجات مبيعًا",
+      "topProductsSubtitle": "حسب الإيراد",
+      "topCustomers": "أفضل العملاء",
+      "topCustomersSubtitle": "حسب إجمالي الإنفاق",
+      "topCustomersEmptyTitle": "تحليلات العملاء قريبًا",
+      "topCustomersEmptyDescription": "بمجرد توفر بيانات مبيعات العملاء، سيظهر كبار المشترين هنا.",
+      "noData": "لا توجد بيانات متاحة بعد",
+      "invoices": "{{count}} فاتورة",
+      "units": "{{count}} وحدة",
+      "quantity": "الكمية المباعة"
+    },
+    "activity": {
+      "recentSales": "أحدث المبيعات",
+      "recentPurchases": "أحدث المشتريات",
+      "recentAudits": "أحدث جرد للمخزون",
+      "notifications": "الإشعارات",
+      "quickActions": "إجراءات سريعة",
+      "viewAll": "عرض الكل",
+      "noSales": "لا توجد مبيعات حديثة",
+      "noPurchases": "لا توجد مشتريات حديثة",
+      "noAudits": "لا يوجد جرد بعد",
+      "noNotifications": "لا توجد إشعارات جديدة"
+    },
     "expenses": {
       "today": "مصروفات اليوم",
       "month": "مصروفات هذا الشهر",
@@ -1004,11 +1056,47 @@
     "closeDialog": "إغلاق الحوار",
     "cancel": "إلغاء",
     "confirm": "تأكيد",
-    "noDataAvailable": "لا توجد بيانات متاحة"
+    "noDataAvailable": "لا توجد بيانات متاحة",
+    "roles": {
+      "admin": "مدير",
+      "manager": "مشرف",
+      "employee": "موظف"
+    }
   },
   "language": {
     "switch": "اللغة",
     "english": "English",
     "arabic": "العربية"
+  },
+  "header": {
+    "search": {
+      "placeholder": "ابحث في الوحدات والصفحات...",
+      "noResults": "لم يتم العثور على صفحات",
+      "noResultsHint": "جرب كلمة مختلفة"
+    },
+    "clock": {
+      "now": "الوقت الحالي"
+    },
+    "quickActions": {
+      "label": "إجراءات سريعة",
+      "comingSoon": "قريبًا",
+      "exportHint": "ستتوفر ميزة التصدير في تحديث قادم.",
+      "backupHint": "ستتوفر ميزة النسخ الاحتياطي في تحديث قادم."
+    }
+  },
+  "quickActions": {
+    "newSale": "بيع جديد",
+    "newPurchase": "شراء جديد",
+    "products": "المنتجات",
+    "customers": "العملاء",
+    "categories": "التصنيفات",
+    "audits": "جرد المخزون",
+    "suppliers": "الموردين",
+    "print": "طباعة",
+    "refresh": "تحديث",
+    "export": "تصدير",
+    "users": "المستخدمين",
+    "storeSettings": "إعدادات المتجر",
+    "backup": "نسخ احتياطي"
   }
 }

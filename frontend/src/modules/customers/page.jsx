@@ -10,14 +10,15 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import { inputClass, labelClass, searchInputClass, primaryButtonClass, secondaryButtonClass, iconButtonClass } from "../../shared/components/styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, Users } from "lucide-react";
 import toast from "react-hot-toast";
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
 
 export default function CustomersPage() {
   const { t } = useTranslation();
@@ -66,22 +67,22 @@ export default function CustomersPage() {
     {
       key: "name",
       label: t("customers.columns.name"),
-      render: (val) => <span className="text-[13px] font-semibold text-surface-800">{val}</span>,
+      render: (val) => <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100">{val}</span>,
     },
     {
       key: "phone",
       label: t("customers.columns.phone"),
-      render: (val) => <span className="text-[13px] text-surface-600">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-600 dark:text-surface-300">{val || "-"}</span>,
     },
     {
       key: "email",
       label: t("customers.columns.email"),
-      render: (val) => <span className="text-[13px] text-surface-500">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400">{val || "-"}</span>,
     },
     {
       key: "address",
       label: t("customers.columns.address"),
-      render: (val) => <span className="text-[13px] text-surface-500 truncate max-w-[200px] inline-block">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400 truncate max-w-[200px] inline-block">{val || "-"}</span>,
     },
     ...(canManage
       ? [
@@ -90,10 +91,10 @@ export default function CustomersPage() {
             label: t("customers.columns.actions"),
             render: (_, row) => (
               <div className="flex items-center gap-1">
-                <button onClick={() => { setEditing(row); setModalOpen(true); }} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("customers.edit")}>
+                <button onClick={() => { setEditing(row); setModalOpen(true); }} className={iconButtonClass} title={t("customers.edit")}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title={t("customers.delete")}>
+                <button onClick={() => setDeleteTarget(row)} className={dangerIconButtonClass} title={t("customers.delete")}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -113,7 +114,7 @@ export default function CustomersPage() {
         description={t("customers.description")}
         actions={
           canManage && (
-            <button onClick={() => { setEditing(null); setModalOpen(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
+            <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>
               <Plus className="w-4 h-4" />
               {t("customers.newCustomer")}
             </button>
@@ -122,12 +123,12 @@ export default function CustomersPage() {
       />
 
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-        <input type="text" placeholder={t("customers.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label={t("customers.searchAriaLabel")} />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
+        <input type="text" placeholder={t("customers.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className={searchInputClass} aria-label={t("customers.searchAriaLabel")} />
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Users} title={t("customers.empty.noResultsTitle")} description={search ? t("customers.empty.noResultsDescription") : t("customers.empty.noCustomersDescription")} action={!search && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("customers.empty.addCustomer")}</button>} />
+        <EmptyState icon={Users} title={t("customers.empty.noResultsTitle")} description={search ? t("customers.empty.noResultsDescription") : t("customers.empty.noCustomersDescription")} action={!search && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>{t("customers.empty.addCustomer")}</button>} />
       ) : (
         <DataTable columns={columns} data={filtered} />
       )}
@@ -186,9 +187,9 @@ function CustomerModal({ isOpen, onClose, editing, onSubmit, loading }) {
           <textarea {...register("address")} rows={2} placeholder={t("customers.form.addressPlaceholder")} className={`${INPUT_CLASS} resize-none`} />
           {errors.address && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.address.message}</p>}
         </div>
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("customers.form.cancel")}</button>
-          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? t("customers.form.saving") : editing ? t("customers.form.update") : t("customers.form.create")}</button>
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>{t("customers.form.cancel")}</button>
+          <button type="submit" disabled={loading} className={primaryButtonClass}>{loading ? t("customers.form.saving") : editing ? t("customers.form.update") : t("customers.form.create")}</button>
         </div>
       </form>
     </Modal>

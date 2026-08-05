@@ -19,6 +19,11 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import {
+  inputClass, selectClass, labelClass, searchInputClass, filterBarClass, cardClass,
+  cardClassOverflowHidden, primaryButtonClass, secondaryButtonClass, ghostButtonClass, iconButtonClass,
+  dangerIconButtonClass, paginationButtonClass, tableHeadClass, tableBodyClass, tableRowClass,
+} from "../../shared/components/styles";
 import { formatCurrency } from "../../utils/formatCurrency";
 import {
   Plus, Pencil, Trash2, Eye, Search, Wallet, ReceiptText,
@@ -26,9 +31,9 @@ import {
   ChevronLeft, ChevronRight, Filter, X,
 } from "lucide-react";
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
-const SELECT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
+const SELECT_CLASS = selectClass;
 
 const CATEGORY_COLORS = {
   Rent: "#6366f1",
@@ -224,7 +229,7 @@ export default function ExpensesPage() {
         description={t("expenses.subtitle")}
         actions={
           canManage && (
-            <button onClick={() => { setEditing(null); setModalOpen(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
+            <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>
               <Plus className="w-4 h-4" />
               {t("expenses.newExpense")}
             </button>
@@ -248,11 +253,11 @@ export default function ExpensesPage() {
       </div>
 
       {/* Filters */}
-      <div className="p-4 bg-white rounded-2xl border border-surface-200/80 shadow-card mb-6">
+      <div className={filterBarClass + " mb-6"}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
           <div className="lg:col-span-2 relative">
-            <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-            <input type="text" placeholder={t("expenses.searchPlaceholder")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-full ps-10 pe-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150" aria-label={t("expenses.searchPlaceholder")} />
+            <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
+            <input type="text" placeholder={t("expenses.searchPlaceholder")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className={searchInputClass} aria-label={t("expenses.searchPlaceholder")} />
           </div>
           <div>
             <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className={SELECT_CLASS}>
@@ -277,24 +282,24 @@ export default function ExpensesPage() {
             <input type="date" value={endDate} onChange={(e) => handlePeriodFilterChange("end", e.target.value)} className={INPUT_CLASS} aria-label={t("expenses.toDate")} />
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface-100">
-          <div className="flex items-center gap-2 text-[12px] text-surface-400">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface-100 dark:border-surface-700/60">
+          <div className="flex items-center gap-2 text-[12px] text-surface-400 dark:text-surface-500">
             <Filter className="w-4 h-4" />
             <span>{t("expenses.showing", { count: items.length, total })}</span>
           </div>
           <div className="flex items-center gap-2">
             {hasFilters && (
-              <button onClick={clearFilters} className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-surface-500 bg-surface-50 hover:bg-surface-100 rounded-lg transition-colors">
+              <button onClick={clearFilters} className={ghostButtonClass}>
                 <X className="w-3.5 h-3.5" />
                 {t("expenses.clear")}
               </button>
             )}
-            <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20" aria-label={t("expenses.sortBy")}>
+            <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20" aria-label={t("expenses.sortBy")}>
               {SORT_COLUMNS.map((col) => (
                 <option key={col.key} value={col.key}>{t(col.labelKey)}</option>
               ))}
             </select>
-            <button onClick={() => { setOrder((prev) => (prev === "asc" ? "desc" : "asc")); setPage(1); }} className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 bg-surface-50 hover:bg-surface-100 transition-colors" title={order === "asc" ? t("expenses.sortAsc") : t("expenses.sortDesc")}>
+            <button onClick={() => { setOrder((prev) => (prev === "asc" ? "desc" : "asc")); setPage(1); }} className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] font-semibold text-surface-600 dark:text-surface-300 bg-surface-50 dark:bg-surface-700/40 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors" title={order === "asc" ? t("expenses.sortAsc") : t("expenses.sortDesc")}>
               {order === "asc" ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
             </button>
           </div>
@@ -308,17 +313,17 @@ export default function ExpensesPage() {
           title={t("expenses.noExpenses")}
           description={t("expenses.noExpensesHint")}
           action={canManage && (
-            <button onClick={() => { setEditing(null); setModalOpen(true); }} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">
+            <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>
               {t("expenses.newExpense")}
             </button>
           )}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-surface-200/80 overflow-hidden shadow-card">
+        <div className={cardClassOverflowHidden}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm" role="table">
               <thead>
-                <tr className="border-b border-surface-100 bg-surface-50/60">
+                <tr className={tableHeadClass}>
                   {[
                     { key: "title", labelKey: "expenses.columns.title" },
                     { key: "category", labelKey: "expenses.columns.category" },
@@ -327,10 +332,10 @@ export default function ExpensesPage() {
                     { key: "expense_date", labelKey: "expenses.columns.date" },
                     { key: "created_by_name", labelKey: "expenses.columns.createdBy" },
                   ].map((col) => (
-                    <th key={col.key} className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">
+                    <th key={col.key} className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
                       <button
                         onClick={() => toggleSort(col.key)}
-                        className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-primary-600 transition-colors"
+                        className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                         disabled={!canManage}
                       >
                         {t(col.labelKey)}
@@ -338,37 +343,37 @@ export default function ExpensesPage() {
                       </button>
                     </th>
                   ))}
-                  <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("expenses.columns.actions")}</th>
+                  <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("expenses.columns.actions")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surface-100">
+              <tbody className={tableBodyClass}>
                 {items.map((exp) => (
-                  <tr key={exp.id} className="hover:bg-surface-50/50 transition-colors duration-100">
+                  <tr key={exp.id} className={tableRowClass}>
                     <td className="px-5 py-3.5">
-                      <button onClick={() => setDetails(exp)} className="text-[13px] font-semibold text-surface-800 hover:text-primary-600 text-start transition-colors">
+                      <button onClick={() => setDetails(exp)} className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 hover:text-primary-600 dark:hover:text-primary-400 text-start transition-colors">
                         {exp.title}
                       </button>
                     </td>
                     <td className="px-5 py-3.5 whitespace-nowrap">
                       <CategoryBadge category={exp.category_name} />
                     </td>
-                    <td className="px-5 py-3.5 whitespace-nowrap font-bold text-surface-800 tabular-nums">{formatCurrency(exp.amount)}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-600">{t(`expenses.paymentMethods.${exp.payment_method}`)}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-600">
+                    <td className="px-5 py-3.5 whitespace-nowrap font-bold text-surface-800 dark:text-surface-100 tabular-nums">{formatCurrency(exp.amount)}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-600 dark:text-surface-300">{t(`expenses.paymentMethods.${exp.payment_method}`)}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-600 dark:text-surface-300">
                       {new Date(exp.expense_date).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" })}
                     </td>
-                    <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500">{exp.created_by_name || "—"}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500 dark:text-surface-400">{exp.created_by_name || "—"}</td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-end">
                       <div className="inline-flex items-center gap-1">
-                        <button onClick={() => setDetails(exp)} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("expenses.details.title")}>
+                        <button onClick={() => setDetails(exp)} className={iconButtonClass} title={t("expenses.details.title")}>
                           <Eye className="w-4 h-4" />
                         </button>
                         {canManage && (
                           <>
-                            <button onClick={() => { setEditing(exp); setModalOpen(true); }} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("expenses.form.titleEdit")}>
+                            <button onClick={() => { setEditing(exp); setModalOpen(true); }} className={iconButtonClass} title={t("expenses.form.titleEdit")}>
                               <Pencil className="w-4 h-4" />
                             </button>
-                            <button onClick={() => setDeleteTarget(exp)} className="p-1.5 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-150" title={t("expenses.confirmDelete.title")}>
+                            <button onClick={() => setDeleteTarget(exp)} className={dangerIconButtonClass} title={t("expenses.confirmDelete.title")}>
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </>
@@ -383,13 +388,13 @@ export default function ExpensesPage() {
 
           {/* Pagination */}
           {pages > 1 && (
-            <div className="flex items-center justify-between px-5 py-3.5 border-t border-surface-100">
-              <p className="text-[12px] text-surface-400">{t("expenses.pageOf", { page, pages })}</p>
+            <div className="flex items-center justify-between px-5 py-3.5 border-t border-surface-100 dark:border-surface-700/60">
+              <p className="text-[12px] text-surface-400 dark:text-surface-500">{t("expenses.pageOf", { page, pages })}</p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className={paginationButtonClass}
                 >
                   <ChevronLeft className="w-4 h-4" />
                   {t("expenses.previous")}
@@ -397,7 +402,7 @@ export default function ExpensesPage() {
                 <button
                   onClick={() => setPage((p) => Math.min(pages, p + 1))}
                   disabled={page >= pages}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className={paginationButtonClass}
                 >
                   {t("expenses.next")}
                   <ChevronRight className="w-4 h-4" />
@@ -410,22 +415,22 @@ export default function ExpensesPage() {
 
       {/* Charts */}
       {canManage && (
-        <div className="mt-8 pt-8 border-t border-surface-200">
+        <div className="mt-8 pt-8 border-t border-surface-200 dark:border-surface-700/60">
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center ring-1 ring-primary-100">
+            <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center ring-1 ring-primary-100 dark:ring-primary-500/20">
               <TrendingUp className="w-4 h-4 text-primary-600" />
             </div>
-            <h2 className="text-lg font-semibold text-surface-900">{t("expenses.charts.title")}</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t("expenses.charts.title")}</h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
-              <h3 className="text-[15px] font-semibold text-surface-900 mb-4">{t("expenses.charts.byCategory")}</h3>
+            <div className={cardClass + " p-6"}>
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100 mb-4">{t("expenses.charts.byCategory")}</h3>
               {categoryLoading ? (
                 <LoadingSpinner />
               ) : categoryError ? (
                 <ErrorDisplay message={categoryError.response?.data?.message || categoryError.message} />
               ) : !categoryData || categoryData.length === 0 ? (
-                <p className="text-center text-surface-400 py-12 text-[13px]">{t("expenses.charts.noData")}</p>
+                <p className="text-center text-surface-400 dark:text-surface-500 py-12 text-[13px]">{t("expenses.charts.noData")}</p>
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <PieChart>
@@ -436,7 +441,7 @@ export default function ExpensesPage() {
                     </Pie>
                     <Tooltip
                       formatter={(value) => formatCurrency(value)}
-                      contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "13px" }}
+                      contentStyle={{ borderRadius: "12px", border: "1px solid var(--color-surface-200)", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "13px", background: "var(--color-surface-50)", color: "var(--color-surface-800)" }}
                     />
                     <Legend formatter={(value) => t(`expenses.categories.${value}`)} />
                   </PieChart>
@@ -444,16 +449,16 @@ export default function ExpensesPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+            <div className={cardClass + " p-6"}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[15px] font-semibold text-surface-900">{t("expenses.charts.monthlyTrend")}</h3>
+                <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("expenses.charts.monthlyTrend")}</h3>
                 <div className="flex items-center gap-2">
-                  <select value={chartMonth} onChange={(e) => setChartMonth(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+                  <select value={chartMonth} onChange={(e) => setChartMonth(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                       <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
-                  <select value={chartYear} onChange={(e) => setChartYear(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+                  <select value={chartYear} onChange={(e) => setChartYear(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
                     {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
                       <option key={y} value={y}>{y}</option>
                     ))}
@@ -465,16 +470,16 @@ export default function ExpensesPage() {
               ) : monthlyError ? (
                 <ErrorDisplay message={monthlyError.response?.data?.message || monthlyError.message} />
               ) : !monthlyData || monthlyData.length === 0 ? (
-                <p className="text-center text-surface-400 py-12 text-[13px]">{t("expenses.charts.noData")}</p>
+                <p className="text-center text-surface-400 dark:text-surface-500 py-12 text-[13px]">{t("expenses.charts.noData")}</p>
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
-                    <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-200)" />
+                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-surface-400)" }} tickLine={false} axisLine={{ stroke: "var(--color-surface-200)" }} />
+                    <YAxis tick={{ fontSize: 11, fill: "var(--color-surface-400)" }} tickLine={false} axisLine={{ stroke: "var(--color-surface-200)" }} />
                     <Tooltip
                       formatter={(value) => formatCurrency(value)}
-                      contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "13px" }}
+                      contentStyle={{ borderRadius: "12px", border: "1px solid var(--color-surface-200)", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "13px", background: "var(--color-surface-50)", color: "var(--color-surface-800)" }}
                     />
                     <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={28} />
                   </BarChart>
@@ -483,10 +488,10 @@ export default function ExpensesPage() {
             </div>
           </div>
 
-          <div className="mt-5 bg-white rounded-2xl border border-surface-200/80 p-6 shadow-card">
+          <div className={"mt-5 " + cardClass + " p-6"}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-surface-900">{t("expenses.charts.yearlyTrend")}</h3>
-              <select value={chartYear} onChange={(e) => setChartYear(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] text-surface-700 bg-surface-50 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+              <h3 className="text-[15px] font-semibold text-surface-900 dark:text-surface-100">{t("expenses.charts.yearlyTrend")}</h3>
+              <select value={chartYear} onChange={(e) => setChartYear(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700/60 text-[12px] text-surface-700 dark:text-surface-200 bg-surface-50 dark:bg-surface-700/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
                 {[new Date().getFullYear(), new Date().getFullYear() - 1].map((y) => (
                   <option key={y} value={y}>{y}</option>
                 ))}
@@ -497,16 +502,16 @@ export default function ExpensesPage() {
             ) : yearlyError ? (
               <ErrorDisplay message={yearlyError.response?.data?.message || yearlyError.message} />
             ) : !yearlyData || yearlyData.length === 0 ? (
-              <p className="text-center text-surface-400 py-12 text-[13px]">{t("expenses.charts.noData")}</p>
+              <p className="text-center text-surface-400 dark:text-surface-500 py-12 text-[13px]">{t("expenses.charts.noData")}</p>
             ) : (
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={yearlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickLine={false} axisLine={{ stroke: "#e2e8f0" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-200)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-surface-400)" }} tickLine={false} axisLine={{ stroke: "var(--color-surface-200)" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "var(--color-surface-400)" }} tickLine={false} axisLine={{ stroke: "var(--color-surface-200)" }} />
                   <Tooltip
                     formatter={(value) => formatCurrency(value)}
-                    contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "13px" }}
+                    contentStyle={{ borderRadius: "12px", border: "1px solid var(--color-surface-200)", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)", fontSize: "13px", background: "var(--color-surface-50)", color: "var(--color-surface-800)" }}
                   />
                   <Bar dataKey="total" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
                 </BarChart>
@@ -614,9 +619,9 @@ function ExpenseModal({ isOpen, onClose, editing, onSubmit, loading, categories 
           <label className={LABEL_CLASS}>{t("expenses.form.notesLabel")}</label>
           <textarea {...register("notes")} rows={3} placeholder={t("expenses.form.notesPlaceholder")} className={`${INPUT_CLASS} resize-none`} />
         </div>
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("expenses.form.cancel")}</button>
-          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? t("expenses.form.saving") : t("expenses.form.save")}</button>
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>{t("expenses.form.cancel")}</button>
+          <button type="submit" disabled={loading} className={primaryButtonClass}>{loading ? t("expenses.form.saving") : t("expenses.form.save")}</button>
         </div>
       </form>
     </Modal>
@@ -641,23 +646,23 @@ function ExpenseDetailsModal({ expense, onClose }) {
   return (
     <Modal isOpen={!!expense} onClose={onClose} title={t("expenses.details.title")}>
       <div className="space-y-4">
-        <div className="bg-surface-50 rounded-xl p-4">
-          <p className="text-[11px] font-semibold text-surface-400 uppercase tracking-wide mb-1">{t("expenses.columns.title")}</p>
-          <p className="text-[15px] font-bold text-surface-900">{expense.title}</p>
+        <div className="bg-surface-50 dark:bg-surface-700/40 rounded-xl p-4">
+          <p className="text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wide mb-1">{t("expenses.columns.title")}</p>
+          <p className="text-[15px] font-bold text-surface-900 dark:text-surface-100">{expense.title}</p>
           {expense.notes && (
-            <p className="text-[13px] text-surface-600 mt-3 leading-relaxed">{expense.notes}</p>
+            <p className="text-[13px] text-surface-600 dark:text-surface-300 mt-3 leading-relaxed">{expense.notes}</p>
           )}
         </div>
-        <div className="divide-y divide-surface-100">
+        <div className="divide-y divide-surface-100 dark:divide-surface-700/60">
           {rows.map((row) => (
             <div key={row.label} className="flex items-center justify-between gap-3 py-2.5">
-              <span className="text-[13px] text-surface-500">{row.label}</span>
-              <span className={`text-[13px] font-semibold text-surface-800 text-end min-w-0 ${row.tabular ? "tabular-nums whitespace-nowrap" : ""}`}>{row.value}</span>
+              <span className="text-[13px] text-surface-500 dark:text-surface-400">{row.label}</span>
+              <span className={`text-[13px] font-semibold text-surface-800 dark:text-surface-100 text-end min-w-0 ${row.tabular ? "tabular-nums whitespace-nowrap" : ""}`}>{row.value}</span>
             </div>
           ))}
         </div>
-        <div className="flex justify-end pt-4 border-t border-surface-100">
-          <button onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("expenses.details.close")}</button>
+        <div className="flex justify-end pt-4 border-t border-surface-100 dark:border-surface-700/60">
+          <button onClick={onClose} className={secondaryButtonClass}>{t("expenses.details.close")}</button>
         </div>
       </div>
     </Modal>

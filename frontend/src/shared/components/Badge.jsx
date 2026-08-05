@@ -1,10 +1,10 @@
 export function Badge({ children, variant = "default" }) {
   const variants = {
-    default: "bg-surface-100 text-surface-600 ring-surface-200",
-    success: "bg-emerald-50 text-emerald-700 ring-emerald-200/60",
-    warning: "bg-amber-50 text-amber-700 ring-amber-200/60",
-    danger: "bg-red-50 text-red-700 ring-red-200/60",
-    info: "bg-sky-50 text-sky-700 ring-sky-200/60",
+    default: "bg-surface-100 text-surface-600 ring-surface-200 dark:bg-surface-700/50 dark:text-surface-300 dark:ring-surface-600/50",
+    success: "bg-emerald-50 text-emerald-700 ring-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20",
+    warning: "bg-amber-50 text-amber-700 ring-amber-200/60 dark:bg-amber-500/10 dark:text-amber-400 dark:ring-amber-500/20",
+    danger: "bg-red-50 text-red-700 ring-red-200/60 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20",
+    info: "bg-sky-50 text-sky-700 ring-sky-200/60 dark:bg-sky-500/10 dark:text-sky-400 dark:ring-sky-500/20",
   };
 
   return (

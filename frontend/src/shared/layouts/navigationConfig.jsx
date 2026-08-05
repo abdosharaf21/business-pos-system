@@ -15,7 +15,43 @@ import {
   Wallet,
   Store,
   UserCog,
+  Plus,
+  Printer,
+  RefreshCw,
+  Download,
+  DatabaseBackup,
 } from "lucide-react";
+
+const MANAGE_ROLES = ["admin", "manager"];
+
+const QUICK_ACTIONS = {
+  dashboard: [
+    { id: "new-sale", labelKey: "quickActions.newSale", icon: CreditCard, to: "/pos" },
+    { id: "new-purchase", labelKey: "quickActions.newPurchase", icon: Plus, to: "/purchases?new=1", roles: MANAGE_ROLES },
+    { id: "products", labelKey: "quickActions.products", icon: ShoppingBag, to: "/products" },
+    { id: "customers", labelKey: "quickActions.customers", icon: Contact2, to: "/customers" },
+  ],
+  inventory: [
+    { id: "products", labelKey: "quickActions.products", icon: ShoppingBag, to: "/products" },
+    { id: "categories", labelKey: "quickActions.categories", icon: FolderOpen, to: "/categories" },
+    { id: "audits", labelKey: "quickActions.audits", icon: ClipboardList, to: "/inventory/audits" },
+  ],
+  purchases: [
+    { id: "new-purchase", labelKey: "quickActions.newPurchase", icon: Plus, to: "/purchases?new=1", roles: MANAGE_ROLES },
+    { id: "suppliers", labelKey: "quickActions.suppliers", icon: Truck, to: "/suppliers" },
+  ],
+  reports: [
+    { id: "print", labelKey: "quickActions.print", icon: Printer, kind: "print" },
+    { id: "refresh", labelKey: "quickActions.refresh", icon: RefreshCw, kind: "refresh" },
+    { id: "export", labelKey: "quickActions.export", icon: Download, kind: "disabled" },
+  ],
+  settings: [
+    { id: "users", labelKey: "quickActions.users", icon: UserCog, to: "/users" },
+    { id: "store-settings", labelKey: "quickActions.storeSettings", icon: Store, to: "/store-settings" },
+    { id: "backup", labelKey: "quickActions.backup", icon: DatabaseBackup, kind: "disabled" },
+  ],
+  pos: [],
+};
 
 export const MODULES = [
   { id: "dashboard", labelKey: "nav.dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -129,4 +165,30 @@ export function getVisibleSidebarGroups(moduleId, role) {
       items: (group.items || []).filter((item) => !item.roles || item.roles.includes(role)),
     }))
     .filter((group) => group.items.length > 0);
+}
+
+export function getQuickActions(moduleId, role) {
+  const actions = QUICK_ACTIONS[moduleId] || [];
+  return actions.filter((action) => !action.roles || action.roles.includes(role));
+}
+
+export function getBreadcrumb(pathname) {
+  const moduleId = getActiveModule(pathname);
+  const module = MODULES.find((m) => m.id === moduleId);
+  const groups = MODULE_SIDEBARS[moduleId] || [];
+  let section = null;
+  for (const group of groups) {
+    for (const item of group.items) {
+      if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {
+        section = item;
+        break;
+      }
+    }
+    if (section) break;
+  }
+  return {
+    moduleId,
+    moduleLabelKey: module?.labelKey || "nav.dashboard",
+    sectionLabelKey: section?.labelKey || module?.labelKey || "nav.dashboard",
+  };
 }

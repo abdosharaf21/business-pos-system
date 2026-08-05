@@ -33,7 +33,7 @@ export default function PurchaseInvoicePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50">
+      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-900">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -41,13 +41,13 @@ export default function PurchaseInvoicePage() {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50">
+      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-900">
         <div className="text-center max-w-sm">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-50 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
             <Printer className="w-7 h-7 text-red-400" />
           </div>
-          <h1 className="text-lg font-bold text-surface-800 mb-2">{t("purchases.invoicePage.notFound")}</h1>
-          <p className="text-sm text-surface-500 mb-6">
+          <h1 className="text-lg font-bold text-surface-800 dark:text-surface-100 mb-2">{t("purchases.invoicePage.notFound")}</h1>
+          <p className="text-sm text-surface-500 dark:text-surface-400 mb-6">
             {t("purchases.invoicePage.notFoundDesc")}
           </p>
           <button
@@ -84,7 +84,7 @@ export default function PurchaseInvoicePage() {
   const items = invoice.items || [];
 
   return (
-    <div className="min-h-screen bg-surface-50">
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       <style>{`
         @media print {
           body * {
@@ -105,16 +105,16 @@ export default function PurchaseInvoicePage() {
         }
       `}</style>
 
-      <div className="no-print bg-white border-b border-surface-200 px-6 py-4 flex items-center justify-between">
+      <div className="no-print bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700/60 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
-            className="p-2 rounded-xl text-surface-500 hover:bg-surface-100 transition-colors"
+            className="p-2 rounded-xl text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700/60 transition-colors"
             title={t("purchases.invoicePage.backToPurchases")}
           >
             <ArrowLeft className={`w-5 h-5 ${isRtl ? "rotate-180" : ""}`} />
           </button>
-          <h1 className="text-base font-bold text-surface-800">{t("purchases.invoicePage.title")}</h1>
+          <h1 className="text-base font-bold text-surface-800 dark:text-surface-100">{t("purchases.invoicePage.title")}</h1>
         </div>
         <button
           onClick={handlePrint}
@@ -126,7 +126,7 @@ export default function PurchaseInvoicePage() {
       </div>
 
       <div id="invoice-content" className="max-w-[210mm] mx-auto py-8 px-6">
-        <div className="bg-white rounded-2xl border border-surface-200 p-8 shadow-sm">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700/60 p-8 shadow-sm">
           <div className="text-center mb-8">
             {storeSettings?.logo_path && (
               <img
@@ -135,94 +135,94 @@ export default function PurchaseInvoicePage() {
                 className="w-16 h-16 object-contain mx-auto mb-3"
               />
             )}
-            <h2 className="text-xl font-bold text-surface-900">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-100">
               {storeSettings?.store_name || t("purchases.invoicePage.posSystem")}
             </h2>
             {storeSettings?.phone && (
-              <p className="text-sm text-surface-500" dir="ltr">{storeSettings.phone}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400" dir="ltr">{storeSettings.phone}</p>
             )}
             {storeSettings?.address && (
-              <p className="text-sm text-surface-500 mt-0.5">{storeSettings.address}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">{storeSettings.address}</p>
             )}
             {storeSettings?.email && (
-              <p className="text-sm text-surface-500" dir="ltr">{storeSettings.email}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400" dir="ltr">{storeSettings.email}</p>
             )}
             {storeSettings?.tax_number && (
-              <p className="text-sm text-surface-500">
+              <p className="text-sm text-surface-500 dark:text-surface-400">
                 {t("purchases.invoicePage.taxNumber")}: {storeSettings.tax_number}
               </p>
             )}
           </div>
 
-          <hr className="border-surface-200 mb-6" />
+          <hr className="border-surface-200 dark:border-surface-700/60 mb-6" />
 
           <div className="flex items-start justify-between mb-6">
             <div className="space-y-1">
-              <p className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider">{t("purchases.invoicePage.invoiceLabel")}</p>
-              <p className="text-base font-bold text-surface-900">{invoice.invoice_number}</p>
+              <p className="text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">{t("purchases.invoicePage.invoiceLabel")}</p>
+              <p className="text-base font-bold text-surface-900 dark:text-surface-100">{invoice.invoice_number}</p>
             </div>
             <div className="text-right space-y-1">
-              <p className="text-sm text-surface-700">{formattedDate}</p>
-              <p className="text-sm text-surface-500">{formattedTime}</p>
+              <p className="text-sm text-surface-700 dark:text-surface-200">{formattedDate}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400">{formattedTime}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div>
-              <p className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider mb-1">{t("purchases.invoicePage.supplier")}</p>
-              <p className="text-sm font-medium text-surface-800">{invoice.supplier_name || "—"}</p>
-              {invoice.supplier_phone && <p className="text-[13px] text-surface-500">{invoice.supplier_phone}</p>}
-              {invoice.supplier_email && <p className="text-[13px] text-surface-500">{invoice.supplier_email}</p>}
-              {invoice.supplier_address && <p className="text-[13px] text-surface-500">{invoice.supplier_address}</p>}
+              <p className="text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1">{t("purchases.invoicePage.supplier")}</p>
+              <p className="text-sm font-medium text-surface-800 dark:text-surface-100">{invoice.supplier_name || "—"}</p>
+              {invoice.supplier_phone && <p className="text-[13px] text-surface-500 dark:text-surface-400">{invoice.supplier_phone}</p>}
+              {invoice.supplier_email && <p className="text-[13px] text-surface-500 dark:text-surface-400">{invoice.supplier_email}</p>}
+              {invoice.supplier_address && <p className="text-[13px] text-surface-500 dark:text-surface-400">{invoice.supplier_address}</p>}
             </div>
             <div className="text-right space-y-2">
               <div>
-                <p className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider mb-1">{t("purchases.invoicePage.processedBy")}</p>
-                <p className="text-sm font-medium text-surface-800">{invoice.user_name || "—"}</p>
+                <p className="text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1">{t("purchases.invoicePage.processedBy")}</p>
+                <p className="text-sm font-medium text-surface-800 dark:text-surface-100">{invoice.user_name || "—"}</p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider mb-1">{t("purchases.invoicePage.paymentMethod")}</p>
-                <p className="text-sm font-medium text-surface-800 capitalize">{paymentLabel}</p>
+                <p className="text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1">{t("purchases.invoicePage.paymentMethod")}</p>
+                <p className="text-sm font-medium text-surface-800 dark:text-surface-100 capitalize">{paymentLabel}</p>
               </div>
             </div>
           </div>
 
           <table className="w-full mb-6">
             <thead>
-              <tr className="border-b-2 border-surface-200">
-                <th className="text-start pb-3 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+              <tr className="border-b-2 border-surface-200 dark:border-surface-700/60">
+                <th className="text-start pb-3 text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
                   {t("purchases.invoicePage.product")}
                 </th>
-                <th className="text-start pb-3 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+                <th className="text-start pb-3 text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
                   {t("purchases.invoicePage.barcode")}
                 </th>
-                <th className="text-center pb-3 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+                <th className="text-center pb-3 text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
                   {t("purchases.invoicePage.qty")}
                 </th>
-                <th className="text-center pb-3 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+                <th className="text-center pb-3 text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
                   {t("purchases.invoicePage.expiration")}
                 </th>
-                <th className="text-right pb-3 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+                <th className="text-right pb-3 text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
                   {t("purchases.invoicePage.costPrice")}
                 </th>
-                <th className="text-right pb-3 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+                <th className="text-right pb-3 text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider">
                   {t("purchases.invoicePage.total")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {items.map((item, index) => (
-                <tr key={index} className="border-b border-surface-100">
-                  <td className="py-3 text-sm font-medium text-surface-800">
+                <tr key={index} className="border-b border-surface-100 dark:border-surface-700/60">
+                  <td className="py-3 text-sm font-medium text-surface-800 dark:text-surface-100">
                     {item.product_name}
                   </td>
-                  <td className="py-3 text-sm text-surface-500 font-mono">
+                  <td className="py-3 text-sm text-surface-500 dark:text-surface-400 font-mono">
                     {item.barcode || item.product_sku || "—"}
                   </td>
-                  <td className="py-3 text-sm text-surface-600 text-center">
+                  <td className="py-3 text-sm text-surface-600 dark:text-surface-300 text-center">
                     {item.quantity}
                   </td>
-                  <td className="py-3 text-sm text-surface-600 text-center whitespace-nowrap">
+                  <td className="py-3 text-sm text-surface-600 dark:text-surface-300 text-center whitespace-nowrap">
                     {item.expiration_date
                       ? new Date(item.expiration_date + "T00:00:00").toLocaleDateString(locale, {
                           year: "numeric",
@@ -231,10 +231,10 @@ export default function PurchaseInvoicePage() {
                         })
                       : "—"}
                   </td>
-                  <td className="py-3 text-sm text-surface-600 text-right tabular-nums">
+                  <td className="py-3 text-sm text-surface-600 dark:text-surface-300 text-right tabular-nums">
                     {formatCurrency(item.cost_price)}
                   </td>
-                  <td className="py-3 text-sm font-semibold text-surface-800 text-right tabular-nums">
+                  <td className="py-3 text-sm font-semibold text-surface-800 dark:text-surface-100 text-right tabular-nums">
                     {formatCurrency(item.subtotal)}
                   </td>
                 </tr>
@@ -244,10 +244,10 @@ export default function PurchaseInvoicePage() {
 
           <div className="flex justify-end mb-6">
             <div className="w-64 space-y-2">
-              <hr className="border-surface-200" />
+              <hr className="border-surface-200 dark:border-surface-700/60" />
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-surface-800">{t("purchases.invoicePage.grandTotal")}</span>
-                <span className="text-lg font-bold text-primary-600 tabular-nums">
+                <span className="text-sm font-bold text-surface-800 dark:text-surface-100">{t("purchases.invoicePage.grandTotal")}</span>
+                <span className="text-lg font-bold text-primary-600 dark:text-primary-400 tabular-nums">
                   {formatCurrency(invoice.total_amount)}
                 </span>
               </div>
@@ -256,15 +256,15 @@ export default function PurchaseInvoicePage() {
 
           {invoice.notes && (
             <div className="mb-6">
-              <p className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider mb-1">{t("purchases.invoicePage.notes")}</p>
-              <p className="text-sm text-surface-600">{invoice.notes}</p>
+              <p className="text-[11px] font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-1">{t("purchases.invoicePage.notes")}</p>
+              <p className="text-sm text-surface-600 dark:text-surface-300">{invoice.notes}</p>
             </div>
           )}
 
-          <hr className="border-surface-200 mb-6" />
+          <hr className="border-surface-200 dark:border-surface-700/60 mb-6" />
 
           <div className="text-center">
-            <p className="text-sm text-surface-500 font-medium">
+            <p className="text-sm text-surface-500 dark:text-surface-400 font-medium">
               {storeSettings?.receipt_footer || t("purchases.invoicePage.footer")}
             </p>
           </div>

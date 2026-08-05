@@ -10,15 +10,16 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import { inputClass, selectClass, labelClass, searchInputClass, cardClass, primaryButtonClass, secondaryButtonClass, iconButtonClass } from "../../shared/components/styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, FolderOpen, ChevronDown, ChevronRight, FolderTree } from "lucide-react";
 import toast from "react-hot-toast";
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
-const SELECT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
+const SELECT_CLASS = selectClass;
 
 function filterTree(nodes, term) {
   const t = term.trim().toLowerCase();
@@ -134,7 +135,7 @@ export default function CategoriesPage() {
         description={t("categories.description")}
         actions={
           canManage && (
-            <button onClick={() => openCreate()} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
+            <button onClick={() => openCreate()} className={primaryButtonClass}>
               <Plus className="w-4 h-4" />
               {t("categories.newCategory")}
             </button>
@@ -143,16 +144,16 @@ export default function CategoriesPage() {
       />
 
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-        <input type="text" placeholder={t("categories.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label={t("categories.searchAriaLabel")} />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
+        <input type="text" placeholder={t("categories.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className={searchInputClass} aria-label={t("categories.searchAriaLabel")} />
       </div>
 
       {categories.length === 0 ? (
-        <EmptyState icon={FolderTree} title={t("categories.empty.noCategoriesDescription")} description={t("categories.empty.noSubcategoriesDescription")} action={canManage && <button onClick={() => openCreate()} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("categories.empty.addCategory")}</button>} />
+        <EmptyState icon={FolderTree} title={t("categories.empty.noCategoriesDescription")} description={t("categories.empty.noSubcategoriesDescription")} action={canManage && <button onClick={() => openCreate()} className={primaryButtonClass}>{t("categories.empty.addCategory")}</button>} />
       ) : visibleTree.length === 0 ? (
         <EmptyState icon={FolderOpen} title={t("categories.empty.noResultsTitle")} description={t("categories.empty.noResultsDescription")} />
       ) : (
-        <div className="bg-white rounded-2xl border border-surface-200 shadow-card p-3">
+        <div className={cardClass + " p-3"}>
           {visibleTree.map((node) => (
             <CategoryNode
               key={node.id}
@@ -192,34 +193,34 @@ function CategoryNode({ node, depth, collapsed, onToggle, onEdit, onDelete, onAd
 
   return (
     <div>
-      <div className="flex items-center gap-1.5 rounded-xl px-2 py-2 hover:bg-surface-50 transition-colors duration-150" style={{ paddingInlineStart: 8 + depth * 22 }}>
+      <div className="flex items-center gap-1.5 rounded-xl px-2 py-2 hover:bg-surface-50 dark:hover:bg-surface-700/30 transition-colors duration-150" style={{ paddingInlineStart: 8 + depth * 22 }}>
         <button
           onClick={() => hasChildren && onToggle(node.id)}
           disabled={!hasChildren}
-          className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all duration-150 ${hasChildren ? "text-surface-500 hover:bg-surface-100 cursor-pointer" : "cursor-default"}`}
+          className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all duration-150 ${hasChildren ? "text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700/50 cursor-pointer" : "cursor-default"}`}
           title={hasChildren ? t("categories.toggle") : ""}
         >
           {hasChildren ? (isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />) : null}
         </button>
         <FolderOpen className="w-4 h-4 text-amber-500 flex-shrink-0" />
-        <span className="text-[13px] font-semibold text-surface-800 truncate">{node.name}</span>
+        <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 truncate">{node.name}</span>
         {node.description && (
-          <span className="text-xs text-surface-400 truncate hidden sm:inline">{node.description}</span>
+          <span className="text-xs text-surface-400 dark:text-surface-500 truncate hidden sm:inline">{node.description}</span>
         )}
         {hasChildren && (
-          <span className="text-[10px] font-semibold text-surface-400 bg-surface-100 rounded-full px-2 py-0.5">
+          <span className="text-[10px] font-semibold text-surface-400 dark:text-surface-500 bg-surface-100 dark:bg-surface-700/50 rounded-full px-2 py-0.5">
             {node.children.length}
           </span>
         )}
         {canManage && (
           <div className="ms-auto flex items-center gap-1">
-            <button onClick={() => onAddChild(node)} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("categories.addSubcategory")}>
+            <button onClick={() => onAddChild(node)} className={iconButtonClass} title={t("categories.addSubcategory")}>
               <Plus className="w-4 h-4" />
             </button>
-            <button onClick={() => onEdit(node)} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("categories.edit")}>
+            <button onClick={() => onEdit(node)} className={iconButtonClass} title={t("categories.edit")}>
               <Pencil className="w-4 h-4" />
             </button>
-            <button onClick={() => onDelete(node)} className="p-1.5 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-150" title={t("categories.delete")}>
+            <button onClick={() => onDelete(node)} className={dangerIconButtonClass} title={t("categories.delete")}>
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -287,9 +288,9 @@ function CategoryModal({ isOpen, onClose, editing, parentOptions, disabledParent
           <textarea {...register("description")} rows={3} placeholder={t("categories.form.descriptionPlaceholder")} className={`${INPUT_CLASS} resize-none`} />
           {errors.description && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.description.message}</p>}
         </div>
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("categories.form.cancel")}</button>
-          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? t("categories.form.saving") : editing ? t("categories.form.update") : t("categories.form.create")}</button>
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>{t("categories.form.cancel")}</button>
+          <button type="submit" disabled={loading} className={primaryButtonClass}>{loading ? t("categories.form.saving") : editing ? t("categories.form.update") : t("categories.form.create")}</button>
         </div>
       </form>
     </Modal>

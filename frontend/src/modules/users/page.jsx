@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "./api";
+import { inputClass, labelClass, searchInputClass } from "../../shared/components/styles";
 import { useAuth } from "../../shared/context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "../../shared/components/PageHeader";
@@ -18,13 +19,13 @@ import { Plus, Pencil, Trash2, Search, UserCog, Key, Shield } from "lucide-react
 import toast from "react-hot-toast";
 
 const ROLE_COLORS = {
-  admin: "bg-violet-50 text-violet-700 ring-violet-200/60",
-  manager: "bg-sky-50 text-sky-700 ring-sky-200/60",
-  employee: "bg-surface-100 text-surface-600 ring-surface-200/60",
+  admin: "bg-violet-50 text-violet-700 ring-violet-200/60 dark:bg-violet-500/10 dark:text-violet-400 dark:ring-violet-500/30",
+  manager: "bg-sky-50 text-sky-700 ring-sky-200/60 dark:bg-sky-500/10 dark:text-sky-400 dark:ring-sky-500/30",
+  employee: "bg-surface-100 text-surface-600 ring-surface-200/60 dark:bg-surface-700/50 dark:text-surface-300 dark:ring-surface-700/60",
 };
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
 const SELECT_CLASS = INPUT_CLASS;
 
 export default function UsersPage() {
@@ -103,8 +104,8 @@ export default function UsersPage() {
             {val?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div className="min-w-0">
-            <p className="text-[13px] font-semibold text-surface-800 truncate">{val}</p>
-            <p className="text-[11px] text-surface-400 truncate">{row.email}</p>
+            <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 truncate">{val}</p>
+            <p className="text-[11px] text-surface-400 dark:text-surface-500 truncate">{row.email}</p>
           </div>
         </div>
       ),
@@ -113,7 +114,7 @@ export default function UsersPage() {
       key: "role",
       label: t("users.columns.role"),
       render: (val) => (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ring-1 ring-inset ${ROLE_COLORS[val] || "bg-surface-100 text-surface-600 ring-surface-200/60"}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ring-1 ring-inset ${ROLE_COLORS[val] || "bg-surface-100 dark:bg-surface-700/50 text-surface-600 dark:text-surface-300 ring-surface-200/60 dark:ring-surface-700/60"}`}>
           <Shield className="w-3 h-3" />
           {t("users.roles." + val)}
         </span>
@@ -122,7 +123,7 @@ export default function UsersPage() {
     {
       key: "phone",
       label: t("users.columns.phone"),
-      render: (val) => val || <span className="text-surface-300">-</span>,
+      render: (val) => val || <span className="text-surface-300 dark:text-surface-600">-</span>,
     },
     {
       key: "status",
@@ -136,13 +137,13 @@ export default function UsersPage() {
             label: t("users.columns.actions"),
             render: (_, row) => (
               <div className="flex items-center gap-1">
-                <button onClick={() => openEdit(row)} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("users.edit")}>
+                <button onClick={() => openEdit(row)} className="p-2 text-surface-400 dark:text-surface-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-xl transition-all duration-150" title={t("users.edit")}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setResetTarget(row)} className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150" title={t("users.resetPassword")}>
+                <button onClick={() => setResetTarget(row)} className="p-2 text-surface-400 dark:text-surface-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all duration-150" title={t("users.resetPassword")}>
                   <Key className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title={t("users.delete")}>
+                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 dark:text-surface-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all duration-150" title={t("users.delete")}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -184,13 +185,13 @@ export default function UsersPage() {
       />
 
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
         <input
           type="text"
           placeholder={t("users.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card"
+          className={searchInputClass}
           aria-label={t("users.searchAriaLabel")}
         />
       </div>
@@ -292,8 +293,8 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
           <div key={name}>
             <label className={LABEL_CLASS}>{label}</label>
             <input type={type} {...register(name)} placeholder={placeholder} className={INPUT_CLASS} />
-            {hint && !errors[name] && <p className="text-[11px] text-surface-400 mt-1">{hint}</p>}
-            {errors[name] && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors[name].message}</p>}
+            {hint && !errors[name] && <p className="text-[11px] text-surface-400 dark:text-surface-500 mt-1">{hint}</p>}
+            {errors[name] && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors[name].message}</p>}
           </div>
         ))}
 
@@ -305,7 +306,7 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
               <option value="manager">{t("users.roles.manager")}</option>
               <option value="admin">{t("users.roles.admin")}</option>
             </select>
-            {errors.role && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.role.message}</p>}
+            {errors.role && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.role.message}</p>}
           </div>
           <div>
             <label className={LABEL_CLASS}>{t("users.form.status")}</label>
@@ -313,12 +314,12 @@ function CreateUserModal({ isOpen, onClose, onSubmit, loading }) {
               <option value="active">{t("users.status.active")}</option>
               <option value="inactive">{t("users.status.inactive")}</option>
             </select>
-            {errors.status && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.status.message}</p>}
+            {errors.status && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.status.message}</p>}
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-150">
             {t("users.form.cancel")}
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">
@@ -367,7 +368,7 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
           <div key={name}>
             <label className={LABEL_CLASS}>{label}</label>
             <input type={type} {...register(name)} placeholder={placeholder} className={INPUT_CLASS} />
-            {errors[name] && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors[name].message}</p>}
+            {errors[name] && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors[name].message}</p>}
           </div>
         ))}
 
@@ -379,7 +380,7 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
               <option value="manager">{t("users.roles.manager")}</option>
               <option value="admin">{t("users.roles.admin")}</option>
             </select>
-            {errors.role && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.role.message}</p>}
+            {errors.role && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.role.message}</p>}
           </div>
           <div>
             <label className={LABEL_CLASS}>{t("users.form.status")}</label>
@@ -387,12 +388,12 @@ function EditUserModal({ isOpen, onClose, editing, onSubmit, loading }) {
               <option value="active">{t("users.status.active")}</option>
               <option value="inactive">{t("users.status.inactive")}</option>
             </select>
-            {errors.status && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.status.message}</p>}
+            {errors.status && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.status.message}</p>}
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-150">
             {t("users.form.cancel")}
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">
@@ -438,11 +439,11 @@ function ResetPasswordModal({ isOpen, onClose, user, onSubmit, loading }) {
             className={INPUT_CLASS}
             placeholder={t("users.form.newPasswordPlaceholder")}
           />
-          {errors.new_password && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.new_password.message}</p>}
+          {errors.new_password && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.new_password.message}</p>}
         </div>
 
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-150">
             {t("users.form.cancel")}
           </button>
           <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-amber-500/20">

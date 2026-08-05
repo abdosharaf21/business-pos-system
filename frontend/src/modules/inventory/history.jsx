@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { inventoryService } from "./api";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { DataTable } from "../../shared/components/DataTable";
+import { cardClass, inputClass, searchInputClass } from "../../shared/components/styles";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
@@ -74,7 +75,7 @@ export default function InventoryHistoryPage() {
       key: "product_name",
       label: t("inventory.historyPage.columns.product"),
       render: (val) => (
-        <span className="text-[13px] font-semibold text-surface-800">{val}</span>
+        <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100">{val}</span>
       ),
     },
     {
@@ -90,7 +91,7 @@ export default function InventoryHistoryPage() {
       key: "from_location",
       label: t("inventory.historyPage.columns.from"),
       render: (val) => (
-        <span className="text-[12px] text-surface-500 capitalize">
+        <span className="text-[12px] text-surface-500 dark:text-surface-400 capitalize">
           {val ? t(`inventory.history.${val}`) : "—"}
         </span>
       ),
@@ -99,7 +100,7 @@ export default function InventoryHistoryPage() {
       key: "to_location",
       label: t("inventory.historyPage.columns.to"),
       render: (val) => (
-        <span className="text-[12px] text-surface-500 capitalize">
+        <span className="text-[12px] text-surface-500 dark:text-surface-400 capitalize">
           {val ? t(`inventory.history.${val}`) : "—"}
         </span>
       ),
@@ -108,21 +109,21 @@ export default function InventoryHistoryPage() {
       key: "quantity",
       label: t("inventory.historyPage.columns.qty"),
       render: (val) => (
-        <span className="text-[13px] font-bold text-surface-800 tabular-nums whitespace-nowrap">{val}</span>
+        <span className="text-[13px] font-bold text-surface-800 dark:text-surface-100 tabular-nums whitespace-nowrap">{val}</span>
       ),
     },
     {
       key: "reference",
       label: t("inventory.historyPage.columns.reference"),
       render: (val) => (
-        <span className="text-[12px] text-surface-500">{val || "—"}</span>
+        <span className="text-[12px] text-surface-500 dark:text-surface-400">{val || "—"}</span>
       ),
     },
     {
       key: "created_at",
       label: t("inventory.historyPage.columns.date"),
       render: (val) => (
-        <span className="text-[12px] text-surface-500">
+        <span className="text-[12px] text-surface-500 dark:text-surface-400">
           {val ? new Date(val).toLocaleString() : "—"}
         </span>
       ),
@@ -137,29 +138,29 @@ export default function InventoryHistoryPage() {
       />
 
       {/* Filters */}
-      <div className="mb-6 p-4 bg-white rounded-2xl border border-surface-200/80 shadow-card space-y-4">
+      <div className={"mb-6 " + cardClass + " space-y-4"}>
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-surface-400 shrink-0" />
-          <h2 className="text-[13px] font-semibold text-surface-700">
+          <Filter className="w-5 h-5 text-surface-400 dark:text-surface-500 shrink-0" />
+          <h2 className="text-[13px] font-semibold text-surface-700 dark:text-surface-200">
             {t("inventory.historyPage.filters")}
           </h2>
           <button
             onClick={clearFilters}
-            className="ms-auto text-[12px] font-semibold text-primary-600 hover:text-primary-700"
+            className="ms-auto text-[12px] font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-400"
           >
             {t("inventory.historyPage.clear")}
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-[12px] font-semibold text-surface-600 mb-1.5">
+            <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-300 mb-1.5">
               {t("inventory.historyPage.filtersProduct")}
             </label>
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               disabled={productsLoading}
-              className="w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
+              className={inputClass}
             >
               <option value="">{t("inventory.historyPage.allProducts")}</option>
               {products.map((p) => (
@@ -168,13 +169,13 @@ export default function InventoryHistoryPage() {
             </select>
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-surface-600 mb-1.5">
+            <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-300 mb-1.5">
               {t("inventory.historyPage.filtersType")}
             </label>
             <select
               value={movementType}
               onChange={(e) => setMovementType(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
+              className={inputClass}
             >
               <option value="">{t("inventory.historyPage.allTypes")}</option>
               {TYPE_ORDER.map((type) => (
@@ -185,25 +186,25 @@ export default function InventoryHistoryPage() {
             </select>
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-surface-600 mb-1.5">
+            <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-300 mb-1.5">
               {t("inventory.historyPage.fromDate")}
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block text-[12px] font-semibold text-surface-600 mb-1.5">
+            <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-300 mb-1.5">
               {t("inventory.historyPage.toDate")}
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
+              className={inputClass}
             />
           </div>
         </div>
@@ -211,13 +212,13 @@ export default function InventoryHistoryPage() {
 
       {/* Search */}
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
         <input
           type="text"
           placeholder={t("inventory.historyPage.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card"
+          className={searchInputClass}
         />
       </div>
 

@@ -1,6 +1,6 @@
 import { formatCurrency } from "../../utils/formatCurrency";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { purchaseService, supplierService } from "./api";
@@ -9,12 +9,17 @@ import { PageHeader } from "../../shared/components/PageHeader";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import {
+  inputClass, selectClass, labelClass, searchInputClass, filterBarClass, cardClass,
+  cardClassOverflowHidden, primaryButtonClass, secondaryButtonClass, ghostButtonClass,
+  iconButtonClass, paginationButtonClass, tableHeadClass, tableBodyClass, tableRowClass,
+} from "../../shared/components/styles";
 import { Plus, Search, ShoppingCart, Trash2, Eye, X, Minus, Plus as PlusIcon, Filter, ChevronLeft, ChevronRight, ReceiptText } from "lucide-react";
 import toast from "react-hot-toast";
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
-const SELECT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
+const SELECT_CLASS = selectClass;
 
 const PAYMENT_METHODS = ["cash", "card", "transfer", "mixed", "vodafone_cash"];
 
@@ -33,6 +38,17 @@ export default function PurchasesPage() {
   const [page, setPage] = useState(1);
   const perPage = 10;
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const newParam = searchParams.get("new") === "1";
+
+  useEffect(() => {
+    if (newParam && canManage && !showCreateForm) {
+      setShowCreateForm(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete("new");
+      setSearchParams(next, { replace: true });
+    }
+  }, [newParam, canManage, showCreateForm, searchParams, setSearchParams]);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["purchases", search, date, dateFrom, dateTo, page],
@@ -75,7 +91,7 @@ export default function PurchasesPage() {
         description={t("purchases.subtitle")}
         actions={
           canManage && !showCreateForm && (
-            <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
+            <button onClick={() => setShowCreateForm(true)} className={primaryButtonClass}>
               <Plus className="w-4 h-4" />
               {t("purchases.newPurchase")}
             </button>
@@ -97,32 +113,32 @@ export default function PurchasesPage() {
       {!showCreateForm && (
         <>
           {/* Filters */}
-          <div className="p-4 bg-white rounded-2xl border border-surface-200/80 shadow-card mb-6">
+          <div className={filterBarClass + " mb-6"}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
               <div className="relative">
-                <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-                <input type="text" placeholder={t("purchases.searchPlaceholder")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-full ps-10 pe-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150" aria-label={t("purchases.searchAriaLabel")} />
+                <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
+                <input type="text" placeholder={t("purchases.searchPlaceholder")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className={searchInputClass} aria-label={t("purchases.searchAriaLabel")} />
               </div>
               <div>
-                <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.filters.date")}</label>
+                <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.filters.date")}</label>
                 <input type="date" value={date} onChange={(e) => { setDate(e.target.value); setPage(1); }} className={INPUT_CLASS} />
               </div>
               <div>
-                <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.filters.from")}</label>
+                <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.filters.from")}</label>
                 <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1); }} className={INPUT_CLASS} />
               </div>
               <div>
-                <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.filters.to")}</label>
+                <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.filters.to")}</label>
                 <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1); }} className={INPUT_CLASS} />
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface-100">
-              <div className="flex items-center gap-2 text-[12px] text-surface-400">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface-100 dark:border-surface-700/60">
+              <div className="flex items-center gap-2 text-[12px] text-surface-400 dark:text-surface-500">
                 <Filter className="w-4 h-4" />
                 <span>{t("purchases.showing", { count: items.length, total })}</span>
               </div>
               {hasFilters && (
-                <button onClick={clearFilters} className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-surface-500 bg-surface-50 hover:bg-surface-100 rounded-lg transition-colors">
+                <button onClick={clearFilters} className={ghostButtonClass}>
                   <X className="w-3.5 h-3.5" />
                   {t("purchases.clear")}
                 </button>
@@ -136,44 +152,44 @@ export default function PurchasesPage() {
               icon={ShoppingCart}
               title={t("purchases.noPurchasesFound")}
               description={hasFilters ? t("purchases.tryDifferentSearch") : t("purchases.createYourFirst")}
-              action={!hasFilters && canManage && <button onClick={() => setShowCreateForm(true)} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("purchases.newPurchase")}</button>}
+              action={!hasFilters && canManage && <button onClick={() => setShowCreateForm(true)} className={primaryButtonClass}>{t("purchases.newPurchase")}</button>}
             />
           ) : (
-            <div className="bg-white rounded-2xl border border-surface-200/80 overflow-hidden shadow-card">
+            <div className={cardClassOverflowHidden}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm" role="table">
                   <thead>
-                    <tr className="border-b border-surface-100 bg-surface-50/60">
-                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.invoice")}</th>
-                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.supplier")}</th>
-                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.date")}</th>
-                      <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.total")}</th>
-                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.paymentMethod")}</th>
-                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.createdBy")}</th>
-                      <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.columns.actions")}</th>
+                    <tr className={tableHeadClass}>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.invoice")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.supplier")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.date")}</th>
+                      <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.total")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.paymentMethod")}</th>
+                      <th className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.createdBy")}</th>
+                      <th className="px-5 py-3.5 text-end text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.columns.actions")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-surface-100">
+                  <tbody className={tableBodyClass}>
                     {items.map((purchase) => (
-                      <tr key={purchase.id} onClick={() => navigate(`/purchases/${purchase.id}`)} className="hover:bg-surface-50/50 transition-colors duration-100 cursor-pointer">
-                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] font-mono font-semibold text-surface-800">{purchase.invoice_number}</td>
-                        <td className="px-5 py-3.5 text-[13px] text-surface-600">{purchase.supplier_name || "—"}</td>
-                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500">
+                      <tr key={purchase.id} onClick={() => navigate(`/purchases/${purchase.id}`)} className={tableRowClass + " cursor-pointer"}>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] font-mono font-semibold text-surface-800 dark:text-surface-100">{purchase.invoice_number}</td>
+                        <td className="px-5 py-3.5 text-[13px] text-surface-600 dark:text-surface-300">{purchase.supplier_name || "—"}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500 dark:text-surface-400">
                           {purchase.created_at ? new Date(purchase.created_at).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
                         </td>
-                        <td className="px-5 py-3.5 whitespace-nowrap text-end text-[13px] font-semibold text-surface-800 tabular-nums">{formatCurrency(purchase.total_amount)}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-end text-[13px] font-semibold text-surface-800 dark:text-surface-100 tabular-nums">{formatCurrency(purchase.total_amount)}</td>
                         <td className="px-5 py-3.5 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary-50 text-primary-700 capitalize">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400 capitalize">
                             {paymentLabel(purchase.payment_method)}
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500">{purchase.user_name || "—"}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-[13px] text-surface-500 dark:text-surface-400">{purchase.user_name || "—"}</td>
                         <td className="px-5 py-3.5 whitespace-nowrap text-end">
                           <div className="inline-flex items-center gap-1">
-                            <button onClick={(e) => { e.stopPropagation(); navigate(`/purchases/${purchase.id}`); }} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("purchases.viewDetails")}>
+                            <button onClick={(e) => { e.stopPropagation(); navigate(`/purchases/${purchase.id}`); }} className={iconButtonClass} title={t("purchases.viewDetails")}>
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); navigate(`/purchases/${purchase.id}`); }} className="p-1.5 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150" title={t("purchases.invoice")}>
+                            <button onClick={(e) => { e.stopPropagation(); navigate(`/purchases/${purchase.id}`); }} className={iconButtonClass} title={t("purchases.invoice")}>
                               <ReceiptText className="w-4 h-4" />
                             </button>
                           </div>
@@ -185,13 +201,13 @@ export default function PurchasesPage() {
               </div>
 
               {pages > 1 && (
-                <div className="flex items-center justify-between px-5 py-3.5 border-t border-surface-100">
-                  <p className="text-[12px] text-surface-400">{t("purchases.pageOf", { page, pages })}</p>
+                <div className="flex items-center justify-between px-5 py-3.5 border-t border-surface-100 dark:border-surface-700/60">
+                  <p className="text-[12px] text-surface-400 dark:text-surface-500">{t("purchases.pageOf", { page, pages })}</p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page <= 1}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className={paginationButtonClass}
                     >
                       <ChevronLeft className="w-4 h-4" />
                       {t("purchases.previous")}
@@ -199,7 +215,7 @@ export default function PurchasesPage() {
                     <button
                       onClick={() => setPage((p) => Math.min(pages, p + 1))}
                       disabled={page >= pages}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface-200 text-[12px] font-semibold text-surface-600 hover:bg-surface-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className={paginationButtonClass}
                     >
                       {t("purchases.next")}
                       <ChevronRight className="w-4 h-4" />
@@ -372,10 +388,10 @@ function CreatePurchaseForm({ onDone, onCancel }) {
   };
 
   return (
-    <div className="bg-white border border-surface-200 rounded-2xl p-6 mb-6 shadow-card">
+    <div className={cardClass + " p-6 mb-6"}>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[15px] font-bold text-surface-900">{t("purchases.form.title")}</h2>
-        <button onClick={onCancel} className="p-2 text-surface-400 hover:text-surface-600 rounded-xl hover:bg-surface-100 transition-all">
+        <h2 className="text-[15px] font-bold text-surface-900 dark:text-surface-100">{t("purchases.form.title")}</h2>
+        <button onClick={onCancel} className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 rounded-xl hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-all">
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -392,7 +408,7 @@ function CreatePurchaseForm({ onDone, onCancel }) {
           <button
             type="button"
             onClick={() => setShowAddSupplier(true)}
-            className="px-3.5 py-2.5 text-[13px] font-semibold text-primary-600 bg-primary-50 border border-primary-200 rounded-xl hover:bg-primary-100 transition-all duration-150 whitespace-nowrap"
+            className="px-3.5 py-2.5 text-[13px] font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10 border border-primary-200 dark:border-primary-500/30 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-500/20 transition-all duration-150 whitespace-nowrap"
           >
             {t("purchases.form.addSupplier")}
           </button>
@@ -400,46 +416,46 @@ function CreatePurchaseForm({ onDone, onCancel }) {
       </div>
 
       {showAddSupplier && (
-        <div className="mb-5 p-4 border border-primary-200 bg-primary-50/40 rounded-xl">
-          <h3 className="text-[14px] font-bold text-surface-900 mb-4">{t("purchases.supplierForm.title")}</h3>
+        <div className="mb-5 p-4 border border-primary-200 dark:border-primary-500/30 bg-primary-50/40 dark:bg-primary-500/5 rounded-xl">
+          <h3 className="text-[14px] font-bold text-surface-900 dark:text-surface-100 mb-4">{t("purchases.supplierForm.title")}</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.supplierForm.name")}</label>
+              <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.supplierForm.name")}</label>
               <input
                 type="text"
                 value={supplierForm.name}
                 onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })}
                 placeholder={t("purchases.supplierForm.namePlaceholder")}
-                className={`${INPUT_CLASS} ${supplierErrors.name ? "border-red-300" : ""}`}
+                className={`${INPUT_CLASS} ${supplierErrors.name ? "border-red-300 dark:border-red-500/60" : ""}`}
               />
               {supplierErrors.name && <p className="text-[11px] text-red-500 mt-0.5">{supplierErrors.name}</p>}
             </div>
             <div>
-              <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.supplierForm.phone")}</label>
+              <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.supplierForm.phone")}</label>
               <input
                 type="text"
                 value={supplierForm.phone}
                 onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })}
                 placeholder={t("purchases.supplierForm.phonePlaceholder")}
-                className={`${INPUT_CLASS} ${supplierErrors.phone ? "border-red-300" : ""}`}
+                className={`${INPUT_CLASS} ${supplierErrors.phone ? "border-red-300 dark:border-red-500/60" : ""}`}
               />
               {supplierErrors.phone && <p className="text-[11px] text-red-500 mt-0.5">{supplierErrors.phone}</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.supplierForm.email")}</label>
+              <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.supplierForm.email")}</label>
               <input
                 type="email"
                 value={supplierForm.email}
                 onChange={(e) => setSupplierForm({ ...supplierForm, email: e.target.value })}
                 placeholder={t("purchases.supplierForm.emailPlaceholder")}
-                className={`${INPUT_CLASS} ${supplierErrors.email ? "border-red-300" : ""}`}
+                className={`${INPUT_CLASS} ${supplierErrors.email ? "border-red-300 dark:border-red-500/60" : ""}`}
               />
               {supplierErrors.email && <p className="text-[11px] text-red-500 mt-0.5">{supplierErrors.email}</p>}
             </div>
             <div>
-              <label className="block text-[12px] font-semibold text-surface-600 mb-1">{t("purchases.supplierForm.address")}</label>
+              <label className="block text-[12px] font-semibold text-surface-600 dark:text-surface-400 mb-1">{t("purchases.supplierForm.address")}</label>
               <input
                 type="text"
                 value={supplierForm.address}
@@ -453,7 +469,7 @@ function CreatePurchaseForm({ onDone, onCancel }) {
             <button
               type="button"
               onClick={() => { setShowAddSupplier(false); setSupplierErrors({}); setSupplierForm({ name: "", phone: "", email: "", address: "" }); }}
-              className="px-3.5 py-2 text-[12px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all"
+              className={secondaryButtonClass}
             >
               {t("purchases.supplierForm.cancel")}
             </button>
@@ -461,7 +477,7 @@ function CreatePurchaseForm({ onDone, onCancel }) {
               type="button"
               onClick={handleAddSupplier}
               disabled={supplierSaving}
-              className="px-3.5 py-2 text-[12px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all shadow-sm shadow-primary-600/20"
+              className={primaryButtonClass}
             >
               {supplierSaving ? t("purchases.supplierForm.saving") : t("purchases.supplierForm.save")}
             </button>
@@ -472,33 +488,33 @@ function CreatePurchaseForm({ onDone, onCancel }) {
       <div className="mb-5" ref={searchRef}>
         <label className={LABEL_CLASS}>{t("purchases.form.addProducts")}</label>
         <div className="relative">
-          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
           <input
             type="text"
             placeholder={t("purchases.form.searchPlaceholder")}
             value={productSearch}
             onChange={(e) => handleProductSearch(e.target.value)}
             onFocus={() => { if (searchResults.length > 0 || searching) setShowResults(true); }}
-            className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150"
+            className={searchInputClass}
           />
         </div>
         {showResults && (
-          <div className="mt-2 border border-surface-200 rounded-xl overflow-hidden bg-white shadow-card max-h-64 overflow-y-auto">
+          <div className="mt-2 border border-surface-200 dark:border-surface-700/60 rounded-xl overflow-hidden bg-white dark:bg-surface-700/40 shadow-card max-h-64 overflow-y-auto">
             {searching ? (
-              <div className="px-4 py-3 text-[13px] text-surface-400 text-center">{t("purchases.form.searching")}</div>
+              <div className="px-4 py-3 text-[13px] text-surface-400 dark:text-surface-500 text-center">{t("purchases.form.searching")}</div>
             ) : searchResults.length === 0 ? (
-              <div className="px-4 py-3 text-[13px] text-surface-400 text-center">{t("purchases.form.noProductsFound")}</div>
+              <div className="px-4 py-3 text-[13px] text-surface-400 dark:text-surface-500 text-center">{t("purchases.form.noProductsFound")}</div>
             ) : (
               searchResults.map((p) => (
-                <button key={p.id} onClick={() => addItem(p)} className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-surface-50 text-start transition-colors border-b border-surface-100 last:border-b-0">
+                <button key={p.id} onClick={() => addItem(p)} className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-surface-50 dark:hover:bg-surface-700/40 text-start transition-colors border-b border-surface-100 dark:border-surface-700/60 last:border-b-0">
                   <div className="min-w-0 flex-1">
-                    <span className="text-[13px] font-semibold text-surface-800">{p.name}</span>
+                    <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100">{p.name}</span>
                     <div className="flex gap-2 mt-0.5">
-                      {p.sku && <span className="text-[11px] font-mono text-surface-400">{t("purchases.form.skuPrefix", { code: p.sku })}</span>}
-                      {p.barcode && <span className="text-[11px] font-mono text-surface-400">{t("purchases.form.barcodeFormat", { code: p.barcode })}</span>}
+                      {p.sku && <span className="text-[11px] font-mono text-surface-400 dark:text-surface-500">{t("purchases.form.skuPrefix", { code: p.sku })}</span>}
+                      {p.barcode && <span className="text-[11px] font-mono text-surface-400 dark:text-surface-500">{t("purchases.form.barcodeFormat", { code: p.barcode })}</span>}
                     </div>
                   </div>
-                  <span className="text-[12px] text-surface-500 ms-3 whitespace-nowrap">{formatCurrency(p.purchase_price)}</span>
+                  <span className="text-[12px] text-surface-500 dark:text-surface-400 ms-3 whitespace-nowrap">{formatCurrency(p.purchase_price)}</span>
                 </button>
               ))
             )}
@@ -511,28 +527,28 @@ function CreatePurchaseForm({ onDone, onCancel }) {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-surface-200">
-                  <th className="text-start py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider">{t("purchases.items.product")}</th>
-                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[130px]">{t("purchases.items.qty")}</th>
-                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[140px]">{t("purchases.items.costPrice")}</th>
-                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[150px]">{t("purchases.items.expiration")}</th>
-                  <th className="text-end py-2.5 px-3 text-[12px] font-semibold text-surface-500 uppercase tracking-wider w-[140px]">{t("purchases.items.subtotal")}</th>
+                <tr className="border-b border-surface-200 dark:border-surface-700/60">
+                  <th className="text-start py-2.5 px-3 text-[12px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t("purchases.items.product")}</th>
+                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider w-[130px]">{t("purchases.items.qty")}</th>
+                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider w-[140px]">{t("purchases.items.costPrice")}</th>
+                  <th className="text-center py-2.5 px-3 text-[12px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider w-[150px]">{t("purchases.items.expiration")}</th>
+                  <th className="text-end py-2.5 px-3 text-[12px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider w-[140px]">{t("purchases.items.subtotal")}</th>
                   <th className="py-2.5 px-3 w-[40px]"></th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, i) => (
-                  <tr key={i} className="border-b border-surface-100">
-                    <td className="py-2.5 px-3 text-[13px] font-medium text-surface-800">{item.product_name}</td>
+                  <tr key={i} className="border-b border-surface-100 dark:border-surface-700/60">
+                    <td className="py-2.5 px-3 text-[13px] font-medium text-surface-800 dark:text-surface-100">{item.product_name}</td>
                     <td className="py-2.5 px-3">
                       <div className="flex items-center justify-center gap-1">
-                        <button onClick={() => updateItem(i, "quantity", item.quantity - 1)} className="p-1 text-surface-400 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all"><Minus className="w-3.5 h-3.5" /></button>
-                        <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(i, "quantity", e.target.value)} className="numeric-grow min-w-16 text-center px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
-                        <button onClick={() => updateItem(i, "quantity", item.quantity + 1)} className="p-1 text-surface-400 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all"><PlusIcon className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => updateItem(i, "quantity", item.quantity - 1)} className="p-1 text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all"><Minus className="w-3.5 h-3.5" /></button>
+                        <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(i, "quantity", e.target.value)} className="numeric-grow min-w-16 text-center px-2 py-1 border border-surface-200 dark:border-surface-700/60 bg-surface-50 dark:bg-surface-700/40 rounded-lg text-[13px] text-surface-800 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                        <button onClick={() => updateItem(i, "quantity", item.quantity + 1)} className="p-1 text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all"><PlusIcon className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                     <td className="py-2.5 px-3">
-                      <input type="number" step="0.01" min="0" value={item.cost_price} onChange={(e) => updateItem(i, "cost_price", e.target.value)} className="w-full px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 text-center focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                      <input type="number" step="0.01" min="0" value={item.cost_price} onChange={(e) => updateItem(i, "cost_price", e.target.value)} className="w-full px-2 py-1 border border-surface-200 dark:border-surface-700/60 bg-surface-50 dark:bg-surface-700/40 rounded-lg text-[13px] text-surface-800 dark:text-surface-200 text-center focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                     </td>
                     <td className="py-2.5 px-3">
                       <input
@@ -540,22 +556,22 @@ function CreatePurchaseForm({ onDone, onCancel }) {
                         value={item.expiration_date}
                         onChange={(e) => updateItem(i, "expiration_date", e.target.value)}
                         aria-label={t("purchases.items.expirationAria")}
-                        className="w-full px-2 py-1 border border-surface-200 bg-surface-50 rounded-lg text-[13px] text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                        className="w-full px-2 py-1 border border-surface-200 dark:border-surface-700/60 bg-surface-50 dark:bg-surface-700/40 rounded-lg text-[13px] text-surface-800 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                       />
                     </td>
-                    <td className="py-2.5 px-3 text-end text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{formatCurrency(item.quantity * item.cost_price)}</td>
+                    <td className="py-2.5 px-3 text-end text-[13px] font-semibold text-surface-800 dark:text-surface-100 tabular-nums whitespace-nowrap">{formatCurrency(item.quantity * item.cost_price)}</td>
                     <td className="py-2.5 px-3">
-                      <button onClick={() => removeItem(i)} className="p-1.5 text-surface-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => removeItem(i)} className="p-1.5 text-surface-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="flex justify-end mt-4 pt-4 border-t border-surface-200">
+          <div className="flex justify-end mt-4 pt-4 border-t border-surface-200 dark:border-surface-700/60">
             <div className="text-end min-w-0">
-              <span className="text-[12px] text-surface-500 font-medium">{t("purchases.form.total")}</span>
-              <p className="numeric-value text-xl font-bold text-surface-900">{formatCurrency(subtotal)}</p>
+              <span className="text-[12px] text-surface-500 dark:text-surface-400 font-medium">{t("purchases.form.total")}</span>
+              <p className="numeric-value text-xl font-bold text-surface-900 dark:text-surface-100">{formatCurrency(subtotal)}</p>
             </div>
           </div>
         </div>
@@ -583,9 +599,9 @@ function CreatePurchaseForm({ onDone, onCancel }) {
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-        <button onClick={onCancel} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("purchases.form.cancel")}</button>
-        <button onClick={handleSubmit} disabled={submitting || items.length === 0} className="px-6 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">
+      <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+        <button onClick={onCancel} className={secondaryButtonClass}>{t("purchases.form.cancel")}</button>
+        <button onClick={handleSubmit} disabled={submitting || items.length === 0} className={primaryButtonClass}>
           {submitting ? t("purchases.form.creating") : t("purchases.form.complete")}
         </button>
       </div>

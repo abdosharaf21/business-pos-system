@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { storeSettingsService } from "./api";
 import { setStoreSettings, getAssetUrl } from "./cache";
+import { inputClass, labelClass } from "../../shared/components/styles";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
@@ -23,10 +24,9 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const INPUT_CLASS =
-  "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
-const ERROR_CLASS = "text-[11px] text-red-500 mt-1 font-medium";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
+const ERROR_CLASS = "text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium";
 
 const LOGIN_ALLOWED_MIME = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 const LOGIN_ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
@@ -82,15 +82,15 @@ const SECTION_ICON = {
 function SettingsSection({ id, title, description, children }) {
   const Icon = SECTION_ICON[id];
   return (
-    <section className="bg-white rounded-2xl border border-surface-200 shadow-sm overflow-hidden">
-      <div className="flex items-start gap-3 px-6 py-4 border-b border-surface-100">
-        <div className="w-9 h-9 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+    <section className="bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200 dark:border-surface-700/60 shadow-sm overflow-hidden">
+      <div className="flex items-start gap-3 px-6 py-4 border-b border-surface-100 dark:border-surface-700/60">
+        <div className="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0">
           <Icon className="w-[18px] h-[18px]" />
         </div>
         <div>
-          <h2 className="text-[15px] font-bold text-surface-900">{title}</h2>
+          <h2 className="text-[15px] font-bold text-surface-900 dark:text-surface-100">{title}</h2>
           {description && (
-            <p className="text-[13px] text-surface-400 mt-0.5">{description}</p>
+            <p className="text-[13px] text-surface-400 dark:text-surface-500 mt-0.5">{description}</p>
           )}
         </div>
       </div>
@@ -130,7 +130,7 @@ function ImageUploadField({
       <span className={LABEL_CLASS}>{label}</span>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div
-          className={`${boxClass} rounded-xl border-2 border-dashed border-surface-200 bg-surface-50 flex items-center justify-center overflow-hidden shrink-0`}
+          className={`${boxClass} rounded-xl border-2 border-dashed border-surface-200 dark:border-surface-700/60 bg-surface-50 dark:bg-surface-700/40 flex items-center justify-center overflow-hidden shrink-0`}
         >
           {previewUrl ? (
             <img
@@ -139,11 +139,11 @@ function ImageUploadField({
               className={`w-full h-full ${fit === "cover" ? "object-cover" : "object-contain"}`}
             />
           ) : (
-            <ImageIcon className="w-8 h-8 text-surface-300" />
+            <ImageIcon className="w-8 h-8 text-surface-300 dark:text-surface-600" />
           )}
         </div>
         <div className="space-y-2">
-          <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-surface-200 bg-white text-[13px] font-semibold text-surface-700 rounded-xl hover:bg-surface-50 cursor-pointer transition-colors">
+          <label className="inline-flex items-center gap-2 px-4 py-2.5 border border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-700/60 text-[13px] font-semibold text-surface-700 dark:text-surface-300 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 cursor-pointer transition-colors">
             <Upload className="w-4 h-4" />
             {t("storeSettings.uploadImage")}
             <input
@@ -153,12 +153,12 @@ function ImageUploadField({
               onChange={onSelectFile}
             />
           </label>
-          {hint && <p className="text-[11px] text-surface-400">{hint}</p>}
+          {hint && <p className="text-[11px] text-surface-400 dark:text-surface-500">{hint}</p>}
           {previewUrl && (
             <button
               type="button"
               onClick={onRemove}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-semibold text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-semibold text-red-600 dark:text-red-400 bg-white dark:bg-surface-800 border border-red-200 dark:border-red-500/60 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               {t("storeSettings.removeImage")}
@@ -173,7 +173,7 @@ function ImageUploadField({
 function LoginPagePreview({ backgroundUrl, logoUrl, title, subtitle }) {
   const { t } = useTranslation();
   return (
-    <div className="relative overflow-hidden rounded-xl border border-surface-200 shadow-sm bg-primary-900 min-h-[420px]">
+    <div className="relative overflow-hidden rounded-xl border border-surface-200 dark:border-surface-700/60 shadow-sm bg-primary-900 min-h-[420px]">
       {backgroundUrl ? (
         <img
           src={backgroundUrl}
@@ -609,10 +609,10 @@ export default function StoreSettingsPage() {
               />
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-surface-700 mb-1">
+              <p className="text-[13px] font-semibold text-surface-700 dark:text-surface-200 mb-1">
                 {t("storeSettings.loginPreview.title")}
               </p>
-              <p className="text-[12px] text-surface-400 mb-3">
+              <p className="text-[12px] text-surface-400 dark:text-surface-500 mb-3">
                 {t("storeSettings.loginPreview.description")}
               </p>
               <LoginPagePreview

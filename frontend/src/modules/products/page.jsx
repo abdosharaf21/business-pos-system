@@ -1,5 +1,5 @@
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,12 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import { Badge } from "../../shared/components/Badge";
+import { inputClass, selectClass, labelClass, searchInputClass, primaryButtonClass, secondaryButtonClass, iconButtonClass } from "../../shared/components/styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Pencil, Trash2, Search, Package, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
 import toast from "react-hot-toast";
 
 const productSchema = z.object({
@@ -39,24 +41,9 @@ const productSchema = z.object({
   return true;
 }, { message: () => i18n.t("products.validation.priceNotLower"), path: ["selling_price"] });
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
-const SELECT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer";
-
-function Badge({ children, variant = "default" }) {
-  const variants = {
-    default: "bg-surface-100 text-surface-600",
-    success: "bg-emerald-50 text-emerald-700",
-    inactive: "bg-surface-100 text-surface-400",
-    warning: "bg-amber-50 text-amber-700",
-    danger: "bg-red-50 text-red-700",
-  };
-  return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${variants[variant]}`}>
-      {children}
-    </span>
-  );
-}
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
+const SELECT_CLASS = selectClass;
 
 export default function ProductsPage() {
   const queryClient = useQueryClient();
@@ -136,32 +123,32 @@ export default function ProductsPage() {
     {
       key: "sku",
       label: t("products.columns.sku"),
-      render: (val) => <span className="text-[13px] font-mono text-surface-500">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] font-mono text-surface-500 dark:text-surface-400">{val || "-"}</span>,
     },
     {
       key: "name",
       label: t("products.columns.name"),
-      render: (val) => <span className="text-[13px] font-semibold text-surface-800">{val}</span>,
+      render: (val) => <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100">{val}</span>,
     },
     {
       key: "barcode",
       label: t("products.columns.barcode"),
-      render: (val) => <span className="text-[13px] font-mono text-surface-600">{val}</span>,
+      render: (val) => <span className="text-[13px] font-mono text-surface-600 dark:text-surface-300">{val}</span>,
     },
     {
       key: "category_name",
       label: t("products.columns.category"),
-      render: (val) => <span className="text-[13px] text-surface-500">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400">{val || "-"}</span>,
     },
     {
       key: "purchase_price",
       label: t("products.columns.purchasePrice"),
-      render: (val) => <span className="text-[13px] text-surface-600 tabular-nums whitespace-nowrap">{formatCurrency(val)}</span>,
+      render: (val) => <span className="text-[13px] text-surface-600 dark:text-surface-300 tabular-nums whitespace-nowrap">{formatCurrency(val)}</span>,
     },
     {
       key: "selling_price",
       label: t("products.columns.sellingPrice"),
-      render: (val) => <span className="text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{formatCurrency(val)}</span>,
+      render: (val) => <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 tabular-nums whitespace-nowrap">{formatCurrency(val)}</span>,
     },
     {
       key: "quantity",
@@ -169,7 +156,7 @@ export default function ProductsPage() {
       render: (val, row) => {
         const isLow = val <= row.minimum_stock;
         return (
-          <span className={`text-[13px] font-semibold tabular-nums whitespace-nowrap ${isLow ? "text-red-600" : "text-surface-800"}`}>
+          <span className={`text-[13px] font-semibold tabular-nums whitespace-nowrap ${isLow ? "text-red-600 dark:text-red-400" : "text-surface-800 dark:text-surface-100"}`}>
             {val}
           </span>
         );
@@ -178,7 +165,7 @@ export default function ProductsPage() {
     {
       key: "minimum_stock",
       label: t("products.columns.minStock"),
-      render: (val) => <span className="text-[13px] text-surface-500 tabular-nums whitespace-nowrap">{val}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400 tabular-nums whitespace-nowrap">{val}</span>,
     },
     {
       key: "expiration_date",
@@ -191,7 +178,7 @@ export default function ProductsPage() {
               : row.expiration_status === "normal" ? "success" : "default";
         return (
           <div className="flex items-center gap-2">
-            <span className="text-[13px] text-surface-600 whitespace-nowrap">
+            <span className="text-[13px] text-surface-600 dark:text-surface-300 whitespace-nowrap">
               {val ? new Date(val + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
             </span>
             {row.expiration_status && (
@@ -207,7 +194,7 @@ export default function ProductsPage() {
       key: "status",
       label: t("products.columns.status"),
       render: (val) => (
-        <Badge variant={val === "active" ? "success" : "inactive"}>
+        <Badge variant={val === "active" ? "success" : "default"}>
           {val === "active" ? t("products.active") : t("products.inactive")}
         </Badge>
       ),
@@ -219,10 +206,10 @@ export default function ProductsPage() {
             label: t("products.columns.actions"),
             render: (_, row) => (
               <div className="flex items-center gap-1">
-                <button onClick={() => { setEditing(row); setModalOpen(true); }} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("products.edit")}>
+                <button onClick={() => { setEditing(row); setModalOpen(true); }} className={iconButtonClass} title={t("products.edit")}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title={t("products.delete")}>
+                <button onClick={() => setDeleteTarget(row)} className={dangerIconButtonClass} title={t("products.delete")}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -242,7 +229,7 @@ export default function ProductsPage() {
         description={t("products.subtitle")}
         actions={
           canManage && (
-            <button onClick={() => { setEditing(null); setModalOpen(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
+            <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>
               <Plus className="w-4 h-4" />
               {t("products.newProduct")}
             </button>
@@ -252,8 +239,8 @@ export default function ProductsPage() {
 
       <div className="mb-6 flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-          <input type="text" placeholder={t("products.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label={t("products.searchAriaLabel")} />
+          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
+          <input type="text" placeholder={t("products.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className={searchInputClass} aria-label={t("products.searchAriaLabel")} />
         </div>
         <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={SELECT_CLASS + " min-w-[160px]"}>
           <option value="">{t("products.allCategories")}</option>
@@ -269,7 +256,7 @@ export default function ProductsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Package} title={t("products.noProductsFound")} description={search || categoryFilter || statusFilter ? t("products.tryDifferentFilters") : t("products.addYourFirstProduct")} action={!search && !categoryFilter && !statusFilter && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("products.addProduct")}</button>} />
+        <EmptyState icon={Package} title={t("products.noProductsFound")} description={search || categoryFilter || statusFilter ? t("products.tryDifferentFilters") : t("products.addYourFirstProduct")} action={!search && !categoryFilter && !statusFilter && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>{t("products.addProduct")}</button>} />
       ) : (
         <DataTable columns={columns} data={filtered} />
       )}
@@ -316,7 +303,7 @@ function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading 
   const showPriceWarning = purchasePrice > 0 && sellingPrice > 0 && sellingPrice < purchasePrice;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={editing ? t("products.form.titleEdit") : t("products.form.titleCreate")} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={editing ? t("products.form.titleEdit") : t("products.form.titleCreate")} maxWidth="max-w-2xl">
       <form onSubmit={handleSubmit((data) => { onSubmit(data); reset(); })} className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -358,10 +345,10 @@ function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading 
           </div>
           <div>
             <label className={LABEL_CLASS}>{t("products.form.sellingPrice")}</label>
-            <input {...register("selling_price")} type="number" step="0.01" min="0" placeholder={t("products.form.placeholderDecimal")} className={`${INPUT_CLASS} numeric-grow min-w-14 ${showPriceWarning ? "border-amber-300" : ""}`} />
+            <input {...register("selling_price")} type="number" step="0.01" min="0" placeholder={t("products.form.placeholderDecimal")} className={`${INPUT_CLASS} numeric-grow min-w-14 ${showPriceWarning ? "border-amber-300 dark:border-amber-500/60" : ""}`} />
             {errors.selling_price && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.selling_price.message}</p>}
             {showPriceWarning && !errors.selling_price && (
-              <p className="text-[11px] text-amber-600 mt-1 font-medium">{t("products.validation.priceNotLower")}</p>
+              <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium">{t("products.validation.priceNotLower")}</p>
             )}
           </div>
         </div>
@@ -387,9 +374,9 @@ function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading 
             {errors.status && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.status.message}</p>}
           </div>
         )}
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("products.form.cancel")}</button>
-          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? t("products.form.saving") : editing ? t("products.form.update") : t("products.form.create")}</button>
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>{t("products.form.cancel")}</button>
+          <button type="submit" disabled={loading} className={primaryButtonClass}>{loading ? t("products.form.saving") : editing ? t("products.form.update") : t("products.form.create")}</button>
         </div>
       </form>
     </Modal>

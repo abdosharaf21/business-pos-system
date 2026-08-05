@@ -10,14 +10,15 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import { inputClass, labelClass, searchInputClass, primaryButtonClass, secondaryButtonClass, iconButtonClass } from "../../shared/components/styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, Truck } from "lucide-react";
 import toast from "react-hot-toast";
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
 
 export default function SuppliersPage() {
   const { t } = useTranslation();
@@ -66,22 +67,22 @@ export default function SuppliersPage() {
     {
       key: "name",
       label: t("suppliers.columns.name"),
-      render: (val) => <span className="text-[13px] font-semibold text-surface-800">{val}</span>,
+      render: (val) => <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100">{val}</span>,
     },
     {
       key: "phone",
       label: t("suppliers.columns.phone"),
-      render: (val) => <span className="text-[13px] text-surface-600">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-600 dark:text-surface-300">{val || "-"}</span>,
     },
     {
       key: "email",
       label: t("suppliers.columns.email"),
-      render: (val) => <span className="text-[13px] text-surface-500">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400">{val || "-"}</span>,
     },
     {
       key: "address",
       label: t("suppliers.columns.address"),
-      render: (val) => <span className="text-[13px] text-surface-500 truncate max-w-[200px] inline-block">{val || "-"}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400 truncate max-w-[200px] inline-block">{val || "-"}</span>,
     },
     ...(canManage
       ? [
@@ -90,10 +91,10 @@ export default function SuppliersPage() {
             label: t("suppliers.columns.actions"),
             render: (_, row) => (
               <div className="flex items-center gap-1">
-                <button onClick={() => { setEditing(row); setModalOpen(true); }} className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150" title={t("suppliers.edit")}>
+                <button onClick={() => { setEditing(row); setModalOpen(true); }} className={iconButtonClass} title={t("suppliers.edit")}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleteTarget(row)} className="p-2 text-surface-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150" title={t("suppliers.delete")}>
+                <button onClick={() => setDeleteTarget(row)} className={dangerIconButtonClass} title={t("suppliers.delete")}>
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -113,7 +114,7 @@ export default function SuppliersPage() {
         description={t("suppliers.description")}
         actions={
           canManage && (
-            <button onClick={() => { setEditing(null); setModalOpen(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-150 shadow-sm shadow-primary-600/20">
+            <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>
               <Plus className="w-4 h-4" />
               {t("suppliers.newSupplier")}
             </button>
@@ -122,12 +123,12 @@ export default function SuppliersPage() {
       />
 
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
-        <input type="text" placeholder={t("suppliers.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card" aria-label={t("suppliers.searchAriaLabel")} />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
+        <input type="text" placeholder={t("suppliers.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className={searchInputClass} aria-label={t("suppliers.searchAriaLabel")} />
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Truck} title={t("suppliers.empty.noResultsTitle")} description={search ? t("suppliers.empty.noResultsDescription") : t("suppliers.empty.noSuppliersDescription")} action={!search && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-[13px] font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 shadow-sm shadow-primary-600/20">{t("suppliers.empty.addSupplier")}</button>} />
+        <EmptyState icon={Truck} title={t("suppliers.empty.noResultsTitle")} description={search ? t("suppliers.empty.noResultsDescription") : t("suppliers.empty.noSuppliersDescription")} action={!search && canManage && <button onClick={() => { setEditing(null); setModalOpen(true); }} className={primaryButtonClass}>{t("suppliers.empty.addSupplier")}</button>} />
       ) : (
         <DataTable columns={columns} data={filtered} />
       )}
@@ -186,9 +187,9 @@ function SupplierModal({ isOpen, onClose, editing, onSubmit, loading }) {
           <textarea {...register("address")} rows={2} placeholder={t("suppliers.form.addressPlaceholder")} className={`${INPUT_CLASS} resize-none`} />
           {errors.address && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.address.message}</p>}
         </div>
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150">{t("suppliers.form.cancel")}</button>
-          <button type="submit" disabled={loading} className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-primary-600/20">{loading ? t("suppliers.form.saving") : editing ? t("suppliers.form.update") : t("suppliers.form.create")}</button>
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>{t("suppliers.form.cancel")}</button>
+          <button type="submit" disabled={loading} className={primaryButtonClass}>{loading ? t("suppliers.form.saving") : editing ? t("suppliers.form.update") : t("suppliers.form.create")}</button>
         </div>
       </form>
     </Modal>

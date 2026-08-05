@@ -6,6 +6,7 @@ import i18n from "../../i18n";
 import { inventoryService } from "./api";
 import { auditService } from "../inventory_audits/api";
 import { useAuth } from "../../shared/context/AuthContext";
+import { inputClass, labelClass, searchInputClass } from "../../shared/components/styles";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { DataTable } from "../../shared/components/DataTable";
 import { Modal } from "../../shared/components/Modal";
@@ -38,8 +39,8 @@ const quickAuditSchema = z.object({
     .refine((v) => Number(v) >= 0, () => i18n.t("inventory.validation.quantityNonNegative")),
 });
 
-const INPUT_CLASS = "w-full px-3.5 py-2.5 border border-surface-200 bg-surface-50 rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150";
-const LABEL_CLASS = "block text-[13px] font-semibold text-surface-700 mb-1.5";
+const INPUT_CLASS = inputClass;
+const LABEL_CLASS = labelClass;
 
 export default function InventoryPage() {
   const queryClient = useQueryClient();
@@ -135,8 +136,8 @@ export default function InventoryPage() {
             {val?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div className="min-w-0">
-            <p className="text-[13px] font-semibold text-surface-800 truncate">{val}</p>
-            <p className="text-[11px] text-surface-400 truncate">{row.barcode || t("inventory.noBarcode")}</p>
+            <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 truncate">{val}</p>
+            <p className="text-[11px] text-surface-400 dark:text-surface-500 truncate">{row.barcode || t("inventory.noBarcode")}</p>
           </div>
         </div>
       ),
@@ -145,21 +146,21 @@ export default function InventoryPage() {
       key: "category_name",
       label: t("inventory.columns.category"),
       render: (val) => (
-        <span className="text-[12px] text-surface-500">{val || "-"}</span>
+        <span className="text-[12px] text-surface-500 dark:text-surface-400">{val || "-"}</span>
       ),
     },
     {
       key: "warehouse_qty",
       label: t("inventory.columns.warehouse"),
       render: (val) => (
-        <span className="text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{val}</span>
+        <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 tabular-nums whitespace-nowrap">{val}</span>
       ),
     },
     {
       key: "store_qty",
       label: t("inventory.columns.store"),
       render: (val) => (
-        <span className="text-[13px] font-semibold text-surface-800 tabular-nums whitespace-nowrap">{val}</span>
+        <span className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 tabular-nums whitespace-nowrap">{val}</span>
       ),
     },
     {
@@ -169,7 +170,7 @@ export default function InventoryPage() {
         const isLow = val <= row.minimum_stock;
         return (
           <div className="flex items-center gap-2">
-            <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${isLow ? "text-red-600" : "text-surface-800"}`}>
+            <span className={`text-[13px] font-bold tabular-nums whitespace-nowrap ${isLow ? "text-red-600 dark:text-red-400" : "text-surface-800 dark:text-surface-100"}`}>
               {val}
             </span>
             {isLow && (
@@ -182,7 +183,7 @@ export default function InventoryPage() {
     {
       key: "minimum_stock",
       label: t("inventory.columns.minStock"),
-      render: (val) => <span className="text-[13px] text-surface-500 tabular-nums whitespace-nowrap">{val}</span>,
+      render: (val) => <span className="text-[13px] text-surface-500 dark:text-surface-400 tabular-nums whitespace-nowrap">{val}</span>,
     },
     {
       key: "expiration_date",
@@ -191,7 +192,7 @@ export default function InventoryPage() {
         const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
         return (
           <div className="flex items-center gap-2">
-            <span className="text-[13px] text-surface-600 whitespace-nowrap">
+            <span className="text-[13px] text-surface-600 dark:text-surface-300 whitespace-nowrap">
               {val ? new Date(val + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : "—"}
             </span>
             {row.expiration_status && (
@@ -218,21 +219,21 @@ export default function InventoryPage() {
                 <button
                   onClick={() => setTransferTarget(row)}
                   disabled={row.warehouse_qty < 1}
-                  className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-surface-400"
+                  className="p-2 text-surface-400 dark:text-surface-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-xl transition-all duration-150 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-surface-400"
                   title={t("inventory.transfer.title")}
                 >
                   <ArrowLeftRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setQuickAuditTarget(row)}
-                  className="p-2 text-surface-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-150"
+                  className="p-2 text-surface-400 dark:text-surface-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-xl transition-all duration-150"
                   title={t("inventory.quickAudit.button")}
                 >
                   <ClipboardCheck className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewHistory(row.id)}
-                  className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150"
+                  className="p-2 text-surface-400 dark:text-surface-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all duration-150"
                   title={t("inventory.history.title", { name: "" }).trim()}
                 >
                   <History className="w-4 h-4" />
@@ -248,7 +249,7 @@ export default function InventoryPage() {
             render: (_, row) => (
               <button
                 onClick={() => setViewHistory(row.id)}
-                className="p-2 text-surface-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all duration-150"
+                className="p-2 text-surface-400 dark:text-surface-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all duration-150"
                 title={t("inventory.history.title", { name: "" }).trim()}
               >
                 <History className="w-4 h-4" />
@@ -286,11 +287,11 @@ export default function InventoryPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 p-1 bg-surface-100 rounded-xl w-fit">
+      <div className="flex gap-1 mb-6 p-1 bg-surface-100 dark:bg-surface-700/50 rounded-xl w-fit">
         <button
           onClick={() => { setTab("all"); setSearch(""); }}
           className={`px-4 py-2 text-[13px] font-semibold rounded-xl transition-all duration-150 ${
-            tab === "all" ? "bg-white text-surface-800 shadow-sm" : "text-surface-500 hover:text-surface-700"
+            tab === "all" ? "bg-white dark:bg-surface-800 text-surface-800 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
           }`}
         >
           {t("inventory.allProducts")}
@@ -298,7 +299,7 @@ export default function InventoryPage() {
         <button
           onClick={() => { setTab("low"); setSearch(""); }}
           className={`px-4 py-2 text-[13px] font-semibold rounded-xl transition-all duration-150 flex items-center gap-2 ${
-            tab === "low" ? "bg-white text-surface-800 shadow-sm" : "text-surface-500 hover:text-surface-700"
+            tab === "low" ? "bg-white dark:bg-surface-800 text-surface-800 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -313,13 +314,13 @@ export default function InventoryPage() {
 
       {/* Search */}
       <div className="mb-6 relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" />
+        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 pointer-events-none" />
         <input
           type="text"
           placeholder={t("inventory.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full ps-10 pe-4 py-2.5 border border-surface-200 bg-white rounded-xl text-sm text-surface-800 placeholder:text-surface-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 shadow-card"
+          className={searchInputClass}
           aria-label={t("inventory.searchAriaLabel")}
         />
       </div>
@@ -327,13 +328,13 @@ export default function InventoryPage() {
       {/* Expiration filters */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <div>
-          <label className="block text-[11px] font-semibold text-surface-500 uppercase tracking-wider mb-1">
+          <label className="block text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">
             {t("inventory.expiration.filterLabel")}
           </label>
           <select
             value={expirationFilter}
             onChange={(e) => setExpirationFilter(e.target.value)}
-            className="px-3 py-2 border border-surface-200 bg-white rounded-xl text-[13px] text-surface-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer"
+            className="px-3 py-2 border border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-800 rounded-xl text-[13px] text-surface-700 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer"
           >
             <option value="">{t("inventory.expiration.all")}</option>
             <option value="expired">{t("inventory.expiration.statuses.expired")}</option>
@@ -342,13 +343,13 @@ export default function InventoryPage() {
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-[11px] font-semibold text-surface-500 uppercase tracking-wider">&nbsp;</span>
+          <span className="text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">&nbsp;</span>
           <button
             onClick={() => setSortBy(sortBy === "expiration" ? "" : "expiration")}
             className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-[13px] font-semibold transition-all duration-150 ${
               sortBy === "expiration"
-                ? "border-primary-200 bg-primary-50 text-primary-700"
-                : "border-surface-200 bg-white text-surface-600 hover:bg-surface-50"
+                ? "border-primary-200 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400"
+                : "border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700/40"
             }`}
           >
             <ArrowUpDown className="w-3.5 h-3.5" />
@@ -431,22 +432,22 @@ function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
         })}
         className="space-y-5"
       >
-        <div className="bg-surface-50 rounded-xl p-4 space-y-2">
+        <div className="bg-surface-50 dark:bg-surface-700/40 rounded-xl p-4 space-y-2">
           <div className="flex justify-between text-[13px]">
-            <span className="text-surface-500">{t("inventory.transfer.from")}</span>
-            <span className="font-bold text-surface-800">{t("inventory.warehouse")}</span>
+            <span className="text-surface-500 dark:text-surface-400">{t("inventory.transfer.from")}</span>
+            <span className="font-bold text-surface-800 dark:text-surface-100">{t("inventory.warehouse")}</span>
           </div>
           <div className="flex justify-between text-[13px]">
-            <span className="text-surface-500">{t("inventory.transfer.to")}</span>
-            <span className="font-bold text-surface-800">{t("inventory.store")}</span>
+            <span className="text-surface-500 dark:text-surface-400">{t("inventory.transfer.to")}</span>
+            <span className="font-bold text-surface-800 dark:text-surface-100">{t("inventory.store")}</span>
           </div>
-          <div className="flex justify-between text-[13px] pt-2 border-t border-surface-200">
-            <span className="text-surface-500">{t("inventory.transfer.currentWarehouse")}</span>
-            <span className="font-bold text-surface-800">{product?.warehouse_qty ?? 0}</span>
+          <div className="flex justify-between text-[13px] pt-2 border-t border-surface-200 dark:border-surface-700/60">
+            <span className="text-surface-500 dark:text-surface-400">{t("inventory.transfer.currentWarehouse")}</span>
+            <span className="font-bold text-surface-800 dark:text-surface-100">{product?.warehouse_qty ?? 0}</span>
           </div>
           <div className="flex justify-between text-[13px]">
-            <span className="text-surface-500">{t("inventory.transfer.afterTransfer")}</span>
-            <span className={`font-bold ${remaining < 0 ? "text-red-600" : "text-surface-800"}`}>
+            <span className="text-surface-500 dark:text-surface-400">{t("inventory.transfer.afterTransfer")}</span>
+            <span className={`font-bold ${remaining < 0 ? "text-red-600 dark:text-red-400" : "text-surface-800 dark:text-surface-100"}`}>
               {remaining}
             </span>
           </div>
@@ -461,14 +462,14 @@ function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
             className={`${INPUT_CLASS} numeric-grow min-w-14`}
             placeholder={t("inventory.transfer.quantityPlaceholder")}
           />
-          {errors.quantity && <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.quantity.message}</p>}
+          {errors.quantity && <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.quantity.message}</p>}
         </div>
 
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150"
+            className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-150"
           >
             {t("common.cancel")}
           </button>
@@ -512,17 +513,17 @@ function QuickAuditModal({ isOpen, onClose, product, onSubmit, loading }) {
         })}
         className="space-y-5"
       >
-        <div className="bg-surface-50 rounded-xl p-4 flex justify-between text-[13px]">
-          <span className="text-surface-500">{t("inventory.quickAudit.location")}</span>
-          <select {...register("location")} className="px-2 py-1 border border-surface-200 bg-white rounded-lg text-[13px] text-surface-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer">
+        <div className="bg-surface-50 dark:bg-surface-700/40 rounded-xl p-4 flex justify-between text-[13px]">
+          <span className="text-surface-500 dark:text-surface-400">{t("inventory.quickAudit.location")}</span>
+          <select {...register("location")} className="px-2 py-1 border border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-800 rounded-lg text-[13px] text-surface-700 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer">
             <option value="store">{t("inventory.store")}</option>
             <option value="warehouse">{t("inventory.warehouse")}</option>
           </select>
         </div>
 
-        <div className="bg-surface-50 rounded-xl p-4 flex justify-between text-[13px]">
-          <span className="text-surface-500">{t("inventory.quickAudit.currentQuantity")}</span>
-          <span className="font-bold text-surface-800 tabular-nums">{currentQty}</span>
+        <div className="bg-surface-50 dark:bg-surface-700/40 rounded-xl p-4 flex justify-between text-[13px]">
+          <span className="text-surface-500 dark:text-surface-400">{t("inventory.quickAudit.currentQuantity")}</span>
+          <span className="font-bold text-surface-800 dark:text-surface-100 tabular-nums">{currentQty}</span>
         </div>
 
         <div>
@@ -536,7 +537,7 @@ function QuickAuditModal({ isOpen, onClose, product, onSubmit, loading }) {
             placeholder="0"
           />
           {errors.counted_quantity && (
-            <p className="text-[11px] text-red-500 mt-1 font-medium">{errors.counted_quantity.message}</p>
+            <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.counted_quantity.message}</p>
           )}
         </div>
 
@@ -551,13 +552,13 @@ function QuickAuditModal({ isOpen, onClose, product, onSubmit, loading }) {
           />
         </div>
 
-        <p className="text-[11px] text-surface-400 -mt-2">{t("inventory.quickAudit.hint")}</p>
+        <p className="text-[11px] text-surface-400 dark:text-surface-500 -mt-2">{t("inventory.quickAudit.hint")}</p>
 
-        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100">
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 bg-white border border-surface-200 rounded-xl hover:bg-surface-50 transition-all duration-150"
+            className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-150"
           >
             {t("inventory.quickAudit.cancel")}
           </button>
@@ -590,22 +591,22 @@ function MovementHistoryModal({ isOpen, onClose, movements, product }) {
     <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.history.title", { name: product?.name || "" })}>
       <div className="space-y-4">
         {movements.length === 0 ? (
-          <p className="text-center text-surface-400 py-8 text-[13px]">{t("inventory.history.noTransactions")}</p>
+          <p className="text-center text-surface-400 dark:text-surface-500 py-8 text-[13px]">{t("inventory.history.noTransactions")}</p>
         ) : (
-          <div className="divide-y divide-surface-100 max-h-96 overflow-y-auto">
+          <div className="divide-y divide-surface-100 dark:divide-surface-700/60 max-h-96 overflow-y-auto">
             {movements.map((m) => {
               const Icon = TYPE_ICONS[m.movement_type] || Package;
               return (
                 <div key={m.id} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-surface-100 flex items-center justify-center text-[11px] font-bold text-surface-500 shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-700/50 flex items-center justify-center text-[11px] font-bold text-surface-500 dark:text-surface-400 shrink-0">
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[13px] font-semibold text-surface-800 capitalize">
+                      <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-100 capitalize">
                         {t(`inventory.history.${m.movement_type}`)}
                       </p>
-                      <p className="text-[11px] text-surface-400">
+                      <p className="text-[11px] text-surface-400 dark:text-surface-500">
                         {m.from_location ? t(`inventory.history.${m.from_location}`) : "—"}
                         {" → "}
                         {m.to_location ? t(`inventory.history.${m.to_location}`) : "—"}
@@ -613,13 +614,13 @@ function MovementHistoryModal({ isOpen, onClose, movements, product }) {
                         {new Date(m.created_at).toLocaleString()}
                       </p>
                       {m.notes && (
-                        <p className="text-[11px] text-surface-400 mt-0.5">
+                        <p className="text-[11px] text-surface-400 dark:text-surface-500 mt-0.5">
                           {t("inventory.history.source")}: {m.notes}
                         </p>
                       )}
                     </div>
                   </div>
-                  <span className="text-[13px] font-bold text-surface-800 tabular-nums whitespace-nowrap">
+                  <span className="text-[13px] font-bold text-surface-800 dark:text-surface-100 tabular-nums whitespace-nowrap">
                     {m.quantity} {t("inventory.history.units")}
                   </span>
                 </div>
