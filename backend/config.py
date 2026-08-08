@@ -1,12 +1,40 @@
 """Application configuration loaded from environment variables."""
 
+import logging
 import os
+import secrets
 import sys
 
 from dotenv import load_dotenv
 
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _cwd = os.getcwd()
+
+logger = logging.getLogger(__name__)
+
+_DEFAULT_CSP_POLICY = (
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; font-src 'self' data:; connect-src 'self'"
+)
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    """Parse a boolean environment variable.
+
+    Accepted truthy values: 1, true, yes, on (case-insensitive).
+    Anything else falls back to the provided default.
+
+    Args:
+        name: Environment variable name.
+        default: Value returned when the variable is absent.
+
+    Returns:
+        Parsed boolean value.
+    """
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _load_env_file() -> None:
@@ -87,6 +115,14 @@ class BaseConfig:
         "CORS_ORIGINS",
         "http://localhost:3000,http://localhost:5174",
     ).split(",")
+    CORS_EXPAND_LAN = _env_bool("CORS_EXPAND_LAN", True)
+
+    SECURITY_HEADERS_ENABLED = _env_bool("SECURITY_HEADERS_ENABLED", True)
+    CSP_ENABLED = _env_bool("CSP_ENABLED", False)
+    CSP_POLICY = os.environ.get("CSP_POLICY", _DEFAULT_CSP_POLICY)
+    HSTS_ENABLED = _env_bool("HSTS_ENABLED", False)
+
+    ALLOW_DEV_SECRET_FALLBACK = False
 
     _frontend_dist = os.environ.get(
         "FRONTEND_DIST",
@@ -102,32 +138,59 @@ class BaseConfig:
     def validate(cls) -> None:
         """Validate that all required secrets are configured.
 
+        In development, missing secrets are replaced with freshly generated
+        random values so the app can start without a .env file. In every
+        other environment, missing secrets abort startup.
+
         Raises:
-            ValueError: If SECRET_KEY or JWT_SECRET_KEY is missing.
+            ValueError: If SECRET_KEY or JWT_SECRET_KEY is missing in a
+                non-development environment.
         """
         missing = []
         if not cls.SECRET_KEY:
             missing.append("SECRET_KEY")
         if not cls.JWT_SECRET_KEY:
             missing.append("JWT_SECRET_KEY")
-        if missing:
+        if not missing:
+            return
+        if not getattr(cls, "ALLOW_DEV_SECRET_FALLBACK", False):
             raise ValueError(
                 f"Missing required environment variables: {', '.join(missing)}. "
                 "Set them in your .env file or environment before starting the application."
             )
+        for name in missing:
+            generated = secrets.token_urlsafe(48)
+            setattr(cls, name, generated)
+            logger.warning(
+                "%s is not set; generated a random development secret. "
+                "Set it explicitly for reproducible sessions.",
+                name,
+            )
 
 
 class DevelopmentConfig(BaseConfig):
-    """Development configuration."""
+    """Development configuration.
+
+    Allows the app to boot without SECRET_KEY / JWT_SECRET_KEY by
+    generating random values. CSP and HSTS stay off so the Vite dev
+    server (HMR over websocket) and plain-HTTP local testing keep
+    working unchanged.
+    """
 
     DEBUG = True
+    ALLOW_DEV_SECRET_FALLBACK = True
 
 
 class ProductionConfig(BaseConfig):
-    """Production configuration."""
+    """Production configuration.
+
+    Requires explicit secrets. Serves the built SPA and keeps CSP enabled
+    by default; HSTS is opt-in and should only be enabled behind HTTPS.
+    """
 
     DEBUG = False
     SERVE_STATIC = True
+    CSP_ENABLED = _env_bool("CSP_ENABLED", True)
 
 
 class DesktopConfig(BaseConfig):
@@ -139,9 +202,10 @@ class DesktopConfig(BaseConfig):
 
     DEBUG = False
     SERVE_STATIC = True
+    CSP_ENABLED = _env_bool("CSP_ENABLED", True)
     CORS_ORIGINS = os.environ.get(
         "CORS_ORIGINS",
-        "http://localhost:5174,file://",
+        "http://localhost:5174,http://localhost:5001",
     ).split(",")
 
 

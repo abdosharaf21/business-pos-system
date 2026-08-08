@@ -175,11 +175,15 @@ def _write_startup_error_file(error: BootstrapError) -> None:
         logger.warning("Could not write startup error file: %s", e)
 
 
-def create_app(config: dict = None) -> Flask:
+def create_app(config: dict = None, bootstrap: bool = False) -> Flask:
     """Create and configure the Flask application.
 
     Args:
         config: Optional configuration dictionary.
+        bootstrap: Whether to run the idempotent database bootstrap
+            (schema reconcile + admin seeding) before wiring services.
+            Used by the WSGI entrypoint; defaults to False to preserve
+            the desktop startup flow.
 
     Returns:
         Configured Flask application instance.
@@ -202,9 +206,27 @@ def create_app(config: dict = None) -> Flask:
     app.config["JWT_HEADER_TYPE"] = config_class.JWT_HEADER_TYPE
     app.config["MAX_CONTENT_LENGTH"] = config_class.MAX_CONTENT_LENGTH
     app.config["DEBUG"] = config_class.DEBUG
+    app.config["SECURITY_HEADERS_ENABLED"] = config_class.SECURITY_HEADERS_ENABLED
+    app.config["CSP_ENABLED"] = config_class.CSP_ENABLED
+    app.config["CSP_POLICY"] = config_class.CSP_POLICY
+    app.config["HSTS_ENABLED"] = config_class.HSTS_ENABLED
+    app.config["CORS_ORIGINS"] = config_class.CORS_ORIGINS
+    app.config["CORS_EXPAND_LAN"] = config_class.CORS_EXPAND_LAN
 
     if config:
         app.config.update(config)
+
+    if bootstrap:
+        try:
+            bootstrap_result = ensure_database_ready()
+            logger.info("Database bootstrap complete: %s", bootstrap_result)
+        except BootstrapError as bootstrap_error:
+            logger.error(
+                "Database bootstrap failed: %s (%s)",
+                bootstrap_error.message,
+                bootstrap_error.instructions,
+            )
+            raise
 
     jwt = JWTManager(app)
 
@@ -290,7 +312,11 @@ def create_app(config: dict = None) -> Flask:
 
     register_error_handlers(app)
     register_security_headers(app)
-    register_cors(app, allowed_origins=config_class.CORS_ORIGINS)
+    register_cors(
+        app,
+        allowed_origins=app.config.get("CORS_ORIGINS"),
+        expand_lan=app.config.get("CORS_EXPAND_LAN", True),
+    )
 
     @app.before_request
     def before_request():

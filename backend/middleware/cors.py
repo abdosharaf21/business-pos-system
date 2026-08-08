@@ -52,7 +52,8 @@ def create_cors_middleware(
     allowed_headers: Optional[List[str]] = None,
     expose_headers: Optional[List[str]] = None,
     max_age: int = DEFAULT_MAX_AGE,
-    allow_credentials: bool = True
+    allow_credentials: bool = True,
+    expand_lan: bool = True,
 ) -> callable:
     """Create CORS middleware with configurable options.
 
@@ -63,6 +64,7 @@ def create_cors_middleware(
         expose_headers: List of headers to expose to the browser.
         max_age: Maximum age for preflight cache in seconds.
         allow_credentials: Whether to allow credentials.
+        expand_lan: Whether to append LAN-IP variants for localhost origins.
 
     Returns:
         CORS middleware function for Flask after_request.
@@ -79,7 +81,8 @@ def create_cors_middleware(
     if expose_headers is None:
         expose_headers = DEFAULT_EXPOSE_HEADERS
 
-    allowed_origins = _expand_origins(allowed_origins)
+    if expand_lan:
+        allowed_origins = _expand_origins(allowed_origins)
 
     def cors_after_request(response: Response) -> Response:
         """Add CORS headers to the response.
@@ -94,16 +97,16 @@ def create_cors_middleware(
 
         if origin and origin in allowed_origins:
             response.headers["Access-Control-Allow-Origin"] = origin
-        elif "*" in allowed_origins:
+            response.headers["Vary"] = "Origin"
+            if allow_credentials:
+                response.headers["Access-Control-Allow-Credentials"] = "true"
+        elif "*" in allowed_origins and not allow_credentials:
             response.headers["Access-Control-Allow-Origin"] = "*"
 
         response.headers["Access-Control-Allow-Methods"] = ", ".join(allowed_methods)
         response.headers["Access-Control-Allow-Headers"] = ", ".join(allowed_headers)
         response.headers["Access-Control-Expose-Headers"] = ", ".join(expose_headers)
         response.headers["Access-Control-Max-Age"] = str(max_age)
-
-        if allow_credentials:
-            response.headers["Access-Control-Allow-Credentials"] = "true"
 
         return response
 
@@ -123,17 +126,26 @@ def handle_preflight_request(response: Response) -> Response:
         response.headers["Access-Control-Allow-Methods"] = ", ".join(DEFAULT_ALLOWED_METHODS)
         response.headers["Access-Control-Allow-Headers"] = ", ".join(DEFAULT_ALLOWED_HEADERS)
         response.headers["Access-Control-Max-Age"] = str(DEFAULT_MAX_AGE)
+        response.headers["Vary"] = "Origin"
 
     return response
 
 
-def register_cors(app, allowed_origins: Optional[List[str]] = None) -> None:
+def register_cors(
+    app,
+    allowed_origins: Optional[List[str]] = None,
+    expand_lan: bool = True,
+) -> None:
     """Register CORS middleware for the Flask application.
 
     Args:
         app: Flask application instance.
         allowed_origins: Optional list of allowed origins.
+        expand_lan: Whether to append LAN-IP variants for localhost origins.
     """
-    cors_handler = create_cors_middleware(allowed_origins=allowed_origins)
+    cors_handler = create_cors_middleware(
+        allowed_origins=allowed_origins,
+        expand_lan=expand_lan,
+    )
     app.after_request(cors_handler)
     app.after_request(handle_preflight_request)
