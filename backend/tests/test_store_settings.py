@@ -128,17 +128,33 @@ class TestUpdateSettings:
 class TestGetLogo:
     """Tests for GET /api/store-settings/logo."""
 
-    def test_logo_not_found(self, client, admin_headers):
+    def test_logo_not_found(self, client):
         """Test requesting the logo when none is uploaded returns 404."""
         with patch(
             "backend.modules.store_settings.service.StoreSettingsService.get_settings"
         ) as mock_get:
             mock_get.return_value = _settings_dict(logo_path="")
-            response = client.get(
-                "/api/store-settings/logo", headers=admin_headers
-            )
+            response = client.get("/api/store-settings/logo")
             assert response.status_code == 404
             assert response.get_json()["success"] is False
+
+    def test_logo_served_without_token(self, client, tmp_path):
+        """Test the logo is public and served with the correct MIME type."""
+        import os
+
+        logo_file = tmp_path / "logo.png"
+        logo_file.write_bytes(b"\x89PNG\r\n\x1a\nfake-image-bytes")
+        with patch(
+            "backend.modules.store_settings.service.StoreSettingsService.get_settings"
+        ) as mock_get, patch(
+            "backend.modules.store_settings.service.StoreSettingsService.resolve_logo_path"
+        ) as mock_resolve:
+            mock_get.return_value = _settings_dict(logo_path="logo.png")
+            mock_resolve.return_value = str(logo_file)
+            response = client.get("/api/store-settings/logo")
+            assert response.status_code == 200
+            assert response.data == logo_file.read_bytes()
+            assert response.content_type.startswith("image/png")
 
 
 class TestGetPublicBranding:

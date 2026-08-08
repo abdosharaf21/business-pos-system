@@ -10,7 +10,7 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
-import { inputClass, selectClass, labelClass, searchInputClass, cardClass, primaryButtonClass, secondaryButtonClass, iconButtonClass } from "../../shared/components/styles";
+import { inputClass, selectClass, labelClass, searchInputClass, cardClass, primaryButtonClass, secondaryButtonClass, iconButtonClass, dangerIconButtonClass } from "../../shared/components/styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";

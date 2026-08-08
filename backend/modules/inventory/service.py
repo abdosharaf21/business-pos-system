@@ -108,6 +108,65 @@ class InventoryService:
         """
         return self._repository.get_inventory_summary()
 
+    def update_expiration_date(
+        self,
+        product_id: int,
+        expiration_date: str,
+    ) -> Dict[str, Any]:
+        """Set an expiration date for a product's stock.
+
+        Applies the date to the product's single active purchase batch,
+        whether that batch already has an expiration date or not. The
+        resulting effective expiration date returned by the repository
+        stays consistent with the MIN aggregation used by the inventory
+        listing.
+
+        Args:
+            product_id: ID of the product to update.
+            expiration_date: Expiration date as a YYYY-MM-DD string.
+
+        Returns:
+            Dictionary with the number of updated rows and the product's
+            effective expiration date.
+
+        Raises:
+            ValueError: If the product is missing or inactive, the date is
+                malformed, the product has no purchase items, or the
+                product has multiple purchase batches that make the
+                current inventory ambiguous.
+        """
+        product = self._repository.get_product_by_id(product_id)
+        if product is None:
+            raise ValueError("Product not found")
+        if product["status"] != "active":
+            raise ValueError("Cannot update expiration for inactive product")
+
+        try:
+            datetime.strptime(expiration_date, "%Y-%m-%d")
+        except (TypeError, ValueError):
+            raise ValueError(
+                "Expiration date must be a valid date in YYYY-MM-DD format"
+            )
+
+        result = self._repository.update_product_expiration(
+            product_id=product_id,
+            expiration_date=expiration_date,
+        )
+        if result.get("batch_count", 1) > 1:
+            raise ValueError(
+                "Multiple purchase batches found for this product. "
+                "Batch selection is required because the system cannot "
+                "determine which batch represents the current inventory."
+            )
+        if result["updated_rows"] == 0:
+            raise ValueError(
+                "No purchase items found for this product"
+            )
+        return {
+            "updated_rows": result["updated_rows"],
+            "expiration_date": result["expiration_date"],
+        }
+
     def get_low_stock(self) -> List[Dict[str, Any]]:
         """Retrieve products with low stock.
 

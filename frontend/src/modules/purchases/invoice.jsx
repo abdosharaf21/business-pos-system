@@ -130,7 +130,7 @@ export default function PurchaseInvoicePage() {
           <div className="text-center mb-8">
             {storeSettings?.logo_path && (
               <img
-                src={`${window.location.origin}/api/store-settings/logo`}
+                src={`${window.location.origin}/api/store-settings/logo?v=${encodeURIComponent(storeSettings.logo_path)}`}
                 alt={storeSettings?.store_name || t("purchases.invoicePage.posSystem")}
                 className="w-16 h-16 object-contain mx-auto mb-3"
               />

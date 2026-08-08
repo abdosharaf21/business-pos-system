@@ -13,4 +13,6 @@ export const inventoryService = {
   getLowStock: () => api.get("/inventory/low-stock"),
   getMovements: (params) => api.get("/inventory/movements", { params }),
   transferStock: (data) => api.post("/inventory/transfer", data),
+  updateExpiration: (productId, expirationDate) =>
+    api.put(`/inventory/${productId}/expiration`, { expiration_date: expirationDate }),
 };

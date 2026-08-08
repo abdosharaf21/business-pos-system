@@ -17,7 +17,10 @@
     "administration": "الإدارة العامة",
     "users": "المستخدمين",
     "settings": "الإعدادات",
-    "storeSettings": "إعدادات المتجر"
+    "storeSettings": "إعدادات المتجر",
+    "newSale": "بيع جديد",
+    "stock": "المخزون",
+    "dashboardOverview": "نظرة عامة على لوحة التحكم"
   },
   "auth": {
     "welcomeBack": "مرحبًا بعودتك",
@@ -154,8 +157,16 @@
       "sellingPrice": "سعر البيع",
       "qty": "الكمية",
       "minStock": "الحد الأدنى",
+      "expiration": "تاريخ الانتهاء",
       "status": "الحالة",
       "actions": "الإجراءات"
+    },
+    "expiration": {
+      "statuses": {
+        "expired": "منتهي الصلاحية",
+        "expiring_soon": "ينتهي قريبًا",
+        "normal": "ساري المفعول"
+      }
     },
     "edit": "تعديل",
     "delete": "حذف",
@@ -238,10 +249,37 @@
       "store": "المتجر",
       "total": "الإجمالي",
       "minStock": "الحد الأدنى",
+      "expiration": "تاريخ الانتهاء",
       "price": "السعر",
       "status": "الحالة",
       "actions": "الإجراءات",
       "history": "السجل"
+    },
+    "expiration": {
+      "filterLabel": "حالة الانتهاء",
+      "all": "كل حالات الانتهاء",
+      "sortByExpiration": "ترتيب حسب تاريخ الانتهاء",
+      "statuses": {
+        "expired": "منتهي الصلاحية",
+        "expiring_soon": "ينتهي قريبًا",
+        "normal": "عادي"
+      },
+      "editButton": "تعيين تاريخ الانتهاء",
+      "editTitle": "تعيين تاريخ الانتهاء — {{name}}",
+      "current": "الانتهاء الحالي",
+      "none": "غير محدد",
+      "dateLabel": "تاريخ الانتهاء",
+      "hint": "يحدّث تاريخ الانتهاء للمخزون الحالي من هذا المنتج دون تواريخ انتهاء.",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ…",
+      "validation": {
+        "dateRequired": "يرجى اختيار تاريخ الانتهاء"
+      },
+      "toast": {
+        "updated": "تم تحديث تاريخ الانتهاء بنجاح",
+        "updateFailed": "فشل تحديث تاريخ الانتهاء"
+      }
     },
     "transfer": {
       "title": "تحويل إلى المتجر — {{name}}",
@@ -253,6 +291,19 @@
       "quantityPlaceholder": "مثال: 10",
       "transfer": "تحويل",
       "transferring": "جارٍ التحويل..."
+    },
+    "quickAudit": {
+      "button": "جرد سريع",
+      "title": "جرد سريع — {{name}}",
+      "location": "الموقع",
+      "currentQuantity": "الكمية الحالية",
+      "countedQuantity": "الكمية المعدودة",
+      "reason": "السبب (اختياري)",
+      "reasonPlaceholder": "مثال: اكتمل العد الفعلي",
+      "hint": "تُطبَّق الأعداد من خلال جرد المخزون",
+      "cancel": "إلغاء",
+      "apply": "تطبيق",
+      "applying": "جارٍ التطبيق..."
     },
     "adjust": {
       "title": "تعديل المخزون — {{name}}",
@@ -285,7 +336,8 @@
       "adjustment": "تعديل",
       "warehouse": "المستودع",
       "store": "المتجر",
-      "units": "وحدة"
+      "units": "وحدة",
+      "source": "المصدر"
     },
     "historyPage": {
       "title": "سجل الحركات",
@@ -315,14 +367,18 @@
       "adjusted": "تم تعديل المخزون",
       "adjustFailed": "فشل تعديل المخزون",
       "transferred": "تم تحويل المخزون إلى المتجر",
-      "transferFailed": "فشل تحويل المخزون"
+      "transferFailed": "فشل تحويل المخزون",
+      "quickAudited": "تم تطبيق الجرد السريع",
+      "quickAuditFailed": "فشل تطبيق الجرد السريع"
     },
     "validation": {
       "typeRequired": "النوع مطلوب",
       "locationRequired": "الموقع مطلوب",
       "mustBeWhole": "يجب أن يكون رقمًا صحيحًا",
       "quantityNotZero": "لا يمكن أن تكون الكمية صفرًا",
-      "quantityPositive": "يجب أن تكون الكمية أكبر من صفر"
+      "quantityPositive": "يجب أن تكون الكمية أكبر من صفر",
+      "quantityRequired": "الكمية المعدودة مطلوبة",
+      "quantityNonNegative": "لا يمكن أن تكون الكمية المعدودة سالبة"
     }
   },
   "purchases": {
@@ -334,12 +390,31 @@
     "noPurchasesFound": "لم يتم العثور على مشتريات",
     "tryDifferentSearch": "جرب بحثًا مختلفًا",
     "createYourFirst": "أنشئ أول عملية شراء",
+    "showing": "عرض {{count}} من {{total}}",
+    "pageOf": "صفحة {{page}} من {{pages}}",
+    "previous": "السابق",
+    "next": "التالي",
+    "clear": "مسح",
+    "paymentMethods": {
+      "cash": "نقدي",
+      "card": "بطاقة",
+      "transfer": "تحويل بنكي",
+      "mixed": "مختلط",
+      "vodafone_cash": "فودافون كاش"
+    },
+    "filters": {
+      "date": "التاريخ",
+      "from": "من",
+      "to": "إلى"
+    },
     "columns": {
       "invoice": "رقم الفاتورة",
       "supplier": "المورد",
       "total": "الإجمالي",
       "status": "الحالة",
       "date": "التاريخ",
+      "paymentMethod": "طريقة الدفع",
+      "createdBy": "أنشأها",
       "actions": "الإجراءات"
     },
     "statusCompleted": "مكتمل",
@@ -357,17 +432,23 @@
       "searchPlaceholder": "ابحث بالاسم أو الباركود أو رمز SKU...",
       "searching": "جارٍ البحث...",
       "noProductsFound": "لم يتم العثور على منتجات",
+      "productNotFound": "المنتج غير موجود",
       "skuPrefix": "SKU: {{code}}",
       "barcodeFormat": "({{code}})",
       "complete": "إتمام الشراء",
       "creating": "جارٍ الإنشاء...",
       "cancel": "إلغاء",
-      "total": "الإجمالي"
+      "total": "الإجمالي",
+      "paymentMethod": "طريقة الدفع",
+      "notes": "ملاحظات",
+      "notesPlaceholder": "أضف أي ملاحظات إضافية (اختياري)"
     },
     "items": {
       "product": "المنتج",
       "qty": "الكمية",
       "costPrice": "سعر التكلفة",
+      "expiration": "تاريخ الانتهاء",
+      "expirationAria": "تاريخ الانتهاء",
       "subtotal": "المجموع الفرعي"
     },
     "supplierForm": {
@@ -395,6 +476,28 @@
         "cost": "التكلفة",
         "subtotal": "المجموع الفرعي"
       }
+    },
+    "invoicePage": {
+      "title": "تفاصيل الشراء",
+      "notFound": "الشراء غير موجود",
+      "notFoundDesc": "عملية الشراء التي تبحث عنها غير موجودة أو تم حذفها.",
+      "backToPurchases": "العودة إلى المشتريات",
+      "print": "طباعة",
+      "posSystem": "نظام نقاط البيع",
+      "invoiceLabel": "فاتورة الشراء",
+      "supplier": "المورد",
+      "processedBy": "تمت المعالجة بواسطة",
+      "paymentMethod": "طريقة الدفع",
+      "notes": "ملاحظات",
+      "product": "المنتج",
+      "barcode": "الباركود",
+      "qty": "الكمية",
+      "expiration": "تاريخ الانتهاء",
+      "costPrice": "سعر التكلفة",
+      "total": "الإجمالي",
+      "grandTotal": "الإجمالي الكلي",
+      "footer": "تم إنشاء الفاتورة تلقائيًا بواسطة نظام نقاط البيع",
+      "taxNumber": "الرقم الضريبي"
     },
     "invoiceModal": {
       "title": "الفاتورة #{{number}}",
@@ -460,6 +563,7 @@
     "card": "بطاقة",
     "transfer": "تحويل",
     "mixed": "مختلط",
+    "vodafoneCash": "فودافون كاش",
     "cancel": "إلغاء",
     "confirmSale": "تأكيد البيع",
     "processing": "جارٍ المعالجة...",
@@ -485,7 +589,8 @@
       "invoiceDiscount": "الخصم",
       "invoiceGrandTotal": "الإجمالي الكلي",
       "payment": "الدفع",
-      "thankYou": "شكراً لك على الشراء!"
+      "thankYou": "شكراً لك على الشراء!",
+      "taxNumber": "الرقم الضريبي"
     }
   },
   "customers": {
@@ -799,6 +904,12 @@
       "store": "المتجر",
       "total": "الإجمالي",
       "minStock": "الحد الأدنى",
+      "expiration": "تاريخ الانتهاء",
+      "statuses": {
+        "expired": "منتهي الصلاحية",
+        "expiring_soon": "ينتهي قريبًا",
+        "normal": "ساري المفعول"
+      },
       "empty": "لا توجد بيانات مخزون متاحة",
       "mostTransferred": "الأكثر تحويلًا",
       "qtyTransferred": "الكمية المحولة",
@@ -1067,6 +1178,122 @@
     "switch": "اللغة",
     "english": "English",
     "arabic": "العربية"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "loading": "جارٍ تحميل الإشعارات...",
+    "markAllRead": "تحديد الكل كمقروء",
+    "empty": "لا توجد إشعارات جديدة",
+    "emptyDescription": "لا توجد إشعارات لعرضها الآن",
+    "filters": {
+      "all": "الكل",
+      "unread": "غير مقروء",
+      "critical": "حرج"
+    },
+    "types": {
+      "low_stock": "مخزون منخفض",
+      "out_of_stock": "نفد من المخزون",
+      "expired": "منتهي الصلاحية",
+      "expiring_soon": "ينتهي قريبًا"
+    },
+    "message": {
+      "low_stock": "المخزون منخفض (بقي {{quantity}})",
+      "out_of_stock": "نفد من المخزون",
+      "expired": "يحتوي على دفعة منتهية الصلاحية ({{expirationDate}})",
+      "expiring_soon": "تنتهي صلاحيته قريبًا ({{expirationDate}})"
+    }
+  },
+  "storeSettings": {
+    "title": "إعدادات المتجر",
+    "subtitle": "إدارة هوية متجرك، وبيانات التواصل، وتفضيلات الإيصال",
+    "save": "حفظ التغييرات",
+    "uploadLogo": "رفع الشعار",
+    "uploadImage": "رفع صورة",
+    "removeLogo": "إزالة الشعار",
+    "removeImage": "إزالة الصورة",
+    "logoPreviewAlt": "معاينة شعار المتجر",
+    "loginBackgroundPreviewAlt": "معاينة خلفية تسجيل الدخول",
+    "loginLogoPreviewAlt": "معاينة شعار تسجيل الدخول",
+    "toast": {
+      "saved": "تم حفظ إعدادات المتجر بنجاح",
+      "saveFailed": "فشل حفظ إعدادات المتجر",
+      "logoType": "يرجى اختيار ملف صورة صالح",
+      "logoSize": "يجب أن يكون الشعار أصغر من 2 ميجابايت",
+      "loginImageType": "يرجى اختيار صورة صالحة (PNG أو JPG أو JPEG أو WEBP)",
+      "loginImageSize": "يجب أن تكون الصورة أصغر من 5 ميجابايت"
+    },
+    "validation": {
+      "storeNameRequired": "اسم المتجر مطلوب",
+      "required": "هذا الحقل مطلوب",
+      "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+      "phoneInvalid": "يرجى إدخال رقم هاتف صالح"
+    },
+    "sections": {
+      "general": {
+        "title": "المعلومات العامة",
+        "description": "البيانات الأساسية التي تميز متجرك"
+      },
+      "contact": {
+        "title": "معلومات التواصل",
+        "description": "كيف يمكن للعملاء التواصل مع نشاطك التجاري"
+      },
+      "business": {
+        "title": "بيانات النشاط التجاري",
+        "description": "المعرفات القانونية والمالية الخاصة بالإيصالات"
+      },
+      "receipt": {
+        "title": "تذييل الإيصال",
+        "description": "رسالة مخصصة تظهر أسفل الإيصالات"
+      },
+      "branding": {
+        "title": "شعار المتجر",
+        "description": "يُستخدم في الإيصالات والتقارير"
+      },
+      "loginBranding": {
+        "title": "تخصيص صفحة تسجيل الدخول",
+        "description": "تخصيص الشعار والخلفية ونص الترحيب في صفحة تسجيل الدخول"
+      }
+    },
+    "fields": {
+      "storeName": "اسم المتجر",
+      "ownerName": "اسم المالك",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "website": "الموقع الإلكتروني",
+      "address": "العنوان",
+      "taxNumber": "الرقم الضريبي",
+      "currency": "العملة",
+      "receiptFooter": "تذييل الإيصال",
+      "storeLogo": "شعار المتجر",
+      "loginBackground": "صورة خلفية تسجيل الدخول",
+      "loginLogo": "شعار تسجيل الدخول",
+      "loginTitle": "عنوان الترحيب في تسجيل الدخول",
+      "loginSubtitle": "النص الفرعي للترحيب في تسجيل الدخول"
+    },
+    "placeholders": {
+      "storeName": "مثال: متجري",
+      "ownerName": "مثال: أحمد محمد",
+      "phone": "+1 (555) 000-0000",
+      "email": "contact@store.com",
+      "website": "https://store.com",
+      "address": "123 شارع الأعمال، الدور الأول",
+      "taxNumber": "مثال: 123456789",
+      "receiptFooter": "شكرًا لتعاملكم معنا!",
+      "loginTitle": "مثال: سوق شرف",
+      "loginSubtitle": "مثال: سجل الدخول للمتابعة"
+    },
+    "hints": {
+      "logo": "PNG أو JPG أو JPEG أو GIF أو WEBP أو SVG. بحد أقصى 2 ميجابايت.",
+      "loginImage": "PNG أو JPG أو JPEG أو WEBP. بحد أقصى 5 ميجابايت."
+    },
+    "loginPreview": {
+      "title": "معاينة صفحة تسجيل الدخول",
+      "description": "معاينة مباشرة لشكل صفحة تسجيل الدخول"
+    },
+    "loginDefaults": {
+      "title": "نظام نقاط البيع للأعمال",
+      "subtitle": "سجل الدخول للمتابعة"
+    }
   },
   "header": {
     "search": {

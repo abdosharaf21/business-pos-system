@@ -262,7 +262,23 @@
       "statuses": {
         "expired": "Expired",
         "expiring_soon": "Expiring Soon",
-        "normal": "Valid"
+        "normal": "Normal"
+      },
+      "editButton": "Set Expiration Date",
+      "editTitle": "Set Expiration Date — {{name}}",
+      "current": "Current Expiration",
+      "none": "Not set",
+      "dateLabel": "Expiration Date",
+      "hint": "This updates the expiration date for existing stock of this product without expiration dates.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "validation": {
+        "dateRequired": "Please choose an expiration date"
+      },
+      "toast": {
+        "updated": "Expiration date updated successfully",
+        "updateFailed": "Failed to update expiration date"
       }
     },
     "transfer": {
@@ -499,6 +515,7 @@
     "outOfStock": "Out of Stock",
     "lowStock": "Low Stock",
     "noProductsFound": "No products found",
+    "productNotFound": "Product not found",
     "failedToLoadProducts": "Failed to load products",
     "cartTitle": "Shopping Cart",
     "cartEmpty": "Cart is empty",

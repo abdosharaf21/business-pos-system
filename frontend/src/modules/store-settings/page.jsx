@@ -260,14 +260,16 @@ export default function StoreSettingsPage() {
 
   useEffect(() => {
     if (!settings) return;
-    setPreviewUrl(settings.logo_path ? getAssetUrl("/store-settings/logo") : null);
+    setPreviewUrl(settings.logo_path ? getAssetUrl("/store-settings/logo", settings.logo_path) : null);
     setLoginBackgroundPreviewUrl(
       settings.login_background_path
-        ? getAssetUrl("/store-settings/login-background")
+        ? getAssetUrl("/store-settings/login-background", settings.login_background_path)
         : null
     );
     setLoginLogoPreviewUrl(
-      settings.login_logo_path ? getAssetUrl("/store-settings/login-logo") : null
+      settings.login_logo_path
+        ? getAssetUrl("/store-settings/login-logo", settings.login_logo_path)
+        : null
     );
   }, [settings]);
 
@@ -301,15 +303,17 @@ export default function StoreSettingsPage() {
       setRemoveLoginBackground(false);
       setRemoveLoginLogo(false);
       setPreviewUrl(
-        updated.logo_path ? getAssetUrl("/store-settings/logo") : null
+        updated.logo_path ? getAssetUrl("/store-settings/logo", updated.logo_path) : null
       );
       setLoginBackgroundPreviewUrl(
         updated.login_background_path
-          ? getAssetUrl("/store-settings/login-background")
+          ? getAssetUrl("/store-settings/login-background", updated.login_background_path)
           : null
       );
       setLoginLogoPreviewUrl(
-        updated.login_logo_path ? getAssetUrl("/store-settings/login-logo") : null
+        updated.login_logo_path
+          ? getAssetUrl("/store-settings/login-logo", updated.login_logo_path)
+          : null
       );
       toast.success(t("storeSettings.toast.saved"));
     },

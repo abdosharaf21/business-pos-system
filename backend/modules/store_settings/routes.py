@@ -111,9 +111,12 @@ def update_settings():
 
 
 @store_settings_bp.route("/logo", methods=["GET"])
-@require_authenticated
 def get_logo():
     """Serve the uploaded store logo image.
+
+    This endpoint requires no authentication because the store logo is
+    public branding rendered by plain ``<img>`` tags in the application
+    header and on printed receipts, which cannot attach JWT headers.
 
     Returns:
         The logo image file.
@@ -132,7 +135,7 @@ def get_logo():
     if resolved is None or not os.path.isfile(resolved):
         return jsonify({"success": False, "message": "Logo file not found"}), 404
 
-    return send_file(resolved, mimetype="image/*", conditional=True)
+    return send_file(resolved, conditional=True)
 
 
 @store_settings_bp.route("/login-background", methods=["GET"])
@@ -159,7 +162,7 @@ def get_login_background():
     if resolved is None or not os.path.isfile(resolved):
         return jsonify({"success": False, "message": "Login background file not found"}), 404
 
-    return send_file(resolved, mimetype="image/*", conditional=True)
+    return send_file(resolved, conditional=True)
 
 
 @store_settings_bp.route("/login-logo", methods=["GET"])
@@ -186,4 +189,4 @@ def get_login_logo():
     if resolved is None or not os.path.isfile(resolved):
         return jsonify({"success": False, "message": "Login logo file not found"}), 404
 
-    return send_file(resolved, mimetype="image/*", conditional=True)
+    return send_file(resolved, conditional=True)

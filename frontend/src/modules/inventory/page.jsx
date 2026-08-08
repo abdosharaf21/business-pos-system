@@ -1,5 +1,5 @@
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   Package, Search, AlertTriangle, History, PackageOpen,
-  ArrowUpDown, Warehouse, Store, ArrowLeftRight, ClipboardCheck,
+  ArrowUpDown, Warehouse, Store, ArrowLeftRight, ClipboardCheck, CalendarDays,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -39,6 +39,11 @@ const quickAuditSchema = z.object({
     .refine((v) => Number(v) >= 0, () => i18n.t("inventory.validation.quantityNonNegative")),
 });
 
+const expirationSchema = (t) =>
+  z.object({
+    expiration_date: z.string().min(1, t("inventory.expiration.validation.dateRequired")),
+  });
+
 const INPUT_CLASS = inputClass;
 const LABEL_CLASS = labelClass;
 
@@ -50,6 +55,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [transferTarget, setTransferTarget] = useState(null);
   const [quickAuditTarget, setQuickAuditTarget] = useState(null);
+  const [expirationTarget, setExpirationTarget] = useState(null);
   const [viewHistory, setViewHistory] = useState(null);
   const [tab, setTab] = useState("all");
   const [expirationFilter, setExpirationFilter] = useState("");
@@ -115,6 +121,17 @@ export default function InventoryPage() {
       setQuickAuditTarget(null);
     },
     onError: (err) => toast.error(err.response?.data?.message || t("inventory.toast.quickAuditFailed")),
+  });
+
+  const expirationMutation = useMutation({
+    mutationFn: ({ product_id, expiration_date }) =>
+      inventoryService.updateExpiration(product_id, expiration_date),
+    onSuccess: () => {
+      invalidateInventory();
+      toast.success(t("inventory.expiration.toast.updated"));
+      setExpirationTarget(null);
+    },
+    onError: (err) => toast.error(err.response?.data?.message || t("inventory.expiration.toast.updateFailed")),
   });
 
   const lowStock = inventory.filter((p) => p.total <= p.minimum_stock);
@@ -232,6 +249,14 @@ export default function InventoryPage() {
                   <ClipboardCheck className="w-4 h-4" />
                 </button>
                 <button
+                  onClick={() => setExpirationTarget(row)}
+                  className="p-2 text-surface-400 dark:text-surface-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all duration-150"
+                  title={t("inventory.expiration.editButton")}
+                  aria-label={t("inventory.expiration.editButton")}
+                >
+                  <CalendarDays className="w-4 h-4" />
+                </button>
+                <button
                   onClick={() => setViewHistory(row.id)}
                   className="p-2 text-surface-400 dark:text-surface-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all duration-150"
                   title={t("inventory.history.title", { name: "" }).trim()}
@@ -337,9 +362,9 @@ export default function InventoryPage() {
             className="px-3 py-2 border border-surface-200 dark:border-surface-700/60 bg-white dark:bg-surface-800 rounded-xl text-[13px] text-surface-700 dark:text-surface-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 appearance-none cursor-pointer"
           >
             <option value="">{t("inventory.expiration.all")}</option>
-            <option value="expired">{t("inventory.expiration.statuses.expired")}</option>
-            <option value="expiring_soon">{t("inventory.expiration.statuses.expiring_soon")}</option>
             <option value="normal">{t("inventory.expiration.statuses.normal")}</option>
+            <option value="expiring_soon">{t("inventory.expiration.statuses.expiring_soon")}</option>
+            <option value="expired">{t("inventory.expiration.statuses.expired")}</option>
           </select>
         </div>
         <div className="flex flex-col gap-1">
@@ -394,6 +419,20 @@ export default function InventoryPage() {
           })
         }
         loading={quickAuditMutation.isPending}
+      />
+
+      {/* Expiration Date Modal */}
+      <ExpirationModal
+        isOpen={!!expirationTarget}
+        onClose={() => setExpirationTarget(null)}
+        product={expirationTarget}
+        onSubmit={(data) =>
+          expirationMutation.mutate({
+            product_id: expirationTarget.id,
+            expiration_date: data.expiration_date,
+          })
+        }
+        loading={expirationMutation.isPending}
       />
 
       {/* Movement History Modal */}
@@ -583,6 +622,80 @@ const TYPE_ICONS = {
   damage: AlertTriangle,
   adjustment: ClipboardCheck,
 };
+
+function ExpirationModal({ isOpen, onClose, product, onSubmit, loading }) {
+  const { t } = useTranslation();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(expirationSchema(t)),
+    defaultValues: { expiration_date: "" },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      reset({ expiration_date: product?.expiration_date || "" });
+    }
+  }, [isOpen, product, reset]);
+
+  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.expiration.editTitle", { name: product?.name || "" })}>
+      <form
+        onSubmit={handleSubmit((data) => {
+          onSubmit(data);
+          reset();
+        })}
+        className="space-y-5"
+      >
+        <div className="bg-surface-50 dark:bg-surface-700/40 rounded-xl p-4 flex justify-between text-[13px]">
+          <span className="text-surface-500 dark:text-surface-400">{t("inventory.expiration.current")}</span>
+          <span className="font-bold text-surface-800 dark:text-surface-100">
+            {product?.expiration_date
+              ? new Date(product.expiration_date + "T00:00:00").toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" })
+              : t("inventory.expiration.none")}
+          </span>
+        </div>
+
+        <div>
+          <label className={LABEL_CLASS}>{t("inventory.expiration.dateLabel")}</label>
+          <input
+            type="date"
+            {...register("expiration_date")}
+            className={INPUT_CLASS}
+            aria-label={t("inventory.expiration.dateLabel")}
+          />
+          {errors.expiration_date && (
+            <p className="text-[11px] text-red-500 dark:text-red-400 mt-1 font-medium">{errors.expiration_date.message}</p>
+          )}
+        </div>
+
+        <p className="text-[11px] text-surface-400 dark:text-surface-500 -mt-2">{t("inventory.expiration.hint")}</p>
+
+        <div className="flex justify-end gap-3 pt-5 border-t border-surface-100 dark:border-surface-700/60">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 text-[13px] font-semibold text-surface-600 dark:text-surface-300 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-700 transition-all duration-150"
+          >
+            {t("inventory.expiration.cancel")}
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl hover:from-emerald-700 hover:to-emerald-800 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-emerald-600/20"
+          >
+            {loading ? t("inventory.expiration.saving") : t("inventory.expiration.save")}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
 
 function MovementHistoryModal({ isOpen, onClose, movements, product }) {
   const { t } = useTranslation();

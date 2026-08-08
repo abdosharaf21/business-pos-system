@@ -17,10 +17,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const backgroundUrl = branding?.login_background_path
-    ? getAssetUrl("/store-settings/login-background")
+    ? getAssetUrl("/store-settings/login-background", branding.login_background_path)
     : null;
   const logoUrl = branding?.login_logo_path
-    ? getAssetUrl("/store-settings/login-logo")
+    ? getAssetUrl("/store-settings/login-logo", branding.login_logo_path)
     : null;
   const welcomeTitle = branding?.login_title || t("storeSettings.loginDefaults.title");
   const welcomeSubtitle =

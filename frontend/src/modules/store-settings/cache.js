@@ -22,24 +22,32 @@ export async function loadStoreSettings() {
   return cachedSettings;
 }
 
-export function getAssetUrl(route) {
+export function getAssetUrl(route, version) {
   const base = (config.apiBaseUrl || "/api").replace(/\/+$/, "");
-  return `${base}${route}`;
+  const url = `${base}${route}`;
+  if (!version) return url;
+  return `${url}?v=${encodeURIComponent(version)}`;
 }
 
 export function getLogoUrl() {
   if (!cachedSettings?.logo_path) return null;
-  return getAssetUrl("/store-settings/logo");
+  return getAssetUrl("/store-settings/logo", cachedSettings.logo_path);
 }
 
 export function getLoginBackgroundUrl() {
   if (!cachedSettings?.login_background_path) return null;
-  return getAssetUrl("/store-settings/login-background");
+  return getAssetUrl(
+    "/store-settings/login-background",
+    cachedSettings.login_background_path
+  );
 }
 
 export function getLoginLogoUrl() {
   if (!cachedSettings?.login_logo_path) return null;
-  return getAssetUrl("/store-settings/login-logo");
+  return getAssetUrl(
+    "/store-settings/login-logo",
+    cachedSettings.login_logo_path
+  );
 }
 
 const CURRENCY_SYMBOLS = {

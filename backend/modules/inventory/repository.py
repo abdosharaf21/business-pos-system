@@ -295,6 +295,75 @@ class InventoryRepository:
     # Write operations
     # ------------------------------------------------------------------
 
+    def update_product_expiration(
+        self, product_id: int, expiration_date: str
+    ) -> Dict[str, Any]:
+        """Set the expiration date on a product's active purchase batch.
+
+        Updates only when the product has exactly one purchase batch, so
+        an unambiguous current batch exists. The date is applied whether
+        that batch already has an expiration date or not; it never filters
+        on ``expiration_date IS NULL``. When the product has multiple
+        purchase batches, no row is updated because the schema has no
+        batch-tracking information to determine which historical batch
+        represents the current inventory; the batch count is returned so
+        the caller can require explicit batch selection. Runs in a single
+        transaction and returns the product's resulting effective
+        expiration date.
+
+        Args:
+            product_id: ID of the product whose stock expiration is set.
+            expiration_date: Expiration date as a YYYY-MM-DD string.
+
+        Returns:
+            Dictionary with the number of updated rows (1 for a single
+            batch, otherwise 0), the number of purchase batches found for
+            the product, and the product's effective expiration date (MIN
+            of non-NULL dates, or None).
+
+        Raises:
+            mysql.connector.Error: If the database operation fails.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            try:
+                cursor.execute(
+                    "SELECT id FROM purchase_items "
+                    "WHERE product_id = %s FOR UPDATE",
+                    (product_id,),
+                )
+                batch_rows = cursor.fetchall()
+
+                updated_rows = 0
+                if len(batch_rows) == 1:
+                    cursor.execute(
+                        "UPDATE purchase_items SET expiration_date = %s "
+                        "WHERE id = %s",
+                        (expiration_date, batch_rows[0]["id"]),
+                    )
+                    updated_rows = 1
+
+                cursor.execute(
+                    "SELECT MIN(expiration_date) AS min_date FROM purchase_items "
+                    "WHERE product_id = %s AND expiration_date IS NOT NULL",
+                    (product_id,),
+                )
+                min_row = cursor.fetchone()
+                conn.commit()
+
+                return {
+                    "updated_rows": updated_rows,
+                    "batch_count": len(batch_rows),
+                    "expiration_date": normalize_expiration_date(
+                        min_row["min_date"] if min_row else None
+                    ),
+                }
+            except mysql.connector.Error:
+                conn.rollback()
+                raise
+            finally:
+                cursor.close()
+
     def ensure_stock_rows(self, product_id: int, cursor=None) -> None:
         """Create warehouse/store stock rows for a product if missing.
 

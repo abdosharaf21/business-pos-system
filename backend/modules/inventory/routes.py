@@ -158,4 +158,35 @@ def transfer_stock():
         return jsonify({"success": False, "message": str(e)}), 400
 
 
+@inventory_bp.route("/<int:product_id>/expiration", methods=["PUT"])
+@require_admin_or_manager
+def update_expiration_date(product_id):
+    """Set the expiration date for a product's existing stock.
+
+    Expects a JSON body with expiration_date (YYYY-MM-DD). Applies the
+    date to the product's purchase items that have no expiration date yet.
+
+    Returns:
+        JSON response with the updated expiration result.
+    """
+    data = request.get_json(silent=True) or {}
+    expiration_date = data.get("expiration_date")
+
+    if not expiration_date:
+        return jsonify({"success": False, "message": "Expiration date is required"}), 400
+
+    try:
+        result = _inventory_service.update_expiration_date(
+            product_id=product_id,
+            expiration_date=expiration_date,
+        )
+        return jsonify({
+            "success": True,
+            "message": "Expiration date updated successfully",
+            "data": result,
+        }), 200
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
+
 

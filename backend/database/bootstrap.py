@@ -1,13 +1,17 @@
-"""First-run database bootstrap for the Business POS System.
+"""First-run database bootstrap and schema migration for the POS System.
 
 Responsible for detecting MySQL Server, creating the ``pos_system``
 database when it is missing, importing the schema/seed from
-``db/pos_system.sql`` only for a brand-new database, and ensuring the
-default admin user exists.
+``db/pos_system.sql`` for a brand-new database, reconciling an existing
+database against the bundled schema (adding missing tables and columns
+without touching existing data), and ensuring the default admin user
+exists.
 
 The bootstrap is intentionally idempotent and non-destructive:
 
-* An existing database is never touched (no re-import, no overwrite).
+* An existing database is reconciled forward: missing tables are created
+  and missing columns are added, but existing data is never altered,
+  dropped, or overwritten.
 * A database that is newly created but fails to import is dropped again
   so the next launch retries cleanly instead of leaving a partial schema.
 * The admin user is only inserted when it does not already exist.
@@ -296,6 +300,213 @@ def _import_schema(conn: mysql.connector.MySQLConnection, schema_path: str) -> N
     cursor.close()
 
 
+_CREATE_TABLE_RE = re.compile(
+    r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+`?(\w+)`?\s*\((.*?)\)\s*ENGINE[^;]*;",
+    re.DOTALL | re.IGNORECASE,
+)
+_CONSTRAINT_PREFIXES = (
+    "INDEX", "KEY", "UNIQUE", "CONSTRAINT", "PRIMARY", "FOREIGN",
+    "FULLTEXT", "SPATIAL", "REFERENCES", "ON",
+)
+_SQL_TYPE_KEYWORDS = (
+    "INT", "INTEGER", "BIGINT", "SMALLINT", "TINYINT", "MEDIUMINT",
+    "DECIMAL", "NUMERIC", "FLOAT", "DOUBLE", "REAL",
+    "VARCHAR", "CHAR", "TEXT", "TINYTEXT", "MEDIUMTEXT", "LONGTEXT",
+    "DATE", "DATETIME", "TIMESTAMP", "TIME", "YEAR",
+    "ENUM", "SET", "JSON", "BLOB", "TINYBLOB", "MEDIUMBLOB", "LONGBLOB",
+    "BINARY", "VARBINARY", "BOOLEAN", "BOOL",
+)
+
+
+def _parse_create_statements(schema_path: str) -> dict:
+    """Parse the schema file into structured CREATE TABLE definitions.
+
+    Args:
+        schema_path: Path to the schema file.
+
+    Returns:
+        Dictionary mapping table name to a dict with keys ``create_sql``
+        (the raw CREATE TABLE statement) and ``columns`` (list of
+        ``(column_name, column_definition)`` tuples).
+    """
+    with open(schema_path, "r", encoding="utf-8-sig") as f:
+        content = f.read()
+    tables = {}
+    for match in _CREATE_TABLE_RE.finditer(content):
+        table_name = match.group(1)
+        body = match.group(2)
+        create_sql = match.group(0)
+        columns = []
+        for raw_line in body.splitlines():
+            line = raw_line.strip().rstrip(",")
+            if not line:
+                continue
+            tokens = line.split()
+            if tokens[0].upper() in _CONSTRAINT_PREFIXES:
+                continue
+            if len(tokens) < 2:
+                continue
+            type_base = tokens[1].split("(")[0].upper()
+            if type_base not in _SQL_TYPE_KEYWORDS:
+                continue
+            column_name = tokens[0].strip("`")
+            columns.append((column_name, line))
+        tables[table_name] = {"create_sql": create_sql, "columns": columns}
+    return tables
+
+
+def _table_exists(conn: mysql.connector.MySQLConnection, name: str) -> bool:
+    """Check whether a table exists in the connected database.
+
+    Args:
+        conn: Connection to the target database.
+        name: Table name.
+
+    Returns:
+        True if the table exists, False otherwise.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT COUNT(*) FROM information_schema.tables "
+        "WHERE table_schema = DATABASE() AND table_name = %s",
+        (name,),
+    )
+    exists = bool(cursor.fetchone()[0])
+    cursor.close()
+    return exists
+
+
+def _existing_columns(conn: mysql.connector.MySQLConnection, name: str) -> set:
+    """Return the column names currently present on a table.
+
+    Args:
+        conn: Connection to the target database.
+        name: Table name.
+
+    Returns:
+        Set of existing column names.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT column_name FROM information_schema.columns "
+        "WHERE table_schema = DATABASE() AND table_name = %s",
+        (name,),
+    )
+    columns = {row[0] for row in cursor.fetchall()}
+    cursor.close()
+    return columns
+
+
+def _reconcile_schema(
+    conn: mysql.connector.MySQLConnection, schema_path: str
+) -> dict:
+    """Migrate an existing database forward without touching data.
+
+    Creates any tables declared in the bundled schema that are missing
+    and adds any columns missing from existing tables. Existing tables,
+    rows, and columns are never altered or dropped.
+
+    Args:
+        conn: Connection to the target database (autocommit on).
+        schema_path: Path to the schema file.
+
+    Returns:
+        Dictionary with keys ``tables_created`` and ``columns_added``.
+
+    Raises:
+        BootstrapError: If any migration statement fails to execute.
+    """
+    tables = _parse_create_statements(schema_path)
+    if not tables:
+        raise BootstrapError(
+            "The bundled database schema file is empty or unreadable."
+        )
+    cursor = conn.cursor()
+    result = {"tables_created": 0, "columns_added": 0}
+    try:
+        for table_name, definition in tables.items():
+            if not _table_exists(conn, table_name):
+                cursor.execute(definition["create_sql"])
+                result["tables_created"] += 1
+                continue
+            existing = _existing_columns(conn, table_name)
+            for column_name, column_definition in definition["columns"]:
+                if column_name in existing:
+                    continue
+                cursor.execute(
+                    "ALTER TABLE `%s` ADD COLUMN %s"
+                    % (table_name, column_definition)
+                )
+                result["columns_added"] += 1
+    except mysql.connector.Error as e:
+        cursor.close()
+        raise BootstrapError(
+            f"Failed to reconcile schema: {e}",
+            instructions=GENERIC_ERROR.format(detail=str(e)),
+        ) from e
+    cursor.close()
+    return result
+
+
+def _seed_if_empty(
+    conn: mysql.connector.MySQLConnection, table_name: str, insert_sql: str
+) -> bool:
+    """Insert a seed row only when the target table is empty.
+
+    Args:
+        conn: Connection to the target database (autocommit on).
+        table_name: Table to check.
+        insert_sql: Idempotent INSERT statement to run when empty.
+
+    Returns:
+        True if the seed was applied, False otherwise.
+    """
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT COUNT(*) FROM `%s`" % table_name)
+        empty = cursor.fetchone()[0] == 0
+        if empty:
+            cursor.execute(insert_sql)
+    finally:
+        cursor.close()
+    return empty
+
+
+def _apply_safe_seeds(conn: mysql.connector.MySQLConnection) -> None:
+    """Apply seed data that is safe on an existing database.
+
+    Only seeds whose statements are idempotent or guarded by an empty
+    check run here; the admin user is handled separately.
+
+    Args:
+        conn: Connection to the target database (autocommit on).
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO store_settings (id, store_name, owner_name, phone, "
+        "email, address, website, tax_number, currency, receipt_footer, "
+        "logo_path) VALUES (1, '', '', '', '', '', '', '', 'EGP', '', '') "
+        "ON DUPLICATE KEY UPDATE id = id"
+    )
+    cursor.close()
+    _seed_if_empty(
+        conn,
+        "expense_categories",
+        "INSERT INTO expense_categories (name, description) VALUES "
+        "('Rent', 'Payments for business premises'), "
+        "('Electricity', 'Electricity and utility bills'), "
+        "('Water', 'Water supply bills'), "
+        "('Internet', 'Internet and telecommunication bills'), "
+        "('Transportation', 'Shipping, delivery and travel costs'), "
+        "('Maintenance', 'Equipment and building maintenance'), "
+        "('Marketing', 'Advertising and promotional costs'), "
+        "('Taxes', 'Tax payments and government fees'), "
+        "('Purchases', 'Operational purchases'), "
+        "('Salaries', 'Employee wages and salaries'), "
+        "('Other', 'Other business expenses')",
+    )
+
+
 def _admin_exists(conn: mysql.connector.MySQLConnection) -> bool:
     """Check whether the default admin user exists.
 
@@ -363,7 +574,7 @@ def ensure_database_ready(config: DatabaseConfig = None) -> dict:
     try:
         if _database_exists(server, config.name):
             logger.info(
-                "Database %r already exists; skipping schema import", config.name
+                "Database %r already exists; reconciling schema", config.name
             )
             try:
                 db_conn = mysql.connector.connect(
@@ -372,12 +583,23 @@ def ensure_database_ready(config: DatabaseConfig = None) -> dict:
                     connection_timeout=6,
                 )
                 try:
+                    schema_path = _find_schema_file()
+                    if schema_path:
+                        migration = _reconcile_schema(db_conn, schema_path)
+                        result.update(migration)
+                        logger.info(
+                            "Schema reconciliation: tables_created=%s "
+                            "columns_added=%s",
+                            migration["tables_created"],
+                            migration["columns_added"],
+                        )
+                    _apply_safe_seeds(db_conn)
                     result["admin_present"] = _ensure_admin(db_conn)
                 finally:
                     db_conn.close()
-            except mysql.connector.Error as e:
+            except (mysql.connector.Error, BootstrapError) as e:
                 logger.warning(
-                    "Admin check skipped for existing database %r: %s",
+                    "Schema reconciliation skipped for existing database %r: %s",
                     config.name, e,
                 )
             return result

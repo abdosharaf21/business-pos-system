@@ -40,7 +40,14 @@ describe("storeSettingsCache", () => {
 
   it("returns the logo URL when a logo exists", () => {
     setStoreSettings({ logo_path: "logo.png" });
-    expect(getLogoUrl()).toBe("/api/store-settings/logo");
+    expect(getLogoUrl()).toBe("/api/store-settings/logo?v=logo.png");
+  });
+
+  it("includes the stored file name in the logo URL to bust stale caches", () => {
+    setStoreSettings({ logo_path: "logo_20260805075411_logo_blue.png" });
+    expect(getLogoUrl()).toBe(
+      "/api/store-settings/logo?v=logo_20260805075411_logo_blue.png"
+    );
   });
 
   it("loads settings from the API and caches them", async () => {
