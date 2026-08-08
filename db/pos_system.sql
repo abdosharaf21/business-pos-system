@@ -423,6 +423,19 @@ VALUES (1, '', '', '', '', '', '', '', 'EGP', '', '')
 ON DUPLICATE KEY UPDATE id = id;
 
 -- =============================================================================
+-- Refresh Token Blocklist (revoked JWT ids at logout)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS refresh_token_blocklist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    jti VARCHAR(36) NOT NULL,
+    token_type ENUM('access', 'refresh') NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_token_blocklist_jti (jti),
+    INDEX idx_token_blocklist_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
 -- Seed Data: Expense Categories
 -- =============================================================================
 INSERT INTO expense_categories (name, description) VALUES

@@ -213,6 +213,78 @@ class PurchaseService:
         """
         return self._purchase_repository.get_all_suppliers()
 
+    def get_supplier(self, supplier_id: int) -> Dict[str, Any]:
+        """Retrieve a single supplier by id.
+
+        Args:
+            supplier_id: The unique identifier of the supplier.
+
+        Returns:
+            Dictionary of the supplier.
+
+        Raises:
+            ValueError: If the supplier does not exist.
+        """
+        supplier = self._purchase_repository.get_supplier_by_id(supplier_id)
+        if supplier is None:
+            raise ValueError("Supplier not found")
+        return supplier
+
+    def update_supplier(self, supplier_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update an existing supplier.
+
+        Validates input and checks for duplicate name and email before
+        updating.
+
+        Args:
+            supplier_id: The unique identifier of the supplier.
+            data: Dictionary with name, phone, email, address.
+
+        Returns:
+            Dictionary of the updated supplier.
+
+        Raises:
+            ValueError: If validation fails, the supplier is missing, or
+                a duplicate name/email exists.
+        """
+        if self._purchase_repository.get_supplier_by_id(supplier_id) is None:
+            raise ValueError("Supplier not found")
+
+        validated = PurchaseValidator.validate_create_supplier(data)
+
+        existing = self._purchase_repository.get_supplier_by_id(supplier_id)
+        if (
+            validated["name"] != existing["name"]
+            and self._purchase_repository.exists_by_supplier_name(validated["name"])
+        ):
+            raise ValueError("A supplier with this name already exists")
+
+        email = validated.get("email")
+        if (
+            email
+            and email != existing.get("email")
+            and self._purchase_repository.exists_by_supplier_email(email)
+        ):
+            raise ValueError("A supplier with this email already exists")
+
+        return self._purchase_repository.update_supplier(supplier_id, validated)
+
+    def delete_supplier(self, supplier_id: int) -> None:
+        """Delete a supplier by id.
+
+        Purchases referencing the supplier keep their rows (the foreign
+        key is set to NULL by the database).
+
+        Args:
+            supplier_id: The unique identifier of the supplier.
+
+        Raises:
+            ValueError: If the supplier does not exist.
+        """
+        if self._purchase_repository.get_supplier_by_id(supplier_id) is None:
+            raise ValueError("Supplier not found")
+        self._purchase_repository.delete_supplier(supplier_id)
+
     def search_products(self, search: str) -> List[Dict[str, Any]]:
         """Search products by name or barcode.
 

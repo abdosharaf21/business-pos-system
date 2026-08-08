@@ -71,6 +71,86 @@ def create_supplier():
         }), 500
 
 
+@suppliers_bp.route("/<int:supplier_id>", methods=["GET"])
+@require_authenticated
+def get_supplier(supplier_id: int):
+    """Get a single supplier by id.
+
+    Args:
+        supplier_id: The unique identifier of the supplier.
+
+    Returns:
+        JSON response with the supplier.
+    """
+    try:
+        supplier = _purchase_service.get_supplier(supplier_id)
+        return jsonify({
+            "success": True,
+            "message": "Supplier retrieved successfully",
+            "data": supplier,
+        }), 200
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 404
+
+
+@suppliers_bp.route("/<int:supplier_id>", methods=["PUT"])
+@require_admin_or_manager
+def update_supplier(supplier_id: int):
+    """Update an existing supplier.
+
+    Expects JSON body with name, phone, optional email, optional address.
+
+    Args:
+        supplier_id: The unique identifier of the supplier.
+
+    Returns:
+        JSON response with the updated supplier.
+    """
+    try:
+        data = request.get_json()
+        supplier = _purchase_service.update_supplier(supplier_id, data)
+        return jsonify({
+            "success": True,
+            "message": "Supplier updated successfully",
+            "data": supplier,
+        }), 200
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+    except Exception:
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "message": "An unexpected error occurred while updating the supplier",
+        }), 500
+
+
+@suppliers_bp.route("/<int:supplier_id>", methods=["DELETE"])
+@require_admin_or_manager
+def delete_supplier(supplier_id: int):
+    """Delete a supplier by id.
+
+    Args:
+        supplier_id: The unique identifier of the supplier.
+
+    Returns:
+        JSON response confirming the deletion.
+    """
+    try:
+        _purchase_service.delete_supplier(supplier_id)
+        return jsonify({
+            "success": True,
+            "message": "Supplier deleted successfully",
+        }), 200
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 404
+    except Exception:
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "message": "An unexpected error occurred while deleting the supplier",
+        }), 500
+
+
 # --- Product search (for purchase item selection) ---
 
 @purchases_bp.route("/products/search", methods=["GET"])

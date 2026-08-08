@@ -70,6 +70,7 @@ def test_parse_create_statements_parses_all_tables():
         "expense_categories", "expenses", "inventory_transactions",
         "inventory", "stock_movements", "inventory_audits",
         "inventory_audit_items", "notifications", "store_settings",
+        "refresh_token_blocklist",
     }
     assert set(tables.keys()) == expected
 

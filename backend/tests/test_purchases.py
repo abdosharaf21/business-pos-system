@@ -402,3 +402,95 @@ class TestExpiration:
             assert response.status_code == 200
             items = response.get_json()["data"]["items"]
             assert items[0]["expiration_date"] == "2026-12-31"
+
+
+def _supplier_dict(supplier_id=3, **overrides):
+    """Build a supplier dict in the shape returned by the repository."""
+    data = {
+        "id": supplier_id,
+        "name": "Acme Supplies",
+        "phone": "+1234567890",
+        "email": "acme@example.com",
+        "address": "Warehouse 1",
+    }
+    data.update(overrides)
+    return data
+
+
+class TestSupplierCRUD:
+    """Tests for GET/PUT/DELETE /api/suppliers/:id."""
+
+    def test_get_supplier_success(self, client, admin_headers):
+        """Test admin can fetch a single supplier."""
+        supplier = _supplier_dict()
+        with patch("backend.modules.purchases.service.PurchaseService.get_supplier") as mock:
+            mock.return_value = supplier
+            response = client.get("/api/suppliers/3", headers=admin_headers)
+            assert response.status_code == 200
+            data = response.get_json()
+            assert data["success"] is True
+            assert data["data"]["name"] == "Acme Supplies"
+
+    def test_get_supplier_not_found(self, client, admin_headers):
+        """Test a missing supplier returns 404."""
+        with patch("backend.modules.purchases.service.PurchaseService.get_supplier") as mock:
+            mock.side_effect = ValueError("Supplier not found")
+            response = client.get("/api/suppliers/999", headers=admin_headers)
+            assert response.status_code == 404
+            assert response.get_json()["message"] == "Supplier not found"
+
+    def test_update_supplier_success(self, client, admin_headers):
+        """Test admin can update a supplier."""
+        updated = _supplier_dict(name="Acme Supplies Ltd")
+        with patch("backend.modules.purchases.service.PurchaseService.update_supplier") as mock:
+            mock.return_value = updated
+            response = client.put(
+                "/api/suppliers/3",
+                json={"name": "Acme Supplies Ltd", "phone": "+1234567890"},
+                headers=admin_headers,
+            )
+            assert response.status_code == 200
+            data = response.get_json()
+            assert data["success"] is True
+            assert data["data"]["name"] == "Acme Supplies Ltd"
+
+    def test_update_supplier_validation_error(self, client, admin_headers):
+        """Test a validation failure returns 400."""
+        with patch("backend.modules.purchases.service.PurchaseService.update_supplier") as mock:
+            mock.side_effect = ValueError("A supplier with this name already exists")
+            response = client.put(
+                "/api/suppliers/3",
+                json={"name": "Duplicate", "phone": "+100"},
+                headers=admin_headers,
+            )
+            assert response.status_code == 400
+            assert response.get_json()["message"] == "A supplier with this name already exists"
+
+    def test_delete_supplier_success(self, client, admin_headers):
+        """Test admin can delete a supplier."""
+        with patch("backend.modules.purchases.service.PurchaseService.delete_supplier") as mock:
+            response = client.delete("/api/suppliers/3", headers=admin_headers)
+            assert response.status_code == 200
+            assert response.get_json()["success"] is True
+            mock.assert_called_once_with(3)
+
+    def test_delete_supplier_not_found(self, client, admin_headers):
+        """Test deleting a missing supplier returns 404."""
+        with patch("backend.modules.purchases.service.PurchaseService.delete_supplier") as mock:
+            mock.side_effect = ValueError("Supplier not found")
+            response = client.delete("/api/suppliers/999", headers=admin_headers)
+            assert response.status_code == 404
+
+    def test_update_supplier_employee_forbidden(self, client, employee_headers):
+        """Test employees cannot update suppliers."""
+        response = client.put(
+            "/api/suppliers/3",
+            json={"name": "Acme", "phone": "+100"},
+            headers=employee_headers,
+        )
+        assert response.status_code == 403
+
+    def test_delete_supplier_employee_forbidden(self, client, employee_headers):
+        """Test employees cannot delete suppliers."""
+        response = client.delete("/api/suppliers/3", headers=employee_headers)
+        assert response.status_code == 403

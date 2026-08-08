@@ -11,6 +11,7 @@ import {
   getCurrencySymbol,
   getLogoUrl,
 } from "../modules/store-settings/cache";
+import config from "../config";
 
 describe("storeSettingsCache", () => {
   beforeEach(() => {
@@ -40,13 +41,13 @@ describe("storeSettingsCache", () => {
 
   it("returns the logo URL when a logo exists", () => {
     setStoreSettings({ logo_path: "logo.png" });
-    expect(getLogoUrl()).toBe("/api/store-settings/logo?v=logo.png");
+    expect(getLogoUrl()).toBe(`${config.apiBaseUrl}/store-settings/logo?v=logo.png`);
   });
 
   it("includes the stored file name in the logo URL to bust stale caches", () => {
     setStoreSettings({ logo_path: "logo_20260805075411_logo_blue.png" });
     expect(getLogoUrl()).toBe(
-      "/api/store-settings/logo?v=logo_20260805075411_logo_blue.png"
+      `${config.apiBaseUrl}/store-settings/logo?v=logo_20260805075411_logo_blue.png`
     );
   });
 

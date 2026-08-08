@@ -149,6 +149,69 @@ class PurchaseRepository:
             finally:
                 cursor.close()
 
+    def update_supplier(self, supplier_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update an existing supplier.
+
+        Args:
+            supplier_id: The unique identifier of the supplier.
+            data: Dictionary with name, phone, email, address.
+
+        Returns:
+            Dictionary of the updated supplier.
+
+        Raises:
+            mysql.connector.Error: If database operation fails.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor(dictionary=True)
+            try:
+                cursor.execute(
+                    "UPDATE suppliers SET name = %s, phone = %s, email = %s, "
+                    "address = %s WHERE id = %s",
+                    (
+                        data["name"],
+                        data.get("phone"),
+                        data.get("email"),
+                        data.get("address"),
+                        supplier_id,
+                    ),
+                )
+                conn.commit()
+                cursor.execute(
+                    "SELECT id, name, phone, email, address "
+                    "FROM suppliers WHERE id = %s",
+                    (supplier_id,),
+                )
+                return cursor.fetchone()
+            except mysql.connector.Error:
+                conn.rollback()
+                raise
+            finally:
+                cursor.close()
+
+    def delete_supplier(self, supplier_id: int) -> None:
+        """Delete a supplier by its unique identifier.
+
+        Args:
+            supplier_id: The unique identifier of the supplier.
+
+        Raises:
+            mysql.connector.Error: If database operation fails.
+        """
+        with self._database.connection() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute(
+                    "DELETE FROM suppliers WHERE id = %s",
+                    (supplier_id,),
+                )
+                conn.commit()
+            except mysql.connector.Error:
+                conn.rollback()
+                raise
+            finally:
+                cursor.close()
+
     # --- Product helpers ---
 
     def get_product_by_id(self, product_id: int) -> Optional[Dict[str, Any]]:
