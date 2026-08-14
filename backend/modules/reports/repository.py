@@ -4,7 +4,8 @@ from datetime import date, timedelta
 from typing import Dict, Any, List
 
 from backend.database.connection import Database
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
+from backend.shared.database import db_cursor
 
 
 class ReportRepository:
@@ -24,8 +25,7 @@ class ReportRepository:
             Dictionary with today_sales, monthly_sales, total_invoices,
             and average_invoice_value.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT COUNT(*) AS count, "
@@ -58,7 +58,6 @@ class ReportRepository:
             )
             avg_value = float(cursor.fetchone()["avg_value"])
 
-            cursor.close()
 
         return {
             "today_sales": today_sales,
@@ -76,8 +75,7 @@ class ReportRepository:
             Dictionary with today_purchases, monthly_purchases,
             and total_purchase_invoices.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT COUNT(*) AS count, "
@@ -104,7 +102,6 @@ class ReportRepository:
             )
             total_purchase_invoices = cursor.fetchone()["count"]
 
-            cursor.close()
 
         return {
             "today_purchases": today_purchases,
@@ -121,8 +118,7 @@ class ReportRepository:
             Dictionary with total_products, inventory_value,
             and low_stock_count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute("SELECT COUNT(*) AS count FROM products WHERE status = 'active'")
             total_products = cursor.fetchone()["count"]
@@ -139,7 +135,6 @@ class ReportRepository:
             )
             low_stock_count = cursor.fetchone()["count"]
 
-            cursor.close()
 
         return {
             "total_products": total_products,
@@ -157,8 +152,7 @@ class ReportRepository:
             List of dicts with product id, name, total quantity sold,
             and total revenue.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT p.id, p.name, "
@@ -173,7 +167,6 @@ class ReportRepository:
                 (limit,),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -195,8 +188,7 @@ class ReportRepository:
             List of dicts with sale id, invoice_number, total_amount,
             and created_at.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT id, invoice_number, paid_amount, created_at "
@@ -205,7 +197,6 @@ class ReportRepository:
                 (limit,),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -227,8 +218,7 @@ class ReportRepository:
         Returns:
             List of dicts with date, total_sales, invoice_count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT DATE(created_at) AS date, "
@@ -242,7 +232,6 @@ class ReportRepository:
                 (start_date, end_date),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -267,8 +256,7 @@ class ReportRepository:
             Dictionary with total_revenue, total_purchase_cost,
             gross_profit, and profit_margin.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT COALESCE(SUM(si.subtotal), 0) AS revenue, "
@@ -281,7 +269,6 @@ class ReportRepository:
                 (start_date, end_date),
             )
             row = cursor.fetchone()
-            cursor.close()
 
         revenue = float(row["revenue"])
         cost = float(row["cost"])
@@ -302,8 +289,7 @@ class ReportRepository:
             Dictionary with top_products (highest revenue) and
             slow_products (lowest quantity sold).
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT p.id, p.name, "
@@ -317,7 +303,6 @@ class ReportRepository:
                 "ORDER BY revenue DESC"
             )
             all_products = cursor.fetchall()
-            cursor.close()
 
         formatted = [
             {
@@ -345,8 +330,7 @@ class ReportRepository:
             List of dicts with supplier id, name, total purchases amount,
             and purchase count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT s.id, s.name, "
@@ -359,7 +343,6 @@ class ReportRepository:
                 "ORDER BY total_purchases DESC"
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -382,8 +365,7 @@ class ReportRepository:
             List of dicts with product info, warehouse_qty, store_qty,
             total, and stock value.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT p.id, p.name, p.sku, p.barcode, p.minimum_stock, "
@@ -406,7 +388,6 @@ class ReportRepository:
                 "ORDER BY p.name ASC"
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -437,8 +418,7 @@ class ReportRepository:
         Returns:
             List of dicts with movement_type, quantity, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT movement_type, "
@@ -451,7 +431,6 @@ class ReportRepository:
                 (year, month),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -471,8 +450,7 @@ class ReportRepository:
         Returns:
             List of dicts with month (1-12), quantity, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT MONTH(created_at) AS month, "
@@ -485,7 +463,6 @@ class ReportRepository:
                 (year,),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -506,8 +483,7 @@ class ReportRepository:
             List of dicts with product id, name, total quantity,
             and transfer count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT m.product_id, p.name, "
@@ -521,7 +497,6 @@ class ReportRepository:
                 (limit,),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {
@@ -542,8 +517,7 @@ class ReportRepository:
         Returns:
             List of dicts with product info and stock levels.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute(
                 "SELECT p.id, p.name, p.sku, p.minimum_stock, "
@@ -562,7 +536,6 @@ class ReportRepository:
                 (limit,),
             )
             rows = cursor.fetchall()
-            cursor.close()
 
         return [
             {

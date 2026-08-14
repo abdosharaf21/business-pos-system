@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { posService } from "./api";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
-import { useStoreSettings } from "../store-settings/hooks";
+import { useStoreSettings } from "../../shared/hooks/useStoreSettings";
 import { Printer, ArrowLeft, Plus } from "lucide-react";
 
 export default function InvoicePage() {

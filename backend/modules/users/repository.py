@@ -7,6 +7,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.users.model import User
+from backend.shared.database import db_cursor
 
 
 class UserRepository:
@@ -57,8 +58,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     INSERT INTO users (full_name, email, password_hash, phone, role, status)
@@ -80,8 +80,6 @@ class UserRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_by_id(self, user_id: int) -> Optional[User]:
         """Retrieve a user by their unique identifier.
@@ -95,8 +93,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM users WHERE id = %s"
                 cursor.execute(query, (user_id,))
@@ -106,8 +103,6 @@ class UserRepository:
                 return None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_by_email(self, email: str) -> Optional[User]:
         """Retrieve a user by their email address.
@@ -121,8 +116,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM users WHERE email = %s"
                 cursor.execute(query, (email,))
@@ -132,8 +126,6 @@ class UserRepository:
                 return None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_email(self, email: str) -> bool:
         """Check if a user exists with the given email address.
@@ -147,8 +139,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM users WHERE email = %s"
                 cursor.execute(query, (email,))
@@ -156,8 +147,6 @@ class UserRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_all(self) -> List[User]:
         """Retrieve all user records from the database.
@@ -168,8 +157,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM users ORDER BY created_at DESC"
                 cursor.execute(query)
@@ -177,8 +165,6 @@ class UserRepository:
                 return [self._row_to_user(row) for row in rows]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def update(self, user: User) -> Optional[User]:
         """Update an existing user record in the database.
@@ -192,8 +178,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     UPDATE users
@@ -220,8 +205,6 @@ class UserRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def update_password(self, user_id: int, new_hash: str) -> bool:
         """Update a user's password hash.
@@ -236,8 +219,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     UPDATE users
@@ -250,8 +232,6 @@ class UserRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete(self, user_id: int) -> bool:
         """Delete a user record from the database.
@@ -265,8 +245,7 @@ class UserRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "DELETE FROM users WHERE id = %s"
                 cursor.execute(query, (user_id,))
@@ -275,5 +254,3 @@ class UserRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()

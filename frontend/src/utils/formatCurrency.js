@@ -1,4 +1,4 @@
-import { getCurrencySymbol } from "../modules/store-settings/cache";
+import { getCurrencySymbol } from "../shared/services/storeSettings";
 
 export function formatCurrency(value) {
   const num = Number(value) || 0;

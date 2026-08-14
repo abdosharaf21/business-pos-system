@@ -6,6 +6,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.expenses.model import Expense, ExpenseCategory
+from backend.shared.database import db_cursor
 
 
 class ExpenseRepository:
@@ -72,8 +73,7 @@ class ExpenseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT 1 FROM expense_categories WHERE id = %s",
@@ -82,8 +82,6 @@ class ExpenseRepository:
                 return cursor.fetchone() is not None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_categories(self) -> List[ExpenseCategory]:
         """Retrieve all expense categories.
@@ -94,8 +92,7 @@ class ExpenseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, description, created_at "
@@ -113,8 +110,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def create(self, expense: Expense) -> Expense:
         """Insert a new expense record into the database.
@@ -128,8 +123,7 @@ class ExpenseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     INSERT INTO expenses
@@ -152,8 +146,6 @@ class ExpenseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_by_id(self, expense_id: int) -> Optional[Expense]:
         """Retrieve an expense by its unique identifier.
@@ -167,8 +159,7 @@ class ExpenseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = (
                     "SELECT e.*, u.full_name AS created_by_name, "
@@ -185,8 +176,6 @@ class ExpenseRepository:
                 return None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def list_expenses(
         self,
@@ -247,8 +236,7 @@ class ExpenseRepository:
         sort_column = self.SORTABLE_COLUMNS.get(sort, "e.expense_date")
         sort_order = "ASC" if str(order).lower() == "asc" else "DESC"
 
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 count_query = (
                     f"SELECT COUNT(*) FROM expenses e {where_clause}"
@@ -274,8 +262,6 @@ class ExpenseRepository:
 
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def update(self, expense: Expense) -> Optional[Expense]:
         """Update an existing expense record in the database.
@@ -289,8 +275,7 @@ class ExpenseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     UPDATE expenses
@@ -314,8 +299,6 @@ class ExpenseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete(self, expense_id: int) -> bool:
         """Delete an expense record from the database.
@@ -329,8 +312,7 @@ class ExpenseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "DELETE FROM expenses WHERE id = %s"
                 cursor.execute(query, (expense_id,))
@@ -339,8 +321,6 @@ class ExpenseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_summary(
         self,
@@ -357,8 +337,7 @@ class ExpenseRepository:
             Dictionary with totals, today, month, year, average,
             and highest category figures.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             where = []
             params: List[Any] = []
@@ -418,7 +397,6 @@ class ExpenseRepository:
             )
             highest = cursor.fetchone()
 
-            cursor.close()
 
         return {
             "total_count": filtered["count"],
@@ -445,8 +423,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with day, total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT DAY(expense_date) AS day, "
@@ -469,8 +446,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_monthly_totals(self, year: int) -> List[Dict[str, Any]]:
         """Get monthly expense totals for a given year.
@@ -481,8 +456,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with month (1-12), total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT MONTH(expense_date) AS month, "
@@ -505,8 +479,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_daily_series(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get daily expense totals for a date range.
@@ -518,8 +490,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with date, total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT expense_date AS date, "
@@ -542,8 +513,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_category_breakdown(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get expense totals grouped by category for a date range.
@@ -555,8 +524,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with category_id, category, total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT ec.id AS category_id, ec.name AS category, "
@@ -581,8 +549,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_payment_method_breakdown(
         self, start_date: str, end_date: str
@@ -596,8 +562,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with payment_method, total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT payment_method, COALESCE(SUM(amount), 0) AS total, "
@@ -619,8 +584,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_monthly_comparison(self, year: int) -> List[Dict[str, Any]]:
         """Get monthly expense comparison for a year.
@@ -634,8 +597,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with month (1-12), total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT MONTH(expense_date) AS month, "
@@ -666,8 +628,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_yearly_comparison(
         self, from_year: int, to_year: int
@@ -684,8 +644,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with year, total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT YEAR(expense_date) AS year, "
@@ -716,8 +675,6 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_highest_categories(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get expense categories with the highest totals.
@@ -728,8 +685,7 @@ class ExpenseRepository:
         Returns:
             List of dicts with category_id, category, total, and count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT ec.id AS category_id, ec.name AS category, "
@@ -753,5 +709,3 @@ class ExpenseRepository:
                 ]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()

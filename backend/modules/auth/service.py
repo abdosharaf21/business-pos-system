@@ -8,7 +8,6 @@ and current user retrieval. Delegates DB operations to the repository.
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Set, Tuple
 
-import bcrypt
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -23,6 +22,11 @@ from backend.modules.auth.model import AuthResponse, RefreshResponse, TokenPair
 from backend.modules.auth.repository import AuthRepository
 from backend.modules.auth.validator import auth_validator
 from backend.modules.users.repository import UserRepository
+from backend.shared.security import (
+    create_access_token_for_user,
+    hash_password,
+    verify_password,
+)
 
 
 class AuthService:
@@ -68,20 +72,10 @@ class AuthService:
         if user is None:
             raise UnauthorizedException("Invalid email or password")
 
-        password_bytes = password.encode("utf-8")
-        stored_hash = user.password_hash.encode("utf-8")
-
-        if not bcrypt.checkpw(password_bytes, stored_hash):
+        if not verify_password(password, user.password_hash):
             raise UnauthorizedException("Invalid email or password")
 
-        access_token = create_access_token(
-            identity=str(user.id),
-            additional_claims={
-                "email": user.email,
-                "role": user.role,
-                "full_name": user.full_name,
-            },
-        )
+        access_token = create_access_token_for_user(user)
         refresh_token = create_refresh_token(identity=str(user.id))
 
         tokens = TokenPair(access_token=access_token, refresh_token=refresh_token)
@@ -139,14 +133,10 @@ class AuthService:
 
         user_id = decoded.get("sub")
         user = self._user_repository.get_by_id(int(user_id)) if user_id else None
-        new_access_token = create_access_token(
-            identity=user_id,
-            additional_claims={
-                "email": user.email if user else None,
-                "role": user.role if user else None,
-                "full_name": user.full_name if user else None,
-            } if user else {},
-        )
+        if user is None:
+            new_access_token = create_access_token(identity=user_id)
+        else:
+            new_access_token = create_access_token_for_user(user)
 
         return RefreshResponse(access_token=new_access_token).to_dict()
 
@@ -230,11 +220,8 @@ class AuthService:
         if user is None:
             raise NotFoundException("User not found")
 
-        stored_hash = user.password_hash.encode("utf-8")
-        if not bcrypt.checkpw(current_password.encode("utf-8"), stored_hash):
+        if not verify_password(current_password, user.password_hash):
             raise UnauthorizedException("Current password is incorrect")
 
-        new_hash = bcrypt.hashpw(
-            new_password.encode("utf-8"), bcrypt.gensalt()
-        ).decode("utf-8")
+        new_hash = hash_password(new_password)
         self._user_repository.update_password(uid, new_hash)

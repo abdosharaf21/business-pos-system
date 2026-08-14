@@ -1,12 +1,9 @@
 import api from "../../shared/services/axios";
+import { createCrudService } from "../../shared/services/crud";
 
 export const expenseService = {
-  getAll: (params) => api.get("/expenses/", { params }),
-  getById: (id) => api.get(`/expenses/${id}`),
+  ...createCrudService("/expenses"),
   getCategories: () => api.get("/expenses/categories"),
-  create: (data) => api.post("/expenses/", data),
-  update: (id, data) => api.put(`/expenses/${id}`, data),
-  delete: (id) => api.delete(`/expenses/${id}`),
   getSummary: () => api.get("/expenses/summary"),
   getMonthly: (params) => api.get("/expenses/monthly", { params }),
   getYearly: (params) => api.get("/expenses/yearly", { params }),

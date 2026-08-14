@@ -6,6 +6,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.customers.model import Customer
+from backend.shared.database import db_cursor
 
 
 class CustomerRepository:
@@ -54,8 +55,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     INSERT INTO customers (name, phone, email, address)
@@ -73,8 +73,6 @@ class CustomerRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_by_id(self, customer_id: int) -> Optional[Customer]:
         """Retrieve a customer by its unique identifier.
@@ -88,8 +86,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM customers WHERE id = %s"
                 cursor.execute(query, (customer_id,))
@@ -99,8 +96,6 @@ class CustomerRepository:
                 return None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_all(self, search: Optional[str] = None) -> List[Customer]:
         """Retrieve all customer records with optional search.
@@ -114,8 +109,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM customers"
                 params = []
@@ -131,8 +125,6 @@ class CustomerRepository:
                 return [self._row_to_customer(row) for row in rows]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def update(self, customer: Customer) -> Optional[Customer]:
         """Update an existing customer record in the database.
@@ -146,8 +138,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     UPDATE customers
@@ -171,8 +162,6 @@ class CustomerRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete(self, customer_id: int) -> bool:
         """Delete a customer record from the database.
@@ -186,8 +175,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "DELETE FROM customers WHERE id = %s"
                 cursor.execute(query, (customer_id,))
@@ -196,8 +184,6 @@ class CustomerRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_phone(self, phone: str) -> bool:
         """Check if a customer exists with the given phone number.
@@ -211,8 +197,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM customers WHERE phone = %s"
                 cursor.execute(query, (phone,))
@@ -220,8 +205,6 @@ class CustomerRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_email(self, email: str) -> bool:
         """Check if a customer exists with the given email.
@@ -235,8 +218,7 @@ class CustomerRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM customers WHERE email = %s"
                 cursor.execute(query, (email,))
@@ -244,5 +226,3 @@ class CustomerRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()

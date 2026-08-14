@@ -7,7 +7,7 @@ from backend.modules.reports.repository import ReportRepository
 from backend.modules.expenses.repository import ExpenseRepository
 from backend.modules.inventory_audits.repository import InventoryAuditRepository
 from backend.config import Config
-from backend.utils.expiration import classify_expiration
+from backend.shared.expiration import classify_expiration
 
 
 class ReportService:

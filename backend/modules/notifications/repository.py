@@ -7,7 +7,8 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.notifications.model import Notification
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
+from backend.shared.database import db_cursor
 
 
 class NotificationRepository:
@@ -40,8 +41,7 @@ class NotificationRepository:
             List of dicts with id, name, barcode, sku, total quantity,
             and minimum_stock for every active product.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.sku, p.minimum_stock, "
@@ -58,8 +58,6 @@ class NotificationRepository:
                 return cursor.fetchall()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_products_with_expiration(
         self,
@@ -70,8 +68,7 @@ class NotificationRepository:
             List of dicts with id, name, barcode, sku, total quantity,
             and the oldest expiration_date per product.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.sku, "
@@ -93,8 +90,6 @@ class NotificationRepository:
                 return cursor.fetchall()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     # ------------------------------------------------------------------
     # Persistence
@@ -114,8 +109,7 @@ class NotificationRepository:
             notification_type: One of the Notification.TYPE_* constants.
             priority: One of the Notification.PRIORITY_* constants.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "INSERT INTO notifications "
@@ -128,8 +122,6 @@ class NotificationRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_existing_keys(self) -> List[Tuple[int, str]]:
         """Return all (product_id, notification_type) pairs currently stored.
@@ -137,8 +129,7 @@ class NotificationRepository:
         Returns:
             List of tuples for existing notifications.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT product_id, notification_type FROM notifications"
@@ -146,8 +137,6 @@ class NotificationRepository:
                 return [tuple(row) for row in cursor.fetchall()]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def delete_stale_notifications(self, keys: List[Tuple[int, str]]) -> None:
         """Delete notifications whose alert no longer applies.
@@ -157,8 +146,7 @@ class NotificationRepository:
         """
         if not keys:
             return
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.executemany(
                     "DELETE FROM notifications "
@@ -169,8 +157,6 @@ class NotificationRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     # ------------------------------------------------------------------
     # Read / read-state operations
@@ -189,8 +175,7 @@ class NotificationRepository:
         Returns:
             List of Notification instances.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 query = (
                     "SELECT n.id, n.product_id, n.notification_type, "
@@ -219,8 +204,6 @@ class NotificationRepository:
                 rows = cursor.fetchall()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
         return [self._row_to_notification(row) for row in rows]
 
@@ -254,8 +237,7 @@ class NotificationRepository:
         Returns:
             Number of notifications where is_read is false.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT COUNT(*) FROM notifications WHERE is_read = 0"
@@ -263,8 +245,6 @@ class NotificationRepository:
                 return int(cursor.fetchone()[0])
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def mark_as_read(self, notification_id: int) -> bool:
         """Mark a single notification as read.
@@ -275,8 +255,7 @@ class NotificationRepository:
         Returns:
             True if a notification was updated, False otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "UPDATE notifications SET is_read = 1 WHERE id = %s",
@@ -287,8 +266,6 @@ class NotificationRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def mark_all_as_read(self) -> int:
         """Mark every notification as read.
@@ -296,8 +273,7 @@ class NotificationRepository:
         Returns:
             Number of notifications updated.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute("UPDATE notifications SET is_read = 1")
                 conn.commit()
@@ -305,5 +281,3 @@ class NotificationRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()

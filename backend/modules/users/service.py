@@ -2,12 +2,14 @@
 
 from typing import Optional, List, Set
 
-import bcrypt
-from flask_jwt_extended import create_access_token
-
 from backend.modules.users.model import User
 from backend.modules.users.repository import UserRepository
 from backend.modules.users.validator import UserValidator
+from backend.shared.security import (
+    create_access_token_for_user,
+    hash_password,
+    verify_password,
+)
 
 
 class UserService:
@@ -50,20 +52,13 @@ class UserService:
         if user is None:
             raise ValueError("Invalid email or password")
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
+        if not verify_password(password, user.password_hash):
             raise ValueError("Invalid email or password")
 
         if user.status != "active":
             raise ValueError("Account is inactive")
 
-        access_token = create_access_token(
-            identity=str(user.id),
-            additional_claims={
-                "email": user.email,
-                "role": user.role,
-                "full_name": user.full_name
-            }
-        )
+        access_token = create_access_token_for_user(user)
 
         return {
             "access_token": access_token,
@@ -139,10 +134,7 @@ class UserService:
         if self._user_repository.exists_by_email(validated["email"]):
             raise ValueError("Email already exists")
 
-        password_hash = bcrypt.hashpw(
-            validated["password"].encode("utf-8"),
-            bcrypt.gensalt()
-        ).decode("utf-8")
+        password_hash = hash_password(validated["password"])
 
         user = User(
             full_name=validated["full_name"],
@@ -217,10 +209,7 @@ class UserService:
         if user is None:
             raise ValueError("User not found")
 
-        user.password_hash = bcrypt.hashpw(
-            new_password.encode("utf-8"),
-            bcrypt.gensalt()
-        ).decode("utf-8")
+        user.password_hash = hash_password(new_password)
 
         updated = self._user_repository.update(user)
         if updated is None:

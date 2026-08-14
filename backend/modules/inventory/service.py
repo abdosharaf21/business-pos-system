@@ -5,7 +5,7 @@ from typing import Optional, List, Dict, Any
 
 from backend.config import Config
 from backend.modules.inventory.repository import InventoryRepository
-from backend.utils.expiration import (
+from backend.shared.expiration import (
     classify_expiration,
     EXPIRATION_STATUS_EXPIRED,
     EXPIRATION_STATUS_EXPIRING_SOON,

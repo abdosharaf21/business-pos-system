@@ -74,12 +74,12 @@ business-pos-system/
 │   │   ├── reports/            # Analytics and reports
 │   │   ├── notifications/      # In-app alerts
 │   │   └── store_settings/     # Store profile and branding
+│   ├── shared/                  # Cross-module helpers (db_cursor, security, expiration)
 │   ├── tests/                  # Unit tests
-│   └── utils/                  # Utility functions
 ├── frontend/
 │   ├── src/
 │   │   ├── modules/            # Feature pages
-│   │   ├── shared/             # Shared components, context, layouts
+│   │   ├── shared/             # Shared components, context, hooks, services
 │   │   ├── router/             # App routes
 │   │   ├── locales/            # i18n translation files
 │   │   ├── utils/              # Utility functions

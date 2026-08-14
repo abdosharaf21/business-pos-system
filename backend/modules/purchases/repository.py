@@ -8,7 +8,8 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.purchases.model import Purchase, PurchaseItem
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
+from backend.shared.database import db_cursor
 
 
 class PurchaseRepository:
@@ -41,8 +42,7 @@ class PurchaseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "INSERT INTO suppliers (name, phone, email, address) "
@@ -60,8 +60,6 @@ class PurchaseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_supplier_name(self, name: str) -> bool:
         """Check if a supplier exists with the given name.
@@ -72,8 +70,7 @@ class PurchaseRepository:
         Returns:
             True if a supplier with this name exists, False otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT COUNT(*) FROM suppliers WHERE name = %s",
@@ -83,8 +80,6 @@ class PurchaseRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_supplier_email(self, email: str) -> bool:
         """Check if a supplier exists with the given email.
@@ -95,8 +90,7 @@ class PurchaseRepository:
         Returns:
             True if a supplier with this email exists, False otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT COUNT(*) FROM suppliers WHERE email = %s",
@@ -106,8 +100,6 @@ class PurchaseRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_all_suppliers(self) -> List[Dict[str, Any]]:
         """Retrieve all suppliers for dropdown selection.
@@ -115,8 +107,7 @@ class PurchaseRepository:
         Returns:
             List of supplier dictionaries.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, phone, email FROM suppliers ORDER BY name ASC"
@@ -124,8 +115,6 @@ class PurchaseRepository:
                 return cursor.fetchall()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_supplier_by_id(self, supplier_id: int) -> Optional[Dict[str, Any]]:
         """Retrieve a supplier by its unique identifier.
@@ -136,8 +125,7 @@ class PurchaseRepository:
         Returns:
             Supplier dictionary if found, None otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, phone, email, address FROM suppliers WHERE id = %s",
@@ -146,8 +134,6 @@ class PurchaseRepository:
                 return cursor.fetchone()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def update_supplier(self, supplier_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an existing supplier.
@@ -162,8 +148,7 @@ class PurchaseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "UPDATE suppliers SET name = %s, phone = %s, email = %s, "
@@ -186,8 +171,6 @@ class PurchaseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete_supplier(self, supplier_id: int) -> None:
         """Delete a supplier by its unique identifier.
@@ -198,8 +181,7 @@ class PurchaseRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "DELETE FROM suppliers WHERE id = %s",
@@ -209,8 +191,6 @@ class PurchaseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     # --- Product helpers ---
 
@@ -223,8 +203,7 @@ class PurchaseRepository:
         Returns:
             Product dictionary if found, None otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, quantity FROM products WHERE id = %s",
@@ -233,8 +212,6 @@ class PurchaseRepository:
                 return cursor.fetchone()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def search_products(self, search: str) -> List[Dict[str, Any]]:
         """Search products by name, barcode, or SKU.
@@ -245,8 +222,7 @@ class PurchaseRepository:
         Returns:
             List of product dictionaries.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, sku, barcode, purchase_price, quantity "
@@ -263,8 +239,6 @@ class PurchaseRepository:
                 return cursor.fetchall()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     # --- Purchase CRUD ---
 
@@ -390,8 +364,7 @@ class PurchaseRepository:
             mysql.connector.Error: If any database operation fails.
             ValueError: If a product is not found.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 invoice_number = self._get_next_invoice_number(cursor)
 
@@ -494,8 +467,6 @@ class PurchaseRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_by_id(self, purchase_id: int) -> Optional[Purchase]:
         """Retrieve a purchase by its unique identifier.
@@ -506,8 +477,7 @@ class PurchaseRepository:
         Returns:
             Purchase instance with items if found, None otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "SELECT " + self._PURCHASE_COLUMNS +
@@ -548,8 +518,6 @@ class PurchaseRepository:
 
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_all(
         self,
@@ -573,8 +541,7 @@ class PurchaseRepository:
         Returns:
             List of Purchase instances.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 where, params = self._build_filter_where(
                     search, date, date_from, date_to
@@ -603,8 +570,6 @@ class PurchaseRepository:
 
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_invoice_data(self, purchase_id: int) -> Optional[Dict[str, Any]]:
         """Retrieve formatted invoice data for a purchase.
@@ -615,8 +580,7 @@ class PurchaseRepository:
         Returns:
             Dictionary with invoice details if found, None otherwise.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT p.id, p.invoice_number, p.total_amount, "
@@ -653,8 +617,6 @@ class PurchaseRepository:
 
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_total_count(
         self,
@@ -674,8 +636,7 @@ class PurchaseRepository:
         Returns:
             Total count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 where, params = self._build_filter_where(
                     search, date, date_from, date_to
@@ -691,5 +652,3 @@ class PurchaseRepository:
                 return cursor.fetchone()[0]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()

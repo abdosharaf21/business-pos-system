@@ -7,6 +7,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.categories.model import Category
+from backend.shared.database import db_cursor
 
 
 class CategoryRepository:
@@ -54,8 +55,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     INSERT INTO categories (parent_id, name, description)
@@ -70,8 +70,6 @@ class CategoryRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_by_id(self, category_id: int) -> Optional[Category]:
         """Retrieve a category by its unique identifier.
@@ -85,8 +83,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM categories WHERE id = %s"
                 cursor.execute(query, (category_id,))
@@ -96,8 +93,6 @@ class CategoryRepository:
                 return None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_all(self) -> List[Category]:
         """Retrieve all category records from the database.
@@ -108,8 +103,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT * FROM categories ORDER BY created_at DESC"
                 cursor.execute(query)
@@ -117,8 +111,6 @@ class CategoryRepository:
                 return [self._row_to_category(row) for row in rows]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def update(self, category: Category) -> Optional[Category]:
         """Update an existing category record in the database.
@@ -132,8 +124,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     UPDATE categories
@@ -151,8 +142,6 @@ class CategoryRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete(self, category_id: int) -> bool:
         """Delete a category record from the database.
@@ -166,8 +155,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "DELETE FROM categories WHERE id = %s"
                 cursor.execute(query, (category_id,))
@@ -176,8 +164,6 @@ class CategoryRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_name(self, name: str) -> bool:
         """Check if a category exists with the given name.
@@ -191,8 +177,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM categories WHERE name = %s"
                 cursor.execute(query, (name,))
@@ -200,8 +185,6 @@ class CategoryRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def count_children(self, parent_id: int) -> int:
         """Count direct child categories of the given category.
@@ -215,8 +198,7 @@ class CategoryRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM categories WHERE parent_id = %s"
                 cursor.execute(query, (parent_id,))
@@ -224,5 +206,3 @@ class CategoryRepository:
                 return result[0]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()

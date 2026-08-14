@@ -5,7 +5,8 @@ from typing import Optional, List, Dict, Any
 import mysql.connector
 
 from backend.database import Database
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
+from backend.shared.database import db_cursor
 
 
 class InventoryRepository:
@@ -38,8 +39,7 @@ class InventoryRepository:
         Returns:
             Dictionary with product info and stock levels, or None.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.status, p.minimum_stock, "
@@ -69,8 +69,6 @@ class InventoryRepository:
                 return row
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_inventory_with_stock(
         self, search: Optional[str] = None
@@ -83,8 +81,7 @@ class InventoryRepository:
         Returns:
             List of product dictionaries with warehouse_qty and store_qty.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 query = (
                     "SELECT p.id, p.name, p.barcode, p.minimum_stock, "
@@ -126,8 +123,6 @@ class InventoryRepository:
                 return rows
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_inventory_summary(self) -> Dict[str, Any]:
         """Get aggregate inventory statistics.
@@ -136,8 +131,7 @@ class InventoryRepository:
             Dictionary with total_products, total_quantity, warehouse_total,
             store_total, total_value, and low_stock_count.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT COUNT(*) AS count FROM products WHERE status = 'active'"
@@ -190,8 +184,6 @@ class InventoryRepository:
                 }
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_low_stock_products(self) -> List[Dict[str, Any]]:
         """Retrieve active products whose total stock is at or below minimum.
@@ -199,8 +191,7 @@ class InventoryRepository:
         Returns:
             List of product dictionaries with per-location stock.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.minimum_stock, "
@@ -228,8 +219,6 @@ class InventoryRepository:
                 return rows
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_movements(
         self,
@@ -253,8 +242,7 @@ class InventoryRepository:
         Returns:
             List of movement dictionaries with product name.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 query = (
                     "SELECT m.id, m.product_id, m.from_location, m.to_location, "
@@ -288,8 +276,6 @@ class InventoryRepository:
                 return cursor.fetchall()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     # ------------------------------------------------------------------
     # Write operations
@@ -324,8 +310,7 @@ class InventoryRepository:
         Raises:
             mysql.connector.Error: If the database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id FROM purchase_items "
@@ -361,8 +346,6 @@ class InventoryRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def ensure_stock_rows(self, product_id: int, cursor=None) -> None:
         """Create warehouse/store stock rows for a product if missing.
@@ -379,16 +362,13 @@ class InventoryRepository:
             cursor.execute(sql, (product_id, product_id))
             return
 
-        with self._database.connection() as conn:
-            cur = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cur:
             try:
                 cur.execute(sql, (product_id, product_id))
                 conn.commit()
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cur.close()
 
     @staticmethod
     def _sync_product_total(cursor, product_id: int) -> None:
@@ -429,8 +409,7 @@ class InventoryRepository:
             ValueError: If the product has no warehouse record or stock is insufficient.
             mysql.connector.Error: If the database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, quantity FROM inventory "
@@ -481,5 +460,3 @@ class InventoryRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()

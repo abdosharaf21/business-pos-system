@@ -6,6 +6,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.inventory_audits.model import InventoryAudit
+from backend.shared.database import db_cursor
 
 
 class InventoryAuditRepository:
@@ -60,8 +61,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT p.id AS product_id, p.name AS product_name, "
@@ -79,8 +79,6 @@ class InventoryAuditRepository:
                 return rows
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def _row_to_audit(self, row: Dict[str, Any]) -> InventoryAudit:
         """Convert a database row dictionary to an InventoryAudit instance.
@@ -137,8 +135,7 @@ class InventoryAuditRepository:
 
         where_sql = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     f"SELECT COUNT(*) AS total FROM inventory_audits a {where_sql}",
@@ -175,8 +172,6 @@ class InventoryAuditRepository:
                 return rows, total
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_audit(self, audit_id: int) -> Optional[InventoryAudit]:
         """Retrieve a single audit with its aggregate stats.
@@ -190,8 +185,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT a.id, a.name, a.location, a.status, a.created_by, "
@@ -220,8 +214,6 @@ class InventoryAuditRepository:
                 return self._row_to_audit(row)
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_items(self, audit_id: int) -> List[Dict[str, Any]]:
         """Retrieve the items of an audit joined with product names.
@@ -235,8 +227,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT ai.id, ai.audit_id, ai.product_id, "
@@ -261,8 +252,6 @@ class InventoryAuditRepository:
                 return rows
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     # ------------------------------------------------------------------
     # Write operations
@@ -283,8 +272,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "INSERT INTO inventory_audits "
@@ -315,8 +303,6 @@ class InventoryAuditRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def update_audit(self, audit_id: int, fields: Dict[str, Any]) -> None:
         """Update the name and/or status of an audit.
@@ -344,8 +330,7 @@ class InventoryAuditRepository:
 
         params.append(audit_id)
 
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     f"UPDATE inventory_audits SET {', '.join(updates)} "
@@ -356,8 +341,6 @@ class InventoryAuditRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def update_items(
         self, audit_id: int, items: Dict[int, Dict[str, Any]]
@@ -371,8 +354,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 for item in items.values():
                     cursor.execute(
@@ -393,8 +375,6 @@ class InventoryAuditRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     @staticmethod
     def _movement_locations(difference: int, location: str) -> Tuple[Optional[str], Optional[str]]:
@@ -431,8 +411,7 @@ class InventoryAuditRepository:
             ValueError: If the audit is not open.
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, location, status FROM inventory_audits "
@@ -514,8 +493,6 @@ class InventoryAuditRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete_audit(self, audit_id: int) -> None:
         """Delete an audit. Audit items are removed via cascade.
@@ -526,8 +503,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "DELETE FROM inventory_audits WHERE id = %s",
@@ -537,8 +513,6 @@ class InventoryAuditRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     # ------------------------------------------------------------------
     # Report queries
@@ -553,8 +527,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT "
@@ -597,8 +570,6 @@ class InventoryAuditRepository:
                 }
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_monthly_summary(self, year: int) -> List[Dict[str, Any]]:
         """Get completed audit counts per month for a year.
@@ -612,8 +583,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT MONTH(completed_at) AS month, "
@@ -637,8 +607,6 @@ class InventoryAuditRepository:
                 return result
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_yearly_summary(self, from_year: int, to_year: int) -> List[Dict[str, Any]]:
         """Get completed audit counts per year across a range.
@@ -653,8 +621,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT YEAR(completed_at) AS year, COUNT(*) AS audits "
@@ -675,8 +642,6 @@ class InventoryAuditRepository:
                 return result
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_largest_shortages(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get products with the largest negative differences.
@@ -690,8 +655,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT ai.difference, ai.system_quantity, "
@@ -715,8 +679,6 @@ class InventoryAuditRepository:
                 return rows
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_largest_overages(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get products with the largest positive differences.
@@ -730,8 +692,7 @@ class InventoryAuditRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT ai.difference, ai.system_quantity, "
@@ -755,5 +716,3 @@ class InventoryAuditRepository:
                 return rows
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()

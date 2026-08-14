@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional
 import mysql.connector
 
 from backend.database import Database
+from backend.shared.database import db_cursor
 
 
 class StoreSettingsRepository:
@@ -30,8 +31,7 @@ class StoreSettingsRepository:
             Dictionary with all settings fields, or None when no row
             exists yet.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, store_name, owner_name, phone, email, address, "
@@ -44,8 +44,6 @@ class StoreSettingsRepository:
                 row = cursor.fetchone()
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
         if row is None:
             return None
@@ -66,8 +64,7 @@ class StoreSettingsRepository:
         Returns:
             Dictionary with the persisted settings fields.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(
                     "INSERT INTO store_settings "
@@ -112,8 +109,6 @@ class StoreSettingsRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
         return self.get_settings()
 

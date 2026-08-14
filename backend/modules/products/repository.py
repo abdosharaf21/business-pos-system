@@ -7,7 +7,8 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.products.model import Product
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
+from backend.shared.database import db_cursor
 
 
 class ProductRepository:
@@ -78,8 +79,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     INSERT INTO products (category_id, name, sku, barcode, description,
@@ -111,8 +111,6 @@ class ProductRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def get_by_id(self, product_id: int) -> Optional[Product]:
         """Retrieve a product by its unique identifier.
@@ -126,8 +124,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     SELECT p.*, c.name AS category_name
@@ -142,8 +139,6 @@ class ProductRepository:
                 return None
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_all(self, search: Optional[str] = None,
                 category_id: Optional[int] = None,
@@ -161,8 +156,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     SELECT p.*, c.name AS category_name,
@@ -200,8 +194,6 @@ class ProductRepository:
                 return [self._row_to_product_with_category(row) for row in rows]
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def update(self, product: Product) -> Optional[Product]:
         """Update an existing product record in the database.
@@ -215,8 +207,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = """
                     UPDATE products
@@ -245,8 +236,6 @@ class ProductRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete(self, product_id: int) -> bool:
         """Delete a product record from the database.
@@ -260,8 +249,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "DELETE FROM products WHERE id = %s"
                 cursor.execute(query, (product_id,))
@@ -270,8 +258,6 @@ class ProductRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_name(self, name: str) -> bool:
         """Check if a product exists with the given name.
@@ -285,8 +271,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM products WHERE name = %s"
                 cursor.execute(query, (name,))
@@ -294,8 +279,6 @@ class ProductRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_barcode(self, barcode: str) -> bool:
         """Check if a product exists with the given barcode.
@@ -309,8 +292,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM products WHERE barcode = %s"
                 cursor.execute(query, (barcode,))
@@ -318,8 +300,6 @@ class ProductRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def exists_by_sku(self, sku: str) -> bool:
         """Check if a product exists with the given SKU.
@@ -333,8 +313,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = "SELECT COUNT(*) FROM products WHERE sku = %s"
                 cursor.execute(query, (sku,))
@@ -342,8 +321,6 @@ class ProductRepository:
                 return result[0] > 0
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()
 
     def get_oldest_expiration(self, product_id: int) -> Optional[str]:
         """Retrieve the oldest batch expiration date for a product.
@@ -358,8 +335,7 @@ class ProductRepository:
         Raises:
             mysql.connector.Error: If database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 query = (
                     "SELECT MIN(expiration_date) FROM purchase_items "
@@ -370,5 +346,3 @@ class ProductRepository:
                 return normalize_expiration_date(result[0] if result else None)
             except mysql.connector.Error:
                 raise
-            finally:
-                cursor.close()

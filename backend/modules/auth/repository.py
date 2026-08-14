@@ -11,6 +11,7 @@ from typing import Optional
 import mysql.connector
 
 from backend.database import Database
+from backend.shared.database import db_cursor
 
 
 class AuthRepository:
@@ -42,8 +43,7 @@ class AuthRepository:
             INSERT IGNORE INTO `{self._TABLE}` (jti, token_type, expires_at)
             VALUES (%s, %s, %s)
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(sql, (jti, token_type, expires_at))
                 conn.commit()
@@ -51,8 +51,6 @@ class AuthRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def is_blocklisted(self, jti: str) -> bool:
         """
@@ -69,14 +67,10 @@ class AuthRepository:
             FROM `{self._TABLE}`
             WHERE jti = %s
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
-            try:
-                cursor.execute(sql, (jti,))
-                row = cursor.fetchone()
-                return row[0] > 0 if row else False
-            finally:
-                cursor.close()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
+            cursor.execute(sql, (jti,))
+            row = cursor.fetchone()
+            return row[0] > 0 if row else False
 
     def purge_expired(self) -> int:
         """
@@ -89,8 +83,7 @@ class AuthRepository:
             DELETE FROM `{self._TABLE}`
             WHERE expires_at < %s
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 now = datetime.now(timezone.utc)
                 cursor.execute(sql, (now,))
@@ -100,8 +93,6 @@ class AuthRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
     def delete_by_jti(self, jti: str) -> bool:
         """
@@ -117,8 +108,7 @@ class AuthRepository:
             DELETE FROM `{self._TABLE}`
             WHERE jti = %s
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor()
+        with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
                 cursor.execute(sql, (jti,))
                 deleted = cursor.rowcount
@@ -127,8 +117,6 @@ class AuthRepository:
             except mysql.connector.Error:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()
 
 
 def init_auth_repository(database: Database) -> AuthRepository:

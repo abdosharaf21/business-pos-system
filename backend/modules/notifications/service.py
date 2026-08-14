@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 from backend.config import Config
 from backend.modules.notifications.model import Notification
 from backend.modules.notifications.repository import NotificationRepository
-from backend.utils.expiration import (
+from backend.shared.expiration import (
     EXPIRATION_STATUS_EXPIRED,
     EXPIRATION_STATUS_EXPIRING_SOON,
     EXPIRATION_STATUS_NORMAL,

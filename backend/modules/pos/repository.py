@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from backend.database import Database
 from backend.modules.pos.model import PosProduct
+from backend.shared.database import db_cursor
 
 
 class PosRepository:
@@ -78,16 +79,13 @@ class PosRepository:
 
         query += " ORDER BY p.name ASC"
 
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(query, tuple(params))
                 rows = cursor.fetchall()
                 return [self._row_to_pos_product(row) for row in rows]
             except Exception:
                 raise
-            finally:
-                cursor.close()
 
     def get_categories(self) -> List[Dict[str, Any]]:
         """Fetch all categories for the filter dropdown.
@@ -95,15 +93,12 @@ class PosRepository:
         Returns:
             List of category dicts with id and name.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute("SELECT id, name FROM categories ORDER BY name ASC")
                 return cursor.fetchall()
             except Exception:
                 raise
-            finally:
-                cursor.close()
 
     def get_customer_by_id(self, customer_id: int) -> Optional[Dict[str, Any]]:
         """Fetch a customer by ID for validation.
@@ -114,8 +109,7 @@ class PosRepository:
         Returns:
             Customer dict or None.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, phone FROM customers WHERE id = %s",
@@ -124,8 +118,6 @@ class PosRepository:
                 return cursor.fetchone()
             except Exception:
                 raise
-            finally:
-                cursor.close()
 
     def search_customers(self, search: str) -> List[Dict[str, Any]]:
         """Search customers by name or phone.
@@ -136,8 +128,7 @@ class PosRepository:
         Returns:
             List of matching customer dicts.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT id, name, phone FROM customers "
@@ -148,8 +139,6 @@ class PosRepository:
                 return cursor.fetchall()
             except Exception:
                 raise
-            finally:
-                cursor.close()
 
     def get_invoice(self, sale_id: int) -> Optional[Dict[str, Any]]:
         """Retrieve formatted invoice data for a completed sale.
@@ -160,8 +149,7 @@ class PosRepository:
         Returns:
             Dict with sale header, items, and totals, or None if not found.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
                     "SELECT s.id, s.invoice_number, s.created_at, "
@@ -219,8 +207,6 @@ class PosRepository:
 
             except Exception:
                 raise
-            finally:
-                cursor.close()
 
     def create_checkout(
         self,
@@ -249,8 +235,7 @@ class PosRepository:
             ValueError: If a product is not found or stock is insufficient.
             mysql.connector.Error: If any database operation fails.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 invoice_number = self._get_next_invoice_number(cursor)
 
@@ -363,5 +348,3 @@ class PosRepository:
             except Exception:
                 conn.rollback()
                 raise
-            finally:
-                cursor.close()

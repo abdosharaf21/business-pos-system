@@ -10,7 +10,7 @@ vi.mock("../shared/context/AuthContext", () => ({
   useAuth: () => ({ login: mockLogin }),
 }));
 
-vi.mock("../modules/store-settings/hooks", () => ({
+vi.mock("../shared/hooks/useStoreSettings", () => ({
   useLoginBranding: () => ({ data: null }),
 }));
 

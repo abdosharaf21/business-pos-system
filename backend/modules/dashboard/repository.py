@@ -3,6 +3,7 @@
 from typing import Dict, Any
 
 from backend.database.connection import Database
+from backend.shared.database import db_cursor
 
 
 class DashboardRepository:
@@ -27,8 +28,7 @@ class DashboardRepository:
         Returns:
             Dictionary with total counts and today's figures.
         """
-        with self._database.connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
 
             cursor.execute("SELECT COUNT(*) AS count FROM products")
             total_products = cursor.fetchone()["count"]
@@ -124,7 +124,6 @@ class DashboardRepository:
             )
             completed_audits = cursor.fetchone()["count"]
 
-            cursor.close()
 
         return {
             "total_products": total_products,

@@ -10,7 +10,7 @@ import {
   loadStoreSettings,
   getCurrencySymbol,
   getLogoUrl,
-} from "../modules/store-settings/cache";
+} from "../shared/services/storeSettings";
 import config from "../config";
 
 describe("storeSettingsCache", () => {
