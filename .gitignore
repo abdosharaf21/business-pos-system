@@ -33,13 +33,6 @@ instance/
 secrets/
 credentials/
 
-# Licensing
-# The private key and generated licenses must NEVER be committed.
-licensing-tools/license-gen/keys/
-*.dat
-# The embedded public key is safe and required for builds.
-!licensing-core/src/license_public_key.pem
-
 # =============================================================================
 # Node / React / Vite
 # =============================================================================
@@ -92,6 +85,18 @@ migrations/__pycache__/
 *.db
 *.sqlite
 *.sqlite3
+
+# =============================================================================
+# Backend build artifacts / runtime files
+# =============================================================================
+
+backend/dist/
+backend/build/
+backend/*.spec
+backend/uploads/
+backend/*.log
+env_debug.log
+startup_error.txt
 
 # =============================================================================
 # IDE / Editor

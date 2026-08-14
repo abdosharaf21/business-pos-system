@@ -3,7 +3,6 @@
 import logging
 import os
 import secrets
-import sys
 
 from dotenv import load_dotenv
 
@@ -40,8 +39,11 @@ def _env_bool(name: str, default: bool) -> bool:
 def _load_env_file() -> None:
     """Load the .env file from the standard search paths, if present.
 
-    Packaged app places the .env at ``resources/.env`` next to the
-    executable; development places it at the project root.
+    The ``ENV_FILE`` override is honoured first, followed by the
+    current working directory and the project root.
+
+    Returns:
+        None.
     """
     candidates = []
     env_file = os.environ.get("ENV_FILE")
@@ -49,9 +51,7 @@ def _load_env_file() -> None:
         candidates.append(env_file)
     candidates.extend([
         os.path.join(_cwd, '.env'),
-        os.path.join(_cwd, 'resources', '.env'),
         os.path.join(_project_root, '.env'),
-        os.path.join(_project_root, 'resources', '.env'),
         os.path.normpath(os.path.join(_project_root, '..', '.env')),
     ])
     for path in candidates:
@@ -193,22 +193,6 @@ class ProductionConfig(BaseConfig):
     CSP_ENABLED = _env_bool("CSP_ENABLED", True)
 
 
-class DesktopConfig(BaseConfig):
-    """Desktop (Electron/Tauri) configuration.
-
-    Frontend is served as static files from the backend or
-    connects directly to the backend API.
-    """
-
-    DEBUG = False
-    SERVE_STATIC = True
-    CSP_ENABLED = _env_bool("CSP_ENABLED", True)
-    CORS_ORIGINS = os.environ.get(
-        "CORS_ORIGINS",
-        "http://localhost:5174,http://localhost:5001",
-    ).split(",")
-
-
 def get_config() -> BaseConfig:
     """Select configuration class based on FLASK_ENV.
 
@@ -218,8 +202,6 @@ def get_config() -> BaseConfig:
     env = os.environ.get("FLASK_ENV", "development")
     if env == "production":
         return ProductionConfig
-    if env == "desktop":
-        return DesktopConfig
     return DevelopmentConfig
 
 

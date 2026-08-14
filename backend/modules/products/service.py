@@ -68,7 +68,7 @@ class ProductService:
             description=validated.get("description"),
             purchase_price=validated["purchase_price"],
             selling_price=validated["selling_price"],
-            quantity=0,
+            quantity=validated["quantity"],
             minimum_stock=validated["minimum_stock"],
             status=validated["status"],
         )

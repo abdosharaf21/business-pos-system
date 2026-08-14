@@ -1,5 +1,5 @@
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
@@ -23,21 +23,6 @@ import {
   ArrowUpDown, Warehouse, Store, ArrowLeftRight, ClipboardCheck, CalendarDays,
 } from "lucide-react";
 import toast from "react-hot-toast";
-
-const transferSchema = z.object({
-  quantity: z.coerce
-    .number()
-    .int(() => i18n.t("inventory.validation.mustBeWhole"))
-    .positive(() => i18n.t("inventory.validation.quantityPositive")),
-});
-
-const quickAuditSchema = z.object({
-  counted_quantity: z
-    .string()
-    .min(1, () => i18n.t("inventory.validation.quantityRequired"))
-    .refine((v) => Number.isInteger(Number(v)), () => i18n.t("inventory.validation.mustBeWhole"))
-    .refine((v) => Number(v) >= 0, () => i18n.t("inventory.validation.quantityNonNegative")),
-});
 
 const expirationSchema = (t) =>
   z.object({
@@ -448,6 +433,15 @@ export default function InventoryPage() {
 
 function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
   const { t } = useTranslation();
+  const transferSchema = useMemo(
+    () => z.object({
+      quantity: z.coerce
+        .number()
+        .int(t("inventory.validation.mustBeWhole"))
+        .positive(t("inventory.validation.quantityPositive")),
+    }),
+    [t]
+  );
   const {
     register,
     handleSubmit,
@@ -527,6 +521,18 @@ function TransferModal({ isOpen, onClose, product, onSubmit, loading }) {
 
 function QuickAuditModal({ isOpen, onClose, product, onSubmit, loading }) {
   const { t } = useTranslation();
+  const quickAuditSchema = useMemo(
+    () => z.object({
+      location: z.string(),
+      counted_quantity: z
+        .string()
+        .min(1, t("inventory.validation.quantityRequired"))
+        .refine((v) => Number.isInteger(Number(v)), t("inventory.validation.mustBeWhole"))
+        .refine((v) => Number(v) >= 0, t("inventory.validation.quantityNonNegative")),
+      reason: z.string().optional(),
+    }),
+    [t]
+  );
   const {
     register,
     handleSubmit,

@@ -23,24 +23,6 @@ import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
 import toast from "react-hot-toast";
 
-const productSchema = z.object({
-  name: z.string().min(1, () => i18n.t("products.validation.nameRequired")),
-  sku: z.string().optional(),
-  barcode: z.string().min(1, () => i18n.t("products.validation.barcodeRequired")),
-  category_id: z.string().min(1, () => i18n.t("products.validation.categoryRequired")),
-  description: z.string().optional(),
-  purchase_price: z.string().min(1, () => i18n.t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0, () => i18n.t("products.validation.mustBePositive")),
-  selling_price: z.string().min(1, () => i18n.t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0, () => i18n.t("products.validation.mustBePositive")),
-  quantity: z.string().min(1, () => i18n.t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0 && Number.isInteger(Number(v)), () => i18n.t("products.validation.mustBePositive")),
-  minimum_stock: z.string().min(1, () => i18n.t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0 && Number.isInteger(Number(v)), () => i18n.t("products.validation.mustBePositive")),
-  status: z.string().optional(),
-}).refine((data) => {
-  if (data.selling_price && data.purchase_price) {
-    return Number(data.selling_price) >= Number(data.purchase_price);
-  }
-  return true;
-}, { message: () => i18n.t("products.validation.priceNotLower"), path: ["selling_price"] });
-
 const INPUT_CLASS = inputClass;
 const LABEL_CLASS = labelClass;
 const SELECT_CLASS = selectClass;
@@ -270,6 +252,27 @@ export default function ProductsPage() {
 
 function ProductModal({ isOpen, onClose, editing, categories, onSubmit, loading }) {
   const { t } = useTranslation();
+  const productSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, t("products.validation.nameRequired")),
+        sku: z.string().optional(),
+        barcode: z.string().min(1, t("products.validation.barcodeRequired")),
+        category_id: z.string().min(1, t("products.validation.categoryRequired")),
+        description: z.string().optional(),
+        purchase_price: z.string().min(1, t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0, t("products.validation.mustBePositive")),
+        selling_price: z.string().min(1, t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0, t("products.validation.mustBePositive")),
+        quantity: z.string().min(1, t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0 && Number.isInteger(Number(v)), t("products.validation.mustBePositive")),
+        minimum_stock: z.string().min(1, t("products.validation.required")).refine((v) => !isNaN(Number(v)) && Number(v) >= 0 && Number.isInteger(Number(v)), t("products.validation.mustBePositive")),
+        status: z.string().optional(),
+      }).refine((data) => {
+        if (data.selling_price && data.purchase_price) {
+          return Number(data.selling_price) >= Number(data.purchase_price);
+        }
+        return true;
+      }, { message: t("products.validation.priceNotLower"), path: ["selling_price"] }),
+    [t]
+  );
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     resolver: zodResolver(productSchema),
     values: editing ? {

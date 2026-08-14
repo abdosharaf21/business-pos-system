@@ -9,47 +9,6 @@ from datetime import timedelta
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _cwd = os.getcwd()
 
-
-def _candidate_env_files():
-    """Return the ordered list of .env file paths to try.
-
-    Packaged app places the .env at ``resources/.env`` next to the
-    executable; development places it at the project root.
-    """
-    candidates = []
-    env_file = os.environ.get("ENV_FILE")
-    if env_file:
-        candidates.append(env_file)
-    candidates.extend([
-        os.path.join(_cwd, '.env'),
-        os.path.join(_cwd, 'resources', '.env'),
-        os.path.join(_project_root, '.env'),
-        os.path.join(_project_root, 'resources', '.env'),
-        os.path.normpath(os.path.join(_project_root, '..', '.env')),
-    ])
-    return candidates
-
-
-_env_debug = []
-for _env_path in _candidate_env_files():
-    _env_debug.append(f"checking: {_env_path} exists={os.path.isfile(_env_path)}")
-    if os.path.isfile(_env_path):
-        with open(_env_path, encoding='utf-8-sig') as _f:
-            for _line in _f:
-                _line = _line.strip()
-                if not _line or _line.startswith('#'):
-                    continue
-                if '=' in _line:
-                    _k, _v = _line.split('=', 1)
-                    _k, _v = _k.strip().lstrip('\ufeff').strip('"\''), _v.strip().strip('"\'')
-                    if _k and _k not in os.environ:
-                        os.environ[_k] = _v
-_env_debug.append(f"SECRET_KEY in environ: {'SECRET_KEY' in os.environ}")
-try:
-    with open(os.path.join(_cwd, 'env_debug.log'), 'w') as _f:
-        _f.write('\n'.join(_env_debug))
-except OSError:
-    pass
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 from flask import Flask, jsonify, request, g, send_from_directory
@@ -58,7 +17,6 @@ from flask_jwt_extended import JWTManager
 from backend.config import get_config
 from backend.database import Database
 from backend.database.bootstrap import BootstrapError, ensure_database_ready
-from backend import setup_server
 
 from backend.modules.users.routes import users_bp, init_user_service
 from backend.modules.dashboard.routes import dashboard_bp, init_dashboard_service
@@ -152,7 +110,7 @@ def _startup_error_dir() -> str:
     """Return the directory used for the startup error diagnostic file.
 
     Returns:
-        Directory path (resources dir in the packaged app, CWD otherwise).
+        Directory path used for the startup error diagnostic file.
     """
     env_file = os.environ.get("ENV_FILE")
     if env_file:
@@ -182,8 +140,8 @@ def create_app(config: dict = None, bootstrap: bool = False) -> Flask:
         config: Optional configuration dictionary.
         bootstrap: Whether to run the idempotent database bootstrap
             (schema reconcile + admin seeding) before wiring services.
-            Used by the WSGI entrypoint; defaults to False to preserve
-            the desktop startup flow.
+            Used by the WSGI entrypoint; defaults to False for the
+            standalone ``python app.py`` dev flow.
 
     Returns:
         Configured Flask application instance.
@@ -470,15 +428,9 @@ if __name__ == "__main__":
     except BootstrapError as bootstrap_error:
         _write_startup_error_file(bootstrap_error)
         logger.error(
-            "Database setup required (%s); starting setup wizard", bootstrap_error.message
-        )
-        setup_app = setup_server.create_setup_app(
-            env_file=os.environ.get("ENV_FILE"),
-        )
-        setup_app.run(
-            host=config_class.SERVER_HOST,
-            port=config_class.SERVER_PORT,
-            debug=False,
+            "Database setup required (%s); failing fast. "
+            "Configure the DB_* environment variables and retry.",
+            bootstrap_error.message,
         )
         sys.exit(3)
 
