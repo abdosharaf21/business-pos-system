@@ -117,6 +117,46 @@ def create_checkout():
         }), 500
 
 
+@pos_bp.route("/sales", methods=["GET"])
+@require_authenticated
+def get_pos_sales():
+    """Get paginated sales history for the receipt list.
+
+    Query params:
+        search: Optional term for invoice number or customer name.
+        page: Page number (default 1).
+        per_page: Records per page (default 20, max 100).
+
+    Returns:
+        JSON with paginated sales list.
+    """
+    try:
+        search = request.args.get("search", "").strip() or None
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 20, type=int)
+
+        result = _pos_service.list_sales(
+            search=search,
+            page=page,
+            per_page=per_page,
+        )
+        return jsonify({
+            "success": True,
+            "message": "Sales retrieved successfully",
+            "data": result,
+        }), 200
+    except ValueError as e:
+        return jsonify({
+            "success": False,
+            "message": str(e),
+        }), 400
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e),
+        }), 500
+
+
 @pos_bp.route("/invoice/<int:sale_id>", methods=["GET"])
 @require_authenticated
 def get_sale_invoice(sale_id: int):

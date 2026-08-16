@@ -3,14 +3,20 @@ import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import { LogOut, X, Building2 } from "lucide-react";
 import { getVisibleModules, getVisibleSidebarGroups } from "./navigationConfig";
+import { useStoreSettings } from "../hooks/useStoreSettings";
+import { getLogoUrl } from "../services/storeSettings";
 
-export default function Sidebar({ isOpen, onClose, activeModuleId }) {
+export default function Sidebar({ isOpen, onClose, activeModuleId, pathname }) {
   const { logout, user } = useAuth();
   const { t, i18n } = useTranslation();
+  const { data: settings } = useStoreSettings();
   const isRtl = i18n.language === "ar";
 
   const modules = getVisibleModules(user?.role);
-  const groups = getVisibleSidebarGroups(activeModuleId, user?.role);
+  const groups = getVisibleSidebarGroups(activeModuleId, user?.role, pathname);
+
+  const storeName = settings?.store_name || t("common.appName");
+  const logoUrl = getLogoUrl();
 
   const handleLogout = async () => {
     await logout();
@@ -44,12 +50,20 @@ export default function Sidebar({ isOpen, onClose, activeModuleId }) {
         {/* Brand */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-surface-100">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-sm shadow-primary-500/25">
-              <Building2 className="w-5 h-5 text-white" strokeWidth={2.2} />
-            </div>
-            <div>
-              <span className="text-[15px] font-bold text-surface-900 tracking-tight">{t("common.appName")}</span>
-              <p className="text-[10px] text-surface-400 font-medium -mt-0.5 tracking-wide uppercase">{t("common.appSubtitle")}</p>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt=""
+                className="w-9 h-9 rounded-xl object-cover shadow-sm ring-1 ring-surface-200/60 shrink-0"
+              />
+            ) : (
+              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-sm shadow-primary-500/25">
+                <Building2 className="w-5 h-5 text-white" strokeWidth={2.2} />
+              </div>
+            )}
+            <div className="min-w-0">
+              <span className="text-[16px] font-bold text-surface-900 tracking-tight truncate block">{storeName}</span>
+              <p className="text-[11px] text-surface-400 font-medium -mt-0.5 tracking-wide uppercase">{t("common.appSubtitle")}</p>
             </div>
           </div>
           <button
@@ -91,25 +105,25 @@ export default function Sidebar({ isOpen, onClose, activeModuleId }) {
         </div>
 
         {/* Module navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto scrollbar-thin" aria-label="Sidebar navigation">
+        <nav className="flex-1 px-3 py-5 space-y-6 overflow-y-auto scrollbar-thin" aria-label="Sidebar navigation">
           {groups.map((group) => (
             <div key={group.labelKey}>
-              <p className="px-3 mb-2 text-[10px] font-semibold text-surface-400 uppercase tracking-wider">
+              <p className="px-3 mb-2 text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
                 {t(group.labelKey)}
               </p>
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {group.items.map(({ to, labelKey, icon: Icon }) => (
                   <NavLink
                     key={to}
                     to={to}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150
-                      ${
-                        isActive
-                          ? "bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/5"
-                          : "text-surface-500 hover:bg-surface-50 hover:text-surface-800"
-                      }`
+                      `relative flex items-center gap-3 px-3 py-2.5 min-h-[42px] rounded-xl text-[14px] font-medium transition-all duration-150
+                    ${
+                      isActive
+                        ? "bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/5"
+                        : "text-surface-500 hover:bg-surface-50 hover:text-surface-800"
+                    }`
                     }
                   >
                     {({ isActive }) => (
@@ -141,8 +155,8 @@ export default function Sidebar({ isOpen, onClose, activeModuleId }) {
                 {initials}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-surface-800 truncate">{user.full_name}</p>
-                <p className="text-[11px] text-surface-400 truncate">{user.email}</p>
+                <p className="text-[14px] font-semibold text-surface-800 truncate">{user.full_name}</p>
+                <p className="text-[12px] text-surface-400 truncate">{user.email}</p>
               </div>
             </div>
           )}
@@ -155,7 +169,7 @@ export default function Sidebar({ isOpen, onClose, activeModuleId }) {
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-medium text-surface-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
+            className="flex items-center gap-3 w-full px-3 py-2.5 min-h-[42px] rounded-xl text-[14px] font-medium text-surface-500 hover:bg-red-50 hover:text-red-600 transition-all duration-150"
             aria-label={t("common.signOut")}
           >
             <LogOut className={`w-[18px] h-[18px] ${isRtl ? "rotate-180" : ""}`} strokeWidth={1.8} />

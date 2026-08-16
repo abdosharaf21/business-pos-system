@@ -55,6 +55,3 @@ export const tableBodyClass =
 
 export const tableRowClass =
   "hover:bg-surface-50/50 dark:hover:bg-surface-700/30 transition-colors duration-100";
-
-export const sectionTitleClass =
-  "text-[15px] font-semibold text-surface-900 dark:text-surface-100";

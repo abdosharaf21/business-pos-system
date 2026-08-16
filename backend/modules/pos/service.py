@@ -1,4 +1,5 @@
 """Service layer for POS operations."""
+from math import ceil
 from typing import Any, Dict, List, Optional
 
 from backend.modules.pos.model import PosProduct
@@ -9,6 +10,7 @@ class PosService:
     """Contains business logic for the POS interface."""
 
     VALID_PAYMENT_METHODS = {"cash", "card", "transfer", "mixed", "vodafone_cash"}
+    MAX_SALES_PER_PAGE = 100
 
     def __init__(self, pos_repository: PosRepository) -> None:
         self._pos_repository = pos_repository
@@ -107,6 +109,42 @@ class PosService:
             payment_method=payment_method,
             discount=discount,
         )
+
+    def list_sales(
+        self,
+        search: Optional[str] = None,
+        page: int = 1,
+        per_page: int = 20,
+    ) -> Dict[str, Any]:
+        """Retrieve a paginated sales history for receipts.
+
+        Args:
+            search: Optional search term for invoice number or customer name.
+            page: Page number (1-based).
+            per_page: Records per page (default 20, max 100).
+
+        Returns:
+            Dict with items, total, page, per_page, and pages.
+
+        Raises:
+            ValueError: If pagination values are invalid.
+        """
+        page = max(int(page), 1)
+        per_page = min(max(int(per_page), 1), self.MAX_SALES_PER_PAGE)
+
+        items, total = self._pos_repository.get_sales(
+            search=search,
+            limit=per_page,
+            offset=(page - 1) * per_page,
+        )
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "pages": ceil(total / per_page) if total else 0,
+        }
 
     def get_invoice(self, sale_id: int) -> Dict[str, Any]:
         """Retrieve formatted invoice data.

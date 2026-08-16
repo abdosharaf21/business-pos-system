@@ -20,7 +20,7 @@ import toast from "react-hot-toast";
 
 const ROLE_COLORS = {
   admin: "bg-violet-50 text-violet-700 ring-violet-200/60 dark:bg-violet-500/10 dark:text-violet-400 dark:ring-violet-500/30",
-  manager: "bg-sky-50 text-sky-700 ring-sky-200/60 dark:bg-sky-500/10 dark:text-sky-400 dark:ring-sky-500/30",
+  manager: "bg-primary-50 text-primary-700 ring-primary-200/60 dark:bg-primary-500/10 dark:text-primary-400 dark:ring-primary-500/30",
   employee: "bg-surface-100 text-surface-600 ring-surface-200/60 dark:bg-surface-700/50 dark:text-surface-300 dark:ring-surface-700/60",
 };
 

@@ -34,22 +34,6 @@ export function getLogoUrl() {
   return getAssetUrl("/store-settings/logo", cachedSettings.logo_path);
 }
 
-export function getLoginBackgroundUrl() {
-  if (!cachedSettings?.login_background_path) return null;
-  return getAssetUrl(
-    "/store-settings/login-background",
-    cachedSettings.login_background_path
-  );
-}
-
-export function getLoginLogoUrl() {
-  if (!cachedSettings?.login_logo_path) return null;
-  return getAssetUrl(
-    "/store-settings/login-logo",
-    cachedSettings.login_logo_path
-  );
-}
-
 const CURRENCY_SYMBOLS = {
   EGP: "ج.م",
   USD: "$",

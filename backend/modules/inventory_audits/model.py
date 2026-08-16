@@ -114,6 +114,8 @@ class InventoryAudit:
         id: Unique identifier for the audit.
         name: Human-readable audit name.
         location: Location being audited (warehouse or store).
+        warehouse_id: Warehouse the audit applies to. Built-in audits
+            default to WH-MAIN for warehouse and STORE for store.
         status: Audit status (open, completed, cancelled).
         created_by: ID of the user who created the audit.
         created_by_name: Full name of the creating user (from a join).
@@ -131,6 +133,7 @@ class InventoryAudit:
         id: Optional[int] = None,
         name: Optional[str] = None,
         location: Optional[str] = None,
+        warehouse_id: Optional[int] = None,
         status: Optional[str] = None,
         created_by: Optional[int] = None,
         created_by_name: Optional[str] = None,
@@ -148,6 +151,7 @@ class InventoryAudit:
             id: Unique identifier for the audit.
             name: Human-readable audit name.
             location: Location being audited.
+            warehouse_id: Warehouse the audit applies to.
             status: Audit status.
             created_by: ID of the creating user.
             created_by_name: Full name of the creating user.
@@ -162,6 +166,7 @@ class InventoryAudit:
         self.id = id
         self.name = name
         self.location = location
+        self.warehouse_id = warehouse_id
         self.status = status
         self.created_by = created_by
         self.created_by_name = created_by_name
@@ -183,6 +188,7 @@ class InventoryAudit:
             "id": self.id,
             "name": self.name,
             "location": self.location,
+            "warehouse_id": self.warehouse_id,
             "status": self.status,
             "created_by": self.created_by,
             "total_items": self.total_items,
@@ -216,6 +222,7 @@ class InventoryAudit:
             id=data.get("id"),
             name=data.get("name"),
             location=data.get("location"),
+            warehouse_id=data.get("warehouse_id"),
             status=data.get("status"),
             created_by=data.get("created_by"),
             created_by_name=data.get("created_by_name"),

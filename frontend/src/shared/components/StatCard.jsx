@@ -36,7 +36,7 @@ export function StatCard({ label, value, icon: Icon, color = "blue" }) {
         <Icon className="w-[22px] h-[22px]" strokeWidth={1.8} />
       </div>
       <div className="relative min-w-0">
-        <p className="text-[12px] font-semibold text-surface-400 uppercase tracking-wide">{label}</p>
+        <p className="text-[13px] font-semibold text-surface-400 uppercase tracking-wide">{label}</p>
         <p className="numeric-value text-2xl font-bold text-surface-900 dark:text-surface-100 tracking-tight mt-0.5 leading-snug">{value}</p>
       </div>
     </div>

@@ -1,1304 +1,2322 @@
 {
-  "nav": {
-    "overview": "Overview",
-    "dashboard": "Dashboard",
-    "management": "Management",
-    "pos": "POS",
-    "reports": "Reports",
-    "products": "Products",
-    "customers": "Customers",
-    "suppliers": "Suppliers",
-    "purchases": "Purchases",
-    "expenses": "Expenses",
-    "categories": "Categories",
-    "inventory": "Inventory",
-    "movementHistory": "Movement History",
-    "inventoryAudits": "Inventory Audits",
-    "administration": "Administration",
-    "users": "Users",
-    "storeSettings": "Store Settings",
-    "settings": "Settings",
-    "newSale": "New Sale",
-    "stock": "Stock",
-    "dashboardOverview": "Dashboard Overview"
-  },
-  "auth": {
-    "welcomeBack": "Welcome back",
-    "signInSubtitle": "Sign in to your account to continue",
-    "emailLabel": "Email address",
-    "emailPlaceholder": "you@company.com",
-    "passwordLabel": "Password",
-    "passwordPlaceholder": "Enter your password",
-    "showPassword": "Show password",
-    "hidePassword": "Hide password",
-    "signIn": "Sign in",
-    "signingIn": "Signing in...",
-    "brandSubtitle": "Management System",
-    "heroTitle": "POS Management",
-    "heroTitleAccent": "Made Simple",
-    "heroDescription": "Manage your clients, services, and team — all from one professional dashboard built for growing businesses.",
-    "stats": {
-      "modules": "Modules",
-      "secure": "Secure",
-      "available": "Available"
-    },
-    "footer": "Business POS System",
-    "validation": {
-      "emailRequired": "Email is required",
-      "emailInvalid": "Invalid email address",
-      "passwordRequired": "Password is required"
-    },
-    "toast": {
-      "loginFailed": "Login failed"
-    }
-  },
-  "dashboard": {
-    "title": "Executive Dashboard",
-    "subtitle": "Real-time overview of your business performance",
-    "refresh": "Refresh data",
-    "totalProducts": "Total Products",
-    "categories": "Categories",
-    "customers": "Customers",
-    "suppliers": "Suppliers",
-    "totalSales": "Total Sales",
-    "totalPurchases": "Total Purchases",
-    "inventoryValue": "Inventory Value",
-    "lowStockItems": "Low Stock Items",
-    "todaysSales": "Today's Sales",
-    "transactions": "{{count}} transactions",
-    "inventoryHealth": "Inventory Health",
-    "productsTracked": "{{count}} products tracked",
-    "adequatelyStocked": "Products adequately stocked",
-    "emptyTitle": "Welcome to POS",
-    "emptyDescription": "Your system is ready. Start by adding products, customers, and making sales to see your business data here.",
-    "kpis": {
-      "revenue": "Revenue",
-      "monthlyRevenueSubtitle": "this month",
-      "todaySales": "Today's Sales",
-      "todaySalesSubtitle": "{{count}} invoices today",
-      "monthlyPurchases": "Purchases",
-      "monthlyPurchasesSubtitle": "this month",
-      "inventoryValue": "Inventory Value",
-      "inventoryValueSubtitle": "{{count}} active products",
-      "lowStock": "Low Stock",
-      "lowStockSubtitle": "products need restocking",
-      "pendingPurchases": "Pending Purchases",
-      "pendingPurchasesSubtitle": "awaiting completion",
-      "todayExpenses": "Today's Expenses",
-      "openAudits": "Open Audits",
-      "avgInvoice": "Avg Invoice Value"
-    },
-    "charts": {
-      "salesTrend": "Sales Trend",
-      "salesTrendSubtitle": "Last 30 days",
-      "purchasesTrend": "Purchases Trend",
-      "purchasesTrendSubtitle": "Last 30 days",
-      "expensesTrend": "Expenses Trend",
-      "expensesTrendSubtitle": "Last 30 days",
-      "inventoryMovement": "Inventory Movement",
-      "inventoryMovementSubtitle": "Units by month",
-      "topProducts": "Top Selling Products",
-      "topProductsSubtitle": "By revenue",
-      "topCustomers": "Top Customers",
-      "topCustomersSubtitle": "By total spending",
-      "topCustomersEmptyTitle": "Customer analytics coming soon",
-      "topCustomersEmptyDescription": "Once customer sales data is available, your top buyers will appear here.",
-      "noData": "No data available yet",
-      "invoices": "{{count}} invoices",
-      "units": "{{count}} units",
-      "quantity": "Qty sold"
-    },
-    "activity": {
-      "recentSales": "Recent Sales",
-      "recentPurchases": "Recent Purchases",
-      "recentAudits": "Recent Inventory Audits",
-      "notifications": "Notifications",
-      "quickActions": "Quick Actions",
-      "viewAll": "View all",
-      "noSales": "No recent sales",
-      "noPurchases": "No recent purchases",
-      "noAudits": "No audits yet",
-      "noNotifications": "You're all caught up"
-    },
-    "expenses": {
-      "today": "Today's Expenses",
-      "month": "Expenses This Month",
-      "year": "Expenses This Year",
-      "avgMonth": "Avg Monthly Expenses",
-      "highestCategory": "Highest Expense Category",
-      "noExpenses": "No expenses recorded yet"
-    },
-    "audits": {
-      "title": "Inventory Audits",
-      "open": "Open Audits",
-      "completed": "Completed Audits"
-    }
-  },
-  "products": {
-    "title": "Products",
-    "subtitle": "Manage your product catalog",
-    "newProduct": "New Product",
-    "addProduct": "Add Product",
-    "searchPlaceholder": "Search by name or barcode...",
-    "searchAriaLabel": "Search products",
-    "allCategories": "All Categories",
-    "allStatus": "All Status",
-    "active": "Active",
-    "inactive": "Inactive",
-    "noProductsFound": "No products found",
-    "tryDifferentFilters": "Try different filters",
-    "addYourFirstProduct": "Add your first product",
-    "columns": {
-      "sku": "SKU",
-      "name": "Name",
-      "barcode": "Barcode",
-      "category": "Category",
-      "purchasePrice": "Purchase Price",
-      "sellingPrice": "Selling Price",
-      "qty": "Qty",
-      "minStock": "Min Stock",
-      "expiration": "Expiration",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "expiration": {
-      "statuses": {
-        "expired": "Expired",
-        "expiring_soon": "Expiring Soon",
-        "normal": "Valid"
-      }
-    },
-    "edit": "Edit",
-    "delete": "Delete",
-    "form": {
-      "titleCreate": "New Product",
-      "titleEdit": "Edit Product",
-      "name": "Name",
-      "namePlaceholder": "Product name",
-      "barcode": "Barcode",
-      "barcodePlaceholder": "Barcode",
-      "sku": "SKU (Stock Keeping Unit)",
-      "skuPlaceholder": "Optional SKU code",
-      "category": "Category",
-      "categoryPlaceholder": "Select category",
-      "description": "Description",
-      "descriptionPlaceholder": "Brief description (optional)",
-      "purchasePrice": "Purchase Price",
-      "sellingPrice": "Selling Price",
-      "quantity": "Quantity",
-      "minStock": "Minimum Stock",
-      "status": "Status",
-      "formActive": "Active",
-      "formInactive": "Inactive",
-      "placeholderZero": "0",
-      "placeholderDecimal": "0.00",
-      "cancel": "Cancel",
-      "create": "Create",
-      "update": "Update",
-      "saving": "Saving..."
-    },
-    "validation": {
-      "nameRequired": "Name is required",
-      "barcodeRequired": "Barcode is required",
-      "categoryRequired": "Category is required",
-      "required": "Required",
-      "mustBePositive": "Must be >= 0",
-      "priceNotLower": "Selling price should not be lower than purchase price"
-    },
-    "toast": {
-      "created": "Product created",
-      "createFailed": "Failed to create product",
-      "updated": "Product updated",
-      "updateFailed": "Failed to update product",
-      "deleted": "Product deleted",
-      "deleteFailed": "Failed to delete product"
-    },
-    "confirmDelete": {
-      "title": "Delete Product",
-      "message": "Delete \"{{name}}\"? This action cannot be undone.",
-      "confirm": "Delete",
-      "deleting": "Deleting...",
-      "cancel": "Cancel"
-    }
-  },
-  "inventory": {
-    "title": "Inventory",
-    "subtitle": "Manage stock across warehouse and store",
-    "totalProducts": "Total Products",
-    "totalStock": "Total Stock",
-    "totalValue": "Inventory Value",
-    "lowStockItems": "Low Stock Items",
-    "warehouseStock": "Warehouse Stock",
-    "storeStock": "Store Stock",
-    "warehouse": "Warehouse",
-    "store": "Store",
-    "allProducts": "All Products",
-    "lowStock": "Low Stock",
-    "searchPlaceholder": "Search products...",
-    "searchAriaLabel": "Search inventory",
-    "noBarcode": "No barcode",
-    "low": "Low",
-    "noProductsFound": "No products found",
-    "tryDifferentSearch": "Try a different search",
-    "noProductsInInventory": "No products in inventory",
-    "columns": {
-      "product": "Product",
-      "category": "Category",
-      "stock": "Stock",
-      "warehouse": "Warehouse",
-      "store": "Store",
-      "total": "Total",
-      "minStock": "Min Stock",
-      "expiration": "Expiration",
-      "price": "Price",
-      "status": "Status",
-      "actions": "Actions",
-      "history": "History"
-    },
-    "expiration": {
-      "filterLabel": "Expiration Status",
-      "all": "All Expiration",
-      "sortByExpiration": "Sort by Expiration",
-      "statuses": {
-        "expired": "Expired",
-        "expiring_soon": "Expiring Soon",
-        "normal": "Normal"
-      },
-      "editButton": "Set Expiration Date",
-      "editTitle": "Set Expiration Date — {{name}}",
-      "current": "Current Expiration",
-      "none": "Not set",
-      "dateLabel": "Expiration Date",
-      "hint": "This updates the expiration date for existing stock of this product without expiration dates.",
-      "cancel": "Cancel",
-      "save": "Save",
-      "saving": "Saving…",
-      "validation": {
-        "dateRequired": "Please choose an expiration date"
-      },
-      "toast": {
-        "updated": "Expiration date updated successfully",
-        "updateFailed": "Failed to update expiration date"
-      }
-    },
-    "transfer": {
-      "title": "Transfer to Store — {{name}}",
-      "from": "From",
-      "to": "To",
-      "currentWarehouse": "Current Warehouse Stock",
-      "afterTransfer": "Warehouse After Transfer",
-      "quantity": "Quantity",
-      "quantityPlaceholder": "e.g. 10",
-      "transfer": "Transfer",
-      "transferring": "Transferring..."
-    },
-    "quickAudit": {
-      "button": "Quick Audit",
-      "title": "Quick Audit — {{name}}",
-      "location": "Location",
-      "currentQuantity": "Current Quantity",
-      "countedQuantity": "Counted Quantity",
-      "reason": "Reason (optional)",
-      "reasonPlaceholder": "e.g. Physical count completed",
-      "hint": "Counts are applied through an Inventory Audit",
-      "cancel": "Cancel",
-      "apply": "Apply",
-      "applying": "Applying..."
-    },
-    "history": {
-      "title": "Movement History — {{name}}",
-      "noTransactions": "No movements recorded",
-      "transfer": "Transfer",
-      "sale": "Sale",
-      "purchase": "Purchase",
-      "return": "Return",
-      "damage": "Damage",
-      "adjustment": "Adjustment",
-      "warehouse": "Warehouse",
-      "store": "Store",
-      "units": "units",
-      "source": "Source"
-    },
-    "historyPage": {
-      "title": "Movement History",
-      "subtitle": "Track all stock movements with filters",
-      "filters": "Filters",
-      "clear": "Clear filters",
-      "filtersProduct": "Product",
-      "filtersType": "Movement Type",
-      "allProducts": "All Products",
-      "allTypes": "All Types",
-      "fromDate": "From Date",
-      "toDate": "To Date",
-      "searchPlaceholder": "Search by product or reference...",
-      "noMovements": "No movements found",
-      "noMovementsHint": "Try adjusting your filters or search",
-      "columns": {
-        "product": "Product",
-        "type": "Type",
-        "from": "From",
-        "to": "To",
-        "qty": "Qty",
-        "reference": "Reference",
-        "date": "Date"
-      }
-    },
-    "toast": {
-      "quickAudited": "Quick audit applied",
-      "quickAuditFailed": "Failed to apply quick audit",
-      "transferred": "Stock transferred to store",
-      "transferFailed": "Failed to transfer stock"
-    },
-    "validation": {
-      "mustBeWhole": "Must be a whole number",
-      "quantityPositive": "Quantity must be greater than zero",
-      "quantityRequired": "Counted quantity is required",
-      "quantityNonNegative": "Counted quantity cannot be negative"
-    }
-  },
-  "purchases": {
-    "title": "Purchases",
-    "subtitle": "Manage purchase orders and inventory replenishment",
-    "newPurchase": "New Purchase",
-    "searchPlaceholder": "Search by invoice number or supplier...",
-    "searchAriaLabel": "Search purchases",
-    "noPurchasesFound": "No purchases found",
-    "tryDifferentSearch": "Try a different search",
-    "createYourFirst": "Create your first purchase",
-    "showing": "Showing {{count}} of {{total}}",
-    "pageOf": "Page {{page}} of {{pages}}",
-    "previous": "Previous",
-    "next": "Next",
-    "clear": "Clear",
-    "paymentMethods": {
-      "cash": "Cash",
-      "card": "Card",
-      "transfer": "Transfer",
-      "mixed": "Mixed",
-      "vodafone_cash": "Vodafone Cash"
-    },
-    "filters": {
-      "date": "Date",
-      "from": "From",
-      "to": "To"
-    },
-    "columns": {
-      "invoice": "Invoice #",
-      "supplier": "Supplier",
-      "total": "Total",
-      "status": "Status",
-      "date": "Date",
-      "paymentMethod": "Payment Method",
-      "createdBy": "Created By",
-      "actions": "Actions"
-    },
-    "statusCompleted": "completed",
-    "statusPending": "pending",
-    "statusCancelled": "cancelled",
-    "viewDetails": "View Details",
-    "invoice": "Invoice",
-    "failedToLoadInvoice": "Failed to load invoice",
-    "form": {
-      "title": "New Purchase Order",
-      "supplier": "Supplier",
-      "supplierPlaceholder": "Select supplier",
-      "addSupplier": "+ Add Supplier",
-      "addProducts": "Add Products",
-      "searchPlaceholder": "Search by name, barcode, or SKU...",
-      "searching": "Searching...",
-    "noProductsFound": "No products found",
-    "productNotFound": "Product not found",
-      "skuPrefix": "SKU: {{code}}",
-      "barcodeFormat": "({{code}})",
-      "complete": "Complete Purchase",
-      "creating": "Creating...",
-      "cancel": "Cancel",
-      "total": "Total",
-      "paymentMethod": "Payment Method",
-      "notes": "Notes",
-      "notesPlaceholder": "Add any additional notes (optional)"
-    },
-    "items": {
-      "product": "Product",
-      "qty": "Qty",
-      "costPrice": "Cost Price",
-      "expiration": "Expiration",
-      "expirationAria": "Expiration date",
-      "subtotal": "Subtotal"
-    },
-    "supplierForm": {
-      "title": "New Supplier",
-      "name": "Name *",
-      "namePlaceholder": "Supplier name",
-      "phone": "Phone *",
-      "phonePlaceholder": "Phone number",
-      "email": "Email",
-      "emailPlaceholder": "Email (optional)",
-      "address": "Address",
-      "addressPlaceholder": "Address (optional)",
-      "cancel": "Cancel",
-      "save": "Save Supplier",
-      "saving": "Saving..."
-    },
-    "detail": {
-      "title": "Purchase #{{number}}",
-      "supplier": "Supplier",
-      "date": "Date",
-      "totalAmount": "Total Amount",
-      "items": {
-        "product": "Product",
-        "qty": "Qty",
-        "cost": "Cost",
-        "subtotal": "Subtotal"
-      }
-    },
-    "invoiceModal": {
-      "title": "Invoice #{{number}}",
-      "header": "PURCHASE INVOICE",
-      "supplier": "Supplier",
-      "date": "Date",
-      "processedBy": "Processed By",
-      "totalAmount": "Total Amount",
-      "footer": "Invoice generated automatically by POS System",
-      "columns": {
-        "num": "#",
-        "product": "Product",
-        "barcode": "Barcode",
-        "qty": "Qty",
-        "price": "Price",
-        "total": "Total"
-      }
-    },
-    "invoicePage": {
-      "title": "Purchase Details",
-      "notFound": "Purchase Not Found",
-      "notFoundDesc": "The purchase you are looking for does not exist or has been removed.",
-      "backToPurchases": "Back to Purchases",
-      "print": "Print",
-      "posSystem": "POS System",
-      "invoiceLabel": "Purchase Invoice",
-      "supplier": "Supplier",
-      "processedBy": "Processed By",
-      "paymentMethod": "Payment Method",
-      "notes": "Notes",
-      "product": "Product",
-      "barcode": "Barcode",
-      "qty": "Qty",
-      "expiration": "Expiration",
-      "costPrice": "Cost Price",
-      "total": "Total",
-      "grandTotal": "Grand Total",
-      "footer": "Invoice generated automatically by POS System",
-      "taxNumber": "Tax No."
-    },
-    "validation": {
-      "supplierRequired": "Supplier name is required",
-      "phoneRequired": "Phone number is required",
-      "invalidEmail": "Invalid email format",
-      "selectSupplier": "Please select a supplier",
-      "addProduct": "Please add at least one product",
-      "quantityPositive": "Quantity must be greater than zero",
-      "costNotNegative": "Cost price cannot be negative",
-      "productAlreadyAdded": "Product already added"
-    },
-    "toast": {
-      "purchaseCreated": "Purchase created successfully",
-      "purchaseFailed": "Failed to create purchase",
-      "supplierCreated": "Supplier created successfully",
-      "supplierFailed": "Failed to create supplier"
-    }
-  },
-  "pos": {
-    "searchPlaceholder": "Search products...",
-    "barcodePlaceholder": "Barcode",
-    "allCategories": "All Categories",
-    "outOfStock": "Out of Stock",
-    "lowStock": "Low Stock",
-    "noProductsFound": "No products found",
-    "productNotFound": "Product not found",
-    "failedToLoadProducts": "Failed to load products",
-    "cartTitle": "Shopping Cart",
-    "cartEmpty": "Cart is empty",
-    "cartEmptyHint": "Click a product to add it",
-    "perUnit": "{{price}} / unit",
-    "summary": "Summary",
-    "subtotal": "Subtotal",
-    "discount": "Discount",
-    "tax": "Tax",
-    "grandTotal": "Grand Total",
-    "items": "Items",
-    "clearCart": "Clear Cart",
-    "checkout": "Checkout",
-    "checkoutTitle": "Complete Checkout",
-    "customerLabel": "Customer",
-    "customerOptional": "(optional)",
-    "customerSearchPlaceholder": "Search by name or phone...",
-    "paymentMethod": "Payment Method",
-    "cash": "Cash",
-    "card": "Card",
-    "transfer": "Transfer",
-    "mixed": "Mixed",
-    "vodafoneCash": "Vodafone Cash",
-    "cancel": "Cancel",
-    "confirmSale": "Confirm Sale",
-    "processing": "Processing...",
-    "checkoutFailed": "Checkout failed",
-    "invoice": {
-      "title": "Invoice",
-      "notFound": "Invoice Not Found",
-      "notFoundDesc": "The sale you are looking for does not exist or has been removed.",
-      "backToPos": "Back to POS",
-      "backToPosTitle": "Back to POS",
-      "print": "Print",
-      "newSale": "New Sale",
-      "posSystem": "POS System",
-      "invoiceLabel": "Invoice",
-      "cashier": "Cashier",
-      "customer": "Customer",
-      "walkInCustomer": "Walk-in Customer",
-      "product": "Product",
-      "qty": "Qty",
-      "unitPrice": "Unit Price",
-      "total": "Total",
-      "invoiceSubtotal": "Subtotal",
-      "invoiceDiscount": "Discount",
-      "invoiceGrandTotal": "Grand Total",
-      "payment": "Payment",
-      "thankYou": "Thank you for your purchase!",
-      "taxNumber": "Tax No."
-    }
-  },
-  "customers": {
-    "title": "Customers",
-    "description": "Manage your customer directory",
-    "searchPlaceholder": "Search by name or phone...",
-    "searchAriaLabel": "Search customers",
-    "newCustomer": "New Customer",
-    "columns": {
-      "name": "Name",
-      "phone": "Phone",
-      "email": "Email",
-      "address": "Address",
-      "actions": "Actions"
-    },
-    "empty": {
-      "noResultsTitle": "No customers found",
-      "noResultsDescription": "Try a different search",
-      "noCustomersDescription": "Add your first customer",
-      "addCustomer": "Add Customer"
-    },
-    "form": {
-      "titleCreate": "New Customer",
-      "titleEdit": "Edit Customer",
-      "name": "Name",
-      "namePlaceholder": "Full name",
-      "phone": "Phone",
-      "phonePlaceholder": "Phone number",
-      "email": "Email",
-      "emailPlaceholder": "Email address (optional)",
-      "address": "Address",
-      "addressPlaceholder": "Address (optional)",
-      "cancel": "Cancel",
-      "saving": "Saving...",
-      "create": "Create",
-      "update": "Update"
-    },
-    "validation": {
-      "nameRequired": "Name is required",
-      "phoneRequired": "Phone is required"
-    },
-    "toast": {
-      "created": "Customer created",
-      "createFailed": "Failed to create customer",
-      "updated": "Customer updated",
-      "updateFailed": "Failed to update customer",
-      "deleted": "Customer deleted",
-      "deleteFailed": "Failed to delete customer"
-    },
-    "confirmDelete": {
-      "title": "Delete Customer",
-      "message": "Delete \"{{name}}\"? This action cannot be undone."
-    },
-    "edit": "Edit",
-    "delete": "Delete"
-  },
-  "categories": {
-    "title": "Categories",
-    "description": "Organize your products into categories",
-    "searchPlaceholder": "Search categories...",
-    "searchAriaLabel": "Search categories",
-    "newCategory": "New Category",
-    "columns": {
-      "name": "Name",
-      "description": "Description",
-      "actions": "Actions"
-    },
-    "empty": {
-      "noResultsTitle": "No categories found",
-      "noResultsDescription": "Try a different search",
-      "noCategoriesDescription": "Add your first category",
-      "addCategory": "Add Category",
-      "noSubcategoriesDescription": "Create categories and organize them in a hierarchy"
-    },
-    "form": {
-      "titleCreate": "New Category",
-      "titleEdit": "Edit Category",
-      "name": "Name",
-      "namePlaceholder": "Category name",
-      "description": "Description",
-      "descriptionPlaceholder": "Brief description (optional)",
-      "cancel": "Cancel",
-      "saving": "Saving...",
-      "create": "Create",
-      "update": "Update",
-      "parent": "Parent Category",
-      "parentPlaceholder": "No parent (root)"
-    },
-    "validation": {
-      "nameRequired": "Name is required"
-    },
-    "toast": {
-      "created": "Category created",
-      "createFailed": "Failed to create category",
-      "updated": "Category updated",
-      "updateFailed": "Failed to update category",
-      "deleted": "Category deleted",
-      "deleteFailed": "Failed to delete category"
-    },
-    "confirmDelete": {
-      "title": "Delete Category",
-      "message": "Delete \"{{name}}\"? This action cannot be undone."
-    },
-    "edit": "Edit",
-    "delete": "Delete",
-    "addSubcategory": "Add subcategory",
-    "toggle": "Expand / Collapse"
-  },
-  "users": {
-    "title": "Users",
-    "description": "Manage system users and roles",
-    "searchPlaceholder": "Search users...",
-    "searchAriaLabel": "Search users",
-    "addUser": "Add User",
-    "columns": {
-      "name": "Name",
-      "role": "Role",
-      "phone": "Phone",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "empty": {
-      "noResultsTitle": "No users found",
-      "noResultsDescription": "Try a different search term",
-      "noUsersDescription": "Get started by adding your first user",
-      "addUser": "Add User"
-    },
-    "form": {
-      "createTitle": "Create User",
-      "createBtn": "Create User",
-      "editTitle": "Edit User",
-      "fullName": "Full Name",
-      "fullNamePlaceholder": "John Doe",
-      "email": "Email",
-      "emailPlaceholder": "john@company.com",
-      "password": "Password",
-      "passwordPlaceholder": "Min 8 characters",
-      "passwordHint": "Min 8 characters",
-      "phone": "Phone",
-      "phonePlaceholder": "+1234567890",
-      "phoneHint": "Optional",
-      "role": "Role",
-      "status": "Status",
-      "statusActive": "Active",
-      "statusInactive": "Inactive",
-      "cancel": "Cancel",
-      "saving": "Saving...",
-      "creating": "Creating...",
-      "update": "Update",
-      "resetPassword": "Reset Password",
-      "resetPasswordTitle": "Reset Password — {{name}}",
-      "newPassword": "New Password",
-      "newPasswordPlaceholder": "Min 8 characters",
-      "resetting": "Resetting..."
-    },
-    "roles": {
-      "admin": "Admin",
-      "manager": "Manager",
-      "employee": "Employee"
-    },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive"
-    },
-    "validation": {
-      "nameRequired": "Name is required",
-      "nameTooLong": "Name too long",
-      "emailRequired": "Email is required",
-      "emailInvalid": "Invalid email",
-      "passwordMin": "Password must be at least 8 characters",
-      "phoneInvalid": "Phone must be 10-15 digits (optional +)"
-    },
-    "toast": {
-      "created": "User created",
-      "createFailed": "Failed to create user",
-      "updated": "User updated",
-      "updateFailed": "Failed to update user",
-      "deleted": "User deleted",
-      "deleteFailed": "Failed to delete user",
-      "passwordReset": "Password reset successfully",
-      "passwordResetFailed": "Failed to reset password"
-    },
-    "confirmDelete": {
-      "title": "Delete User",
-      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
-    },
-    "edit": "Edit",
-    "delete": "Delete",
-    "resetPassword": "Reset password"
-  },
-  "suppliers": {
-    "title": "Suppliers",
-    "description": "Manage your supplier directory",
-    "searchPlaceholder": "Search by name or phone...",
-    "searchAriaLabel": "Search suppliers",
-    "newSupplier": "New Supplier",
-    "columns": {
-      "name": "Name",
-      "phone": "Phone",
-      "email": "Email",
-      "address": "Address",
-      "actions": "Actions"
-    },
-    "empty": {
-      "noResultsTitle": "No suppliers found",
-      "noResultsDescription": "Try a different search",
-      "noSuppliersDescription": "Add your first supplier",
-      "addSupplier": "Add Supplier"
-    },
-    "form": {
-      "titleCreate": "New Supplier",
-      "titleEdit": "Edit Supplier",
-      "name": "Name",
-      "namePlaceholder": "Supplier name",
-      "phone": "Phone",
-      "phonePlaceholder": "Phone number",
-      "email": "Email",
-      "emailPlaceholder": "Email address (optional)",
-      "address": "Address",
-      "addressPlaceholder": "Address (optional)",
-      "cancel": "Cancel",
-      "saving": "Saving...",
-      "create": "Create",
-      "update": "Update"
-    },
-    "validation": {
-      "nameRequired": "Name is required",
-      "phoneRequired": "Phone is required"
-    },
-    "toast": {
-      "created": "Supplier created",
-      "createFailed": "Failed to create supplier",
-      "updated": "Supplier updated",
-      "updateFailed": "Failed to update supplier",
-      "deleted": "Supplier deleted",
-      "deleteFailed": "Failed to delete supplier"
-    },
-    "confirmDelete": {
-      "title": "Delete Supplier",
-      "message": "Delete \"{{name}}\"? This action cannot be undone."
-    },
-    "edit": "Edit",
-    "delete": "Delete"
-  },
-  "reports": {
-    "title": "Reports & Analytics",
-    "description": "Business performance overview and insights",
-    "summary": {
-      "todaySales": "Today Sales",
-      "monthlySales": "Monthly Sales",
-      "totalInvoices": "Total Invoices",
-      "avgInvoiceValue": "Avg Invoice Value",
-      "todayPurchases": "Today Purchases",
-      "monthlyPurchases": "Monthly Purchases",
-      "inventoryValue": "Inventory Value",
-      "lowStockItems": "Low Stock Items"
-    },
-    "topSelling": {
-      "title": "Top Selling Products",
-      "product": "Product",
-      "qtySold": "Qty Sold",
-      "revenue": "Revenue",
-      "empty": "No sales data available"
-    },
-    "recentSales": {
-      "title": "Recent Sales",
-      "invoice": "Invoice",
-      "amount": "Amount",
-      "date": "Date",
-      "empty": "No recent sales"
-    },
-    "salesAnalytics": "Sales Analytics",
-    "profitAnalytics": "Profit Analytics",
-    "productPerformance": "Product Performance",
-    "productPerformanceSub": {
-      "topPerforming": "Top Performing",
-      "slowMoving": "Slow Moving",
-      "product": "Product",
-      "qtySold": "Qty Sold",
-      "revenue": "Revenue",
-      "topEmpty": "No product sales data",
-      "slowEmpty": "All products have sales"
-    },
-    "supplierPerformance": "Supplier Performance",
-    "supplierPerformanceSub": {
-      "supplier": "Supplier",
-      "totalSpent": "Total Spent",
-      "orders": "Orders",
-      "empty": "No supplier data available"
-    },
-    "filters": {
-      "last7Days": "Last 7 Days",
-      "last30Days": "Last 30 Days",
-      "custom": "Custom",
-      "to": "to"
-    },
-    "charts": {
-      "noSalesData": "No sales data in this period"
-    },
-    "profitCards": {
-      "revenue": "Revenue",
-      "purchaseCost": "Purchase Cost",
-      "grossProfit": "Gross Profit",
-      "profitMargin": "Profit Margin"
-    },
-    "inventoryReport": {
-      "title": "Inventory Reports",
-      "subtitle": "Stock levels by location",
-      "product": "Product",
-      "warehouse": "Warehouse",
-      "store": "Store",
-      "total": "Total",
-      "minStock": "Min Stock",
-      "expiration": "Expiration",
-      "statuses": {
-        "expired": "Expired",
-        "expiring_soon": "Expiring Soon",
-        "normal": "Valid"
-      },
-      "empty": "No inventory data available",
-      "mostTransferred": "Most Transferred",
-      "qtyTransferred": "Qty Transferred",
-      "transferCount": "Transfers",
-      "monthlyMovement": "Monthly Movement",
-      "yearlyMovement": "Yearly Movement",
-      "lowestStock": "Lowest Stock Products"
-    },
-    "expenses": {
-      "title": "Expenses Report",
-      "totalExpenses": "Total Expenses",
-      "highestCategory": "Highest Category",
-      "monthlyComparison": "Monthly Comparison",
-      "periodExpenses": "Categories Used",
-      "dailyTrend": "Daily Expense Trend",
-      "noData": "No expense data available for this period",
-      "categoryBreakdown": "Category Breakdown",
-      "paymentBreakdown": "Payment Method Breakdown",
-      "paymentMethod": "Payment Method",
-      "category": "Category",
-      "count": "Count",
-      "highestCategories": "Highest Categories"
-    },
-    "audits": {
-      "title": "Inventory Audit Report",
-      "totalAudits": "Total Audits",
-      "completedAudits": "Completed",
-      "openAudits": "Open",
-      "cancelledAudits": "Cancelled",
-      "adjustedItems": "Items Adjusted",
-      "unitsAdded": "Units Added",
-      "unitsRemoved": "Units Removed",
-      "unitsAdjusted": "Net Units Adjusted",
-      "monthlySummary": "Monthly Audits",
-      "yearlySummary": "Yearly Audits",
-      "monthlyTrend": "Monthly Audit Trend",
-      "yearlyTrend": "Yearly Audit Trend",
-      "largestShortages": "Largest Shortages",
-      "largestOverages": "Largest Overages",
-      "totalDifference": "Total Difference",
-      "product": "Product",
-      "audit": "Audit",
-      "difference": "Difference",
-      "noData": "No audit data available for this period"
-    }
-  },
-  "expenses": {
-    "title": "Expenses",
-    "subtitle": "Track and manage your business expenses",
-    "today": "Today",
-    "thisMonth": "This Month",
-    "thisYear": "This Year",
-    "avgMonth": "Avg / Month",
-    "totalExpenses": "Total Expenses",
-    "highestCategory": "Highest Category",
-    "noExpenses": "No expenses yet",
-    "noExpensesHint": "Add your first expense to start tracking",
-    "newExpense": "New Expense",
-    "searchPlaceholder": "Search expenses...",
-    "allCategories": "All Categories",
-    "allMethods": "All Methods",
-    "fromDate": "From",
-    "toDate": "To",
-    "sortBy": "Sort",
-    "sortAsc": "Ascending",
-    "sortDesc": "Descending",
-    "showing": "Showing {{count}} of {{total}}",
-    "pageOf": "Page {{page}} of {{pages}}",
-    "previous": "Previous",
-    "next": "Next",
-    "clear": "Clear",
-    "columns": {
-      "title": "Title",
-      "category": "Category",
-      "amount": "Amount",
-      "paymentMethod": "Payment Method",
-      "date": "Date",
-      "createdBy": "Created By",
-      "createdAt": "Created At",
-      "actions": "Actions"
+    "nav": {
+        "overview": "Overview",
+        "dashboard": "Dashboard",
+        "management": "Management",
+        "pos": "POS",
+        "reports": "Reports",
+        "products": "Products",
+        "customers": "Customers",
+        "suppliers": "Suppliers",
+        "purchases": "Purchases",
+        "expenses": "Expenses",
+        "expenseCategories": "Expense Categories",
+        "categories": "Categories",
+        "inventory": "Inventory",
+        "movementHistory": "Movement History",
+        "inventoryAudits": "Inventory Audits",
+        "administration": "Administration",
+        "users": "Users",
+        "storeSettings": "Business Settings",
+        "settings": "Settings",
+        "newSale": "New Sale",
+        "sales": "Sales",
+        "stock": "Stock",
+        "dashboardOverview": "Dashboard Overview",
+        "businessDevelopment": "Business Development",
+        "businessReports": "Business Reports",
+        "clients": "Clients",
+        "services": "Services",
+        "serviceCategories": "Service Categories",
+        "clientServices": "Client Services",
+        "serviceCatalog": "Service Catalog",
+        "servicesOverview": "Services Overview",
+        "receiptHistory": "Receipt History",
+        "currentStock": "Current Stock",
+        "reorder": "Reorder",
+        "warehouses": "Warehouses",
+        "stockTransfers": "Stock Transfers",
+        "expiration": "Expiration",
+        "inventoryReports": "Inventory Reports",
+        "workers": "Workers",
+        "attendance": "Attendance",
+        "salaries": "Salaries",
+        "advances": "Advances",
+        "workforce": "Workforce",
+        "finance": "Finance",
+        "workerSettings": "Worker Settings"
+    },
+    "auth": {
+        "welcomeBack": "Welcome back",
+        "signInSubtitle": "Sign in to your account to continue",
+        "emailLabel": "Email address",
+        "emailPlaceholder": "you@company.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "signIn": "Sign in",
+        "signingIn": "Signing in...",
+        "brandSubtitle": "Management System",
+        "heroTitle": "Business Management",
+        "heroTitleAccent": "Made Simple",
+        "heroDescription": "Manage your clients, services, and team — all from one professional dashboard built for growing businesses.",
+        "stats": {
+            "modules": "Modules",
+            "secure": "Secure",
+            "available": "Available"
+        },
+        "footer": "Business System",
+        "validation": {
+            "emailRequired": "Email is required",
+            "emailInvalid": "Invalid email address",
+            "passwordRequired": "Password is required"
+        },
+        "toast": {
+            "loginFailed": "Login failed"
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Overview of workers and expenses",
+        "refresh": "Refresh",
+        "emptyTitle": "Welcome to your Dashboard",
+        "emptyDescription": "Add your first worker or expense to start tracking your business data.",
+        "emptyAction": "Add First Worker",
+        "quickActions": "Quick Actions",
+        "kpis": {
+            "totalWorkers": "Total Workers",
+            "activeWorkers": "Active Workers",
+            "totalExpenses": "Total Expenses",
+            "monthlyExpenses": "Monthly Expenses",
+            "todayExpenses": "Today's Expenses",
+            "monthExpenses": "This Month's Expenses",
+            "totalAdvances": "Total Advances",
+            "outstandingAdvances": "Outstanding Advances"
+        },
+        "breakdowns": {
+            "workers": "Workers by Status",
+            "expenses": "Expenses by Status"
+        },
+        "activity": {
+            "recentWorkers": "Recent Workers",
+            "noWorkers": "No workers yet",
+            "recentExpenses": "Recent Expenses",
+            "noExpenses": "No expenses yet",
+            "viewAll": "View all"
+        },
+        "services": {
+            "overview": "Overview",
+            "overviewSubtitle": "Quick access to modules",
+            "open": "Open"
+        }
+    },
+    "products": {
+        "title": "Products",
+        "subtitle": "Manage your product catalog",
+        "newProduct": "New Product",
+        "addProduct": "Add Product",
+        "searchPlaceholder": "Search by name or barcode...",
+        "searchAriaLabel": "Search products",
+        "allCategories": "All Categories",
+        "allStatus": "All Status",
+        "active": "Active",
+        "inactive": "Inactive",
+        "noProductsFound": "No products found",
+        "tryDifferentFilters": "Try different filters",
+        "addYourFirstProduct": "Add your first product",
+        "columns": {
+            "sku": "SKU",
+            "name": "Name",
+            "barcode": "Barcode",
+            "category": "Category",
+            "purchasePrice": "Purchase Price",
+            "sellingPrice": "Selling Price",
+            "qty": "Qty",
+            "minStock": "Min Stock",
+            "expiration": "Expiration",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "expiration": {
+            "statuses": {
+                "expired": "Expired",
+                "expiring_soon": "Expiring Soon",
+                "normal": "Valid"
+            }
+        },
+        "edit": "Edit",
+        "delete": "Delete",
+        "form": {
+            "titleCreate": "New Product",
+            "titleEdit": "Edit Product",
+            "name": "Name",
+            "namePlaceholder": "Product name",
+            "barcode": "Barcode",
+            "barcodePlaceholder": "Barcode",
+            "sku": "SKU (Stock Keeping Unit)",
+            "skuPlaceholder": "Optional SKU code",
+            "category": "Category",
+            "categoryPlaceholder": "Select category",
+            "description": "Description",
+            "descriptionPlaceholder": "Brief description (optional)",
+            "purchasePrice": "Purchase Price",
+            "sellingPrice": "Selling Price",
+            "quantity": "Quantity",
+            "minStock": "Minimum Stock",
+            "status": "Status",
+            "formActive": "Active",
+            "formInactive": "Inactive",
+            "placeholderZero": "0",
+            "placeholderDecimal": "0.00",
+            "cancel": "Cancel",
+            "create": "Create",
+            "update": "Update",
+            "saving": "Saving..."
+        },
+        "validation": {
+            "nameRequired": "Name is required",
+            "barcodeRequired": "Barcode is required",
+            "categoryRequired": "Category is required",
+            "required": "Required",
+            "mustBePositive": "Must be >= 0",
+            "priceNotLower": "Selling price should not be lower than purchase price"
+        },
+        "toast": {
+            "created": "Product created",
+            "createFailed": "Failed to create product",
+            "updated": "Product updated",
+            "updateFailed": "Failed to update product",
+            "deleted": "Product deleted",
+            "deleteFailed": "Failed to delete product"
+        },
+        "confirmDelete": {
+            "title": "Delete Product",
+            "message": "Delete \"{{name}}\"? This action cannot be undone.",
+            "confirm": "Delete",
+            "deleting": "Deleting...",
+            "cancel": "Cancel"
+        }
+    },
+    "inventory": {
+        "title": "Inventory",
+        "subtitle": "Manage stock across warehouse and store",
+        "totalProducts": "Total Products",
+        "totalStock": "Total Stock",
+        "totalValue": "Inventory Value",
+        "lowStockItems": "Low Stock Items",
+        "warehouseStock": "Warehouse Stock",
+        "storeStock": "Store Stock",
+        "warehouse": "Warehouse",
+        "store": "Store",
+        "allProducts": "All Products",
+        "lowStock": "Low Stock",
+        "outOfStock": "Out of Stock",
+        "searchPlaceholder": "Search products...",
+        "searchAriaLabel": "Search inventory",
+        "noBarcode": "No barcode",
+        "low": "Low",
+        "noProductsFound": "No products found",
+        "tryDifferentSearch": "Try a different search",
+        "noProductsInInventory": "No products in inventory",
+        "columns": {
+            "product": "Product",
+            "category": "Category",
+            "stock": "Stock",
+            "warehouse": "Warehouse",
+            "store": "Store",
+            "total": "Total",
+            "minStock": "Min Stock",
+            "expiration": "Expiration",
+            "price": "Price",
+            "status": "Status",
+            "actions": "Actions",
+            "history": "History"
+        },
+        "expiration": {
+            "filterLabel": "Expiration Status",
+            "all": "All Expiration",
+            "sortByExpiration": "Sort by Expiration",
+            "statuses": {
+                "expired": "Expired",
+                "expiring_soon": "Expiring Soon",
+                "normal": "Normal"
+            },
+            "editButton": "Set Expiration Date",
+            "editTitle": "Set Expiration Date — {{name}}",
+            "current": "Current Expiration",
+            "none": "Not set",
+            "dateLabel": "Expiration Date",
+            "hint": "This updates the expiration date for existing stock of this product without expiration dates.",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving…",
+            "validation": {
+                "dateRequired": "Please choose an expiration date"
+            },
+            "toast": {
+                "updated": "Expiration date updated successfully",
+                "updateFailed": "Failed to update expiration date"
+            }
+        },
+        "transfer": {
+            "title": "Transfer to Store — {{name}}",
+            "from": "From",
+            "to": "To",
+            "currentWarehouse": "Current Warehouse Stock",
+            "afterTransfer": "Warehouse After Transfer",
+            "quantity": "Quantity",
+            "quantityPlaceholder": "e.g. 10",
+            "transfer": "Transfer",
+            "transferring": "Transferring..."
+        },
+        "quickAudit": {
+            "button": "Quick Audit",
+            "title": "Quick Audit — {{name}}",
+            "location": "Location",
+            "currentQuantity": "Current Quantity",
+            "countedQuantity": "Counted Quantity",
+            "reason": "Reason (optional)",
+            "reasonPlaceholder": "e.g. Physical count completed",
+            "hint": "Counts are applied through an Inventory Audit",
+            "cancel": "Cancel",
+            "apply": "Apply",
+            "applying": "Applying..."
+        },
+        "history": {
+            "title": "Movement History — {{name}}",
+            "noTransactions": "No movements recorded",
+            "transfer": "Transfer",
+            "sale": "Sale",
+            "purchase": "Purchase",
+            "return": "Return",
+            "damage": "Damage",
+            "adjustment": "Adjustment",
+            "warehouse": "Warehouse",
+            "store": "Store",
+            "units": "units",
+            "source": "Source"
+        },
+        "historyPage": {
+            "title": "Movement History",
+            "subtitle": "Track all stock movements with filters",
+            "filters": "Filters",
+            "clear": "Clear filters",
+            "filtersProduct": "Product",
+            "filtersType": "Movement Type",
+            "allProducts": "All Products",
+            "allTypes": "All Types",
+            "fromDate": "From Date",
+            "toDate": "To Date",
+            "searchPlaceholder": "Search by product or reference...",
+            "noMovements": "No movements found",
+            "noMovementsHint": "Try adjusting your filters or search",
+            "columns": {
+                "product": "Product",
+                "type": "Type",
+                "from": "From",
+                "to": "To",
+                "qty": "Qty",
+                "reference": "Reference",
+                "date": "Date",
+                "warehouse": "Warehouse",
+                "user": "User"
+            },
+            "filtersWarehouse": "Warehouse",
+            "allWarehouses": "All Warehouses",
+            "filtersDate": "Date Range"
+        },
+        "toast": {
+            "quickAudited": "Quick audit applied",
+            "quickAuditFailed": "Failed to apply quick audit",
+            "transferred": "Stock transferred to store",
+            "transferFailed": "Failed to transfer stock"
+        },
+        "validation": {
+            "mustBeWhole": "Must be a whole number",
+            "quantityPositive": "Quantity must be greater than zero",
+            "quantityRequired": "Counted quantity is required",
+            "quantityNonNegative": "Counted quantity cannot be negative"
+        },
+        "dashboard": {
+            "title": "Inventory Dashboard",
+            "description": "Live stock health, movements, and open counts",
+            "manageStock": "Manage Stock",
+            "totalProducts": "Total Products",
+            "totalStock": "Total Stock",
+            "totalValue": "Inventory Value",
+            "lowStock": {
+                "title": "Low Stock Items",
+                "product": "Product",
+                "total": "Total",
+                "minStock": "Min Stock",
+                "empty": "No low stock items"
+            },
+            "outOfStock": "Out of Stock",
+            "expiringSoon": "Expiring Soon",
+            "expired": "Expired",
+            "activeAudits": "Active Audits",
+            "viewAll": "View all",
+            "movements": {
+                "title": "Recent Movements",
+                "product": "Product",
+                "type": "Type",
+                "qty": "Qty",
+                "date": "Date",
+                "empty": "No movements yet"
+            },
+            "audits": {
+                "title": "Open Audits",
+                "name": "Audit",
+                "location": "Location",
+                "startedAt": "Started",
+                "empty": "No open audits"
+            }
+        },
+        "reorder": {
+            "title": "Reorder Suggestions",
+            "description": "Products at or below minimum stock with suggested quantities",
+            "manageStock": "Manage Stock",
+            "needsReorder": "Need Reorder",
+            "lowStockCount": "Low Stock Items",
+            "outOfStockCount": "Out of Stock",
+            "product": "Product",
+            "category": "Category",
+            "warehouse": "Warehouse",
+            "store": "Store",
+            "total": "Total",
+            "minStock": "Min Stock",
+            "suggested": "Suggested Qty",
+            "outOfStock": "Out of Stock",
+            "actions": "Actions",
+            "viewStock": "View Stock",
+            "empty": "All products are above their minimum stock. Great job!",
+            "searchPlaceholder": "Search by product or barcode...",
+            "statusFilter": "Stock status",
+            "all": "All",
+            "lowStock": "Low Stock"
+        },
+        "warehouses": {
+            "title": "Warehouses",
+            "description": "Manage storage locations and per-warehouse stock",
+            "newWarehouse": "New Warehouse",
+            "searchPlaceholder": "Search by name or code...",
+            "active": "Active",
+            "inactive": "Inactive",
+            "edit": "Edit",
+            "delete": "Delete",
+            "activate": "Activate",
+            "deactivate": "Deactivate",
+            "viewStock": "View Stock",
+            "columns": {
+                "name": "Name",
+                "address": "Address",
+                "manager": "Manager",
+                "stock": "Total Stock",
+                "status": "Status",
+                "actions": "Actions"
+            },
+            "empty": {
+                "title": "No warehouses found",
+                "description": "Create your first warehouse to start organizing stock",
+                "addFirst": "Add Warehouse"
+            },
+            "form": {
+                "titleCreate": "New Warehouse",
+                "titleEdit": "Edit Warehouse",
+                "name": "Warehouse Name",
+                "namePlaceholder": "e.g. Main Warehouse",
+                "code": "Code",
+                "codePlaceholder": "e.g. WH-2",
+                "address": "Address",
+                "addressPlaceholder": "e.g. 15 Main Street",
+                "manager": "Manager Name",
+                "managerPlaceholder": "e.g. John Doe",
+                "phone": "Phone",
+                "phonePlaceholder": "e.g. 01001234567",
+                "cancel": "Cancel",
+                "create": "Create Warehouse",
+                "update": "Update Warehouse",
+                "saving": "Saving..."
+            },
+            "validation": {
+                "nameRequired": "Warehouse name is required",
+                "codeRequired": "Warehouse code is required",
+                "codeInvalid": "Code may only contain letters, numbers, and underscores"
+            },
+            "confirmDelete": {
+                "title": "Delete Warehouse",
+                "message": "Delete {{name}}? Only empty warehouses can be deleted."
+            },
+            "toast": {
+                "created": "Warehouse created successfully",
+                "createFailed": "Failed to create warehouse",
+                "updated": "Warehouse updated successfully",
+                "updateFailed": "Failed to update warehouse",
+                "statusUpdated": "Warehouse status updated",
+                "statusFailed": "Failed to update warehouse status",
+                "deleted": "Warehouse deleted successfully",
+                "deleteFailed": "Failed to delete warehouse"
+            },
+            "stock": {
+                "title": "Stock — {{name}}",
+                "searchPlaceholder": "Search by product name or barcode...",
+                "columns": {
+                    "product": "Product",
+                    "category": "Category",
+                    "quantity": "Quantity"
+                },
+                "empty": {
+                    "title": "No stock in this warehouse",
+                    "description": "This warehouse currently holds no products"
+                }
+            }
+        },
+        "transfers": {
+            "title": "Stock Transfers",
+            "description": "Move stock between warehouses with full traceability",
+            "newTransfer": "New Transfer",
+            "searchPlaceholder": "Search by transfer number...",
+            "showing": "Showing {{count}} of {{total}}",
+            "pageOf": "Page {{page}} of {{pages}}",
+            "previous": "Previous",
+            "next": "Next",
+            "clear": "Clear",
+            "view": "View",
+            "complete": "Complete",
+            "cancel": "Cancel",
+            "statusPending": "Pending",
+            "statusCompleted": "Completed",
+            "statusCancelled": "Cancelled",
+            "status": {
+                "pending": "Pending",
+                "completed": "Completed",
+                "cancelled": "Cancelled"
+            },
+            "filters": {
+                "status": "Status",
+                "allStatuses": "All Statuses"
+            },
+            "columns": {
+                "number": "Transfer #",
+                "route": "Route",
+                "quantity": "Qty",
+                "status": "Status",
+                "createdBy": "Created By",
+                "date": "Date",
+                "actions": "Actions"
+            },
+            "empty": {
+                "title": "No transfers found",
+                "filters": "Try adjusting your filters",
+                "noTransfers": "Create your first transfer to move stock between warehouses",
+                "createFirst": "New Transfer"
+            },
+            "form": {
+                "title": "New Stock Transfer",
+                "source": "Source Warehouse",
+                "sourcePlaceholder": "Select source",
+                "destination": "Destination Warehouse",
+                "destinationPlaceholder": "Select destination",
+                "addProducts": "Add Products",
+                "searchPlaceholder": "Search by name, barcode, or SKU...",
+                "product": "Product",
+                "quantity": "Quantity",
+                "remove": "Remove",
+                "notes": "Notes",
+                "notesPlaceholder": "Optional notes about this transfer",
+                "cancel": "Cancel",
+                "create": "Create Transfer",
+                "saving": "Creating..."
+            },
+            "validation": {
+                "selectWarehouses": "Select source and destination warehouses",
+                "differentWarehouses": "Source and destination must be different",
+                "addProduct": "Add at least one product",
+                "quantityPositive": "Quantity must be greater than zero",
+                "productAlreadyAdded": "Product is already in this transfer"
+            },
+            "detail": {
+                "title": "Transfer {{number}}",
+                "status": "Status",
+                "route": "Route",
+                "createdBy": "Created By",
+                "notes": "Notes",
+                "product": "Product",
+                "quantity": "Quantity",
+                "noItems": "No items on this transfer"
+            },
+            "confirmCancel": {
+                "title": "Cancel Transfer",
+                "message": "Cancel {{number}}? Stock will not be moved."
+            },
+            "toast": {
+                "created": "Transfer created successfully",
+                "createFailed": "Failed to create transfer",
+                "completed": "Transfer completed and stock moved",
+                "completeFailed": "Failed to complete transfer",
+                "cancelled": "Transfer cancelled",
+                "cancelFailed": "Failed to cancel transfer",
+                "loadFailed": "Failed to load transfer details"
+            }
+        },
+        "movements": {
+            "title": "Stock Movements",
+            "subtitle": "Complete stock movement history with filters",
+            "viewDetails": "View details",
+            "detailsTitle": "Movement Details",
+            "quantity": "Quantity",
+            "warehouse": "Warehouse",
+            "from": "From",
+            "to": "To",
+            "reference": "Reference",
+            "user": "User",
+            "date": "Date & Time",
+            "notes": "Notes",
+            "pageOf": "Page {{page}} of {{pages}}",
+            "previous": "Previous",
+            "next": "Next"
+        },
+        "expirationPage": {
+            "title": "Expiration Management",
+            "subtitle": "Monitor products with expiration dates across warehouses",
+            "manageExpiration": "Manage in Stock",
+            "expiredCount": "Expired",
+            "expiringSoonCount": "Expiring Soon",
+            "totalExpiring": "Tracked Items",
+            "filters": "Filters",
+            "clear": "Clear filters",
+            "filtersStatus": "Status",
+            "sortLabel": "Sorting",
+            "sortByExpiration": "Sort by Expiration",
+            "searchPlaceholder": "Search by product name or barcode...",
+            "emptyTitle": "No expiring products",
+            "emptyHint": "Products with an expiration date will appear here. You can manage expiration dates from the Stock page.",
+            "columns": {
+                "product": "Product",
+                "expiration": "Expiration Date",
+                "status": "Status",
+                "warehouse": "Warehouse",
+                "store": "Store",
+                "total": "Total"
+            }
+        },
+        "reports": {
+            "title": "Inventory Reports",
+            "subtitle": "Reporting across stock, movements, and audits",
+            "tabs": {
+                "overview": "Overview",
+                "currentStock": "Current Stock",
+                "movements": "Movements",
+                "lowStock": "Low Stock",
+                "expiration": "Expiration",
+                "transfers": "Transfers",
+                "audits": "Audits"
+            },
+            "kpis": {
+                "totalProducts": "Total Products",
+                "totalStock": "Total Stock",
+                "lowStock": "Low Stock",
+                "outOfStock": "Out of Stock",
+                "warehouseStock": "Warehouse Stock",
+                "storeStock": "Store Stock",
+                "totalValue": "Stock Value",
+                "expired": "Expired",
+                "expiringSoon": "Expiring Soon",
+                "tracked": "Tracked"
+            },
+            "warehouses": {
+                "title": "Stock by Warehouse",
+                "warehouse": "Warehouse",
+                "status": "Status",
+                "stock": "Stock",
+                "empty": "No warehouses yet"
+            },
+            "stock": {
+                "product": "Product",
+                "category": "Category",
+                "warehouse": "Warehouse",
+                "store": "Store",
+                "total": "Total",
+                "expiration": "Expiration",
+                "empty": "No stock recorded"
+            },
+            "movements": {
+                "type": "Movement Type",
+                "count": "Count",
+                "quantity": "Quantity",
+                "monthly": "Movements — Month {{month}} / {{year}}",
+                "mostTransferred": "Most Transferred Products",
+                "product": "Product",
+                "noTransfers": "No transfers recorded",
+                "empty": "No movements recorded"
+            },
+            "lowStock": {
+                "product": "Product",
+                "qty": "Qty",
+                "minStock": "Min Stock",
+                "suggested": "Suggested",
+                "empty": "No low stock products"
+            },
+            "transfers": {
+                "number": "Transfer #",
+                "from": "From",
+                "to": "To",
+                "status": "Status",
+                "qty": "Qty",
+                "date": "Date",
+                "empty": "No transfers recorded"
+            },
+            "expiration": {
+                "empty": "No products with expiration dates"
+            },
+            "audits": {
+                "total": "Total Audits",
+                "completed": "Completed",
+                "open": "Open",
+                "netDifference": "Net Difference",
+                "largestShortages": "Largest Shortages",
+                "largestOverages": "Largest Overages",
+                "product": "Product",
+                "audit": "Audit",
+                "difference": "Difference",
+                "empty": "No audit data"
+            }
+        }
+    },
+    "purchases": {
+        "title": "Purchases",
+        "subtitle": "Manage purchase orders and inventory replenishment",
+        "newPurchase": "New Purchase",
+        "searchPlaceholder": "Search by invoice number or supplier...",
+        "searchAriaLabel": "Search purchases",
+        "noPurchasesFound": "No purchases found",
+        "tryDifferentSearch": "Try a different search",
+        "createYourFirst": "Create your first purchase",
+        "showing": "Showing {{count}} of {{total}}",
+        "pageOf": "Page {{page}} of {{pages}}",
+        "previous": "Previous",
+        "next": "Next",
+        "clear": "Clear",
+        "paymentMethods": {
+            "cash": "Cash",
+            "card": "Card",
+            "transfer": "Transfer",
+            "mixed": "Mixed",
+            "vodafone_cash": "Vodafone Cash"
+        },
+        "filters": {
+            "date": "Date",
+            "from": "From",
+            "to": "To"
+        },
+        "columns": {
+            "invoice": "Invoice #",
+            "supplier": "Supplier",
+            "total": "Total",
+            "status": "Status",
+            "date": "Date",
+            "paymentMethod": "Payment Method",
+            "createdBy": "Created By",
+            "actions": "Actions"
+        },
+        "statusCompleted": "completed",
+        "statusPending": "pending",
+        "statusCancelled": "cancelled",
+        "viewDetails": "View Details",
+        "invoice": "Invoice",
+        "failedToLoadInvoice": "Failed to load invoice",
+        "form": {
+            "title": "New Purchase Order",
+            "supplier": "Supplier",
+            "supplierPlaceholder": "Select supplier",
+            "addSupplier": "+ Add Supplier",
+            "addProducts": "Add Products",
+            "searchPlaceholder": "Search by name, barcode, or SKU...",
+            "searching": "Searching...",
+            "noProductsFound": "No products found",
+            "productNotFound": "Product not found",
+            "skuPrefix": "SKU: {{code}}",
+            "barcodeFormat": "({{code}})",
+            "complete": "Complete Purchase",
+            "creating": "Creating...",
+            "cancel": "Cancel",
+            "total": "Total",
+            "paymentMethod": "Payment Method",
+            "notes": "Notes",
+            "notesPlaceholder": "Add any additional notes (optional)"
+        },
+        "items": {
+            "product": "Product",
+            "qty": "Qty",
+            "costPrice": "Cost Price",
+            "expiration": "Expiration",
+            "expirationAria": "Expiration date",
+            "subtotal": "Subtotal"
+        },
+        "supplierForm": {
+            "title": "New Supplier",
+            "name": "Name *",
+            "namePlaceholder": "Supplier name",
+            "phone": "Phone *",
+            "phonePlaceholder": "Phone number",
+            "email": "Email",
+            "emailPlaceholder": "Email (optional)",
+            "address": "Address",
+            "addressPlaceholder": "Address (optional)",
+            "cancel": "Cancel",
+            "save": "Save Supplier",
+            "saving": "Saving..."
+        },
+        "detail": {
+            "title": "Purchase #{{number}}",
+            "supplier": "Supplier",
+            "date": "Date",
+            "totalAmount": "Total Amount",
+            "items": {
+                "product": "Product",
+                "qty": "Qty",
+                "cost": "Cost",
+                "subtotal": "Subtotal"
+            }
+        },
+        "invoiceModal": {
+            "title": "Invoice #{{number}}",
+            "header": "PURCHASE INVOICE",
+            "supplier": "Supplier",
+            "date": "Date",
+            "processedBy": "Processed By",
+            "totalAmount": "Total Amount",
+            "footer": "Invoice generated automatically by POS System",
+            "columns": {
+                "num": "#",
+                "product": "Product",
+                "barcode": "Barcode",
+                "qty": "Qty",
+                "price": "Price",
+                "total": "Total"
+            }
+        },
+        "invoicePage": {
+            "title": "Purchase Details",
+            "notFound": "Purchase Not Found",
+            "notFoundDesc": "The purchase you are looking for does not exist or has been removed.",
+            "backToPurchases": "Back to Purchases",
+            "print": "Print",
+            "posSystem": "POS System",
+            "invoiceLabel": "Purchase Invoice",
+            "supplier": "Supplier",
+            "processedBy": "Processed By",
+            "paymentMethod": "Payment Method",
+            "notes": "Notes",
+            "product": "Product",
+            "barcode": "Barcode",
+            "qty": "Qty",
+            "expiration": "Expiration",
+            "costPrice": "Cost Price",
+            "total": "Total",
+            "grandTotal": "Grand Total",
+            "footer": "Invoice generated automatically by POS System",
+            "taxNumber": "Tax No."
+        },
+        "validation": {
+            "supplierRequired": "Supplier name is required",
+            "phoneRequired": "Phone number is required",
+            "invalidEmail": "Invalid email format",
+            "selectSupplier": "Please select a supplier",
+            "addProduct": "Please add at least one product",
+            "quantityPositive": "Quantity must be greater than zero",
+            "costNotNegative": "Cost price cannot be negative",
+            "productAlreadyAdded": "Product already added"
+        },
+        "toast": {
+            "purchaseCreated": "Purchase created successfully",
+            "purchaseFailed": "Failed to create purchase",
+            "supplierCreated": "Supplier created successfully",
+            "supplierFailed": "Failed to create supplier"
+        }
+    },
+    "pos": {
+        "searchPlaceholder": "Search products...",
+        "barcodePlaceholder": "Barcode",
+        "allCategories": "All Categories",
+        "outOfStock": "Out of Stock",
+        "lowStock": "Low Stock",
+        "noProductsFound": "No products found",
+        "productNotFound": "Product not found",
+        "failedToLoadProducts": "Failed to load products",
+        "cartTitle": "Shopping Cart",
+        "cartEmpty": "Cart is empty",
+        "cartEmptyHint": "Click a product to add it",
+        "perUnit": "{{price}} / unit",
+        "summary": "Summary",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "tax": "Tax",
+        "grandTotal": "Grand Total",
+        "items": "Items",
+        "clearCart": "Clear Cart",
+        "checkout": "Checkout",
+        "checkoutTitle": "Complete Checkout",
+        "customerLabel": "Customer",
+        "customerOptional": "(optional)",
+        "customerSearchPlaceholder": "Search by name or phone...",
+        "paymentMethod": "Payment Method",
+        "cash": "Cash",
+        "card": "Card",
+        "transfer": "Transfer",
+        "mixed": "Mixed",
+        "vodafoneCash": "Vodafone Cash",
+        "cancel": "Cancel",
+        "confirmSale": "Confirm Sale",
+        "processing": "Processing...",
+        "checkoutFailed": "Checkout failed",
+        "invoice": {
+            "title": "Invoice",
+            "notFound": "Invoice Not Found",
+            "notFoundDesc": "The sale you are looking for does not exist or has been removed.",
+            "backToPos": "Back to POS",
+            "backToPosTitle": "Back to POS",
+            "print": "Print",
+            "newSale": "New Sale",
+            "posSystem": "POS System",
+            "invoiceLabel": "Invoice",
+            "cashier": "Cashier",
+            "customer": "Customer",
+            "walkInCustomer": "Walk-in Customer",
+            "product": "Product",
+            "qty": "Qty",
+            "unitPrice": "Unit Price",
+            "total": "Total",
+            "invoiceSubtotal": "Subtotal",
+            "invoiceDiscount": "Discount",
+            "invoiceGrandTotal": "Grand Total",
+            "payment": "Payment",
+            "thankYou": "Thank you for your purchase!",
+            "taxNumber": "Tax No."
+        },
+        "dashboard": {
+            "title": "Sales Dashboard",
+            "description": "Today's selling activity and recent sales",
+            "newSale": "New Sale",
+            "todaySales": "Today's Sales",
+            "todayTransactions": "Today's Transactions",
+            "avgTransactionValue": "Avg. Transaction Value",
+            "monthlySales": "Monthly Sales",
+            "recentSales": {
+                "title": "Recent Sales",
+                "invoice": "Invoice",
+                "amount": "Amount",
+                "date": "Date",
+                "view": "View",
+                "empty": "No sales yet"
+            },
+            "topSelling": {
+                "title": "Top Selling Products",
+                "product": "Product",
+                "qtySold": "Qty Sold",
+                "revenue": "Revenue",
+                "empty": "No sales data yet"
+            }
+        },
+        "receipts": {
+            "title": "Receipt History",
+            "description": "Browse past sales and reprint receipts",
+            "newSale": "New Sale",
+            "searchPlaceholder": "Search by invoice number or customer...",
+            "searchAriaLabel": "Search receipts",
+            "invoice": "Invoice",
+            "date": "Date",
+            "customer": "Customer",
+            "cashier": "Cashier",
+            "items": "Items",
+            "payment": "Payment",
+            "amount": "Amount",
+            "status": "Status",
+            "actions": "Actions",
+            "view": "View Receipt",
+            "walkIn": "Walk-in Customer",
+            "empty": "No sales found",
+            "total": "{{count}} sales",
+            "prev": "Previous",
+            "next": "Next",
+            "page": "Page {{page}} of {{pages}}",
+            "loadFailed": "Failed to load receipts",
+            "statuses": {
+                "pending": "Pending",
+                "completed": "Completed",
+                "cancelled": "Cancelled",
+                "refunded": "Refunded"
+            }
+        }
+    },
+    "customers": {
+        "title": "Customers",
+        "description": "Manage your customer directory",
+        "searchPlaceholder": "Search by name or phone...",
+        "searchAriaLabel": "Search customers",
+        "newCustomer": "New Customer",
+        "columns": {
+            "name": "Name",
+            "phone": "Phone",
+            "email": "Email",
+            "address": "Address",
+            "actions": "Actions"
+        },
+        "empty": {
+            "noResultsTitle": "No customers found",
+            "noResultsDescription": "Try a different search",
+            "noCustomersDescription": "Add your first customer",
+            "addCustomer": "Add Customer"
+        },
+        "form": {
+            "titleCreate": "New Customer",
+            "titleEdit": "Edit Customer",
+            "name": "Name",
+            "namePlaceholder": "Full name",
+            "phone": "Phone",
+            "phonePlaceholder": "Phone number",
+            "email": "Email",
+            "emailPlaceholder": "Email address (optional)",
+            "address": "Address",
+            "addressPlaceholder": "Address (optional)",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update"
+        },
+        "validation": {
+            "nameRequired": "Name is required",
+            "phoneRequired": "Phone is required"
+        },
+        "toast": {
+            "created": "Customer created",
+            "createFailed": "Failed to create customer",
+            "updated": "Customer updated",
+            "updateFailed": "Failed to update customer",
+            "deleted": "Customer deleted",
+            "deleteFailed": "Failed to delete customer"
+        },
+        "confirmDelete": {
+            "title": "Delete Customer",
+            "message": "Delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete"
     },
     "categories": {
-      "Rent": "Rent",
-      "Electricity": "Electricity",
-      "Water": "Water",
-      "Internet": "Internet",
-      "Transportation": "Transportation",
-      "Maintenance": "Maintenance",
-      "Marketing": "Marketing",
-      "Taxes": "Taxes",
-      "Purchases": "Purchases",
-      "Salaries": "Salaries",
-      "Other": "Other"
+        "title": "Categories",
+        "description": "Organize your products into categories",
+        "searchPlaceholder": "Search categories...",
+        "searchAriaLabel": "Search categories",
+        "newCategory": "New Category",
+        "columns": {
+            "name": "Name",
+            "description": "Description",
+            "actions": "Actions"
+        },
+        "empty": {
+            "noResultsTitle": "No categories found",
+            "noResultsDescription": "Try a different search",
+            "noCategoriesDescription": "Add your first category",
+            "addCategory": "Add Category",
+            "noSubcategoriesDescription": "Create categories and organize them in a hierarchy"
+        },
+        "form": {
+            "titleCreate": "New Category",
+            "titleEdit": "Edit Category",
+            "name": "Name",
+            "namePlaceholder": "Category name",
+            "description": "Description",
+            "descriptionPlaceholder": "Brief description (optional)",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update",
+            "parent": "Parent Category",
+            "parentPlaceholder": "No parent (root)"
+        },
+        "validation": {
+            "nameRequired": "Name is required"
+        },
+        "toast": {
+            "created": "Category created",
+            "createFailed": "Failed to create category",
+            "updated": "Category updated",
+            "updateFailed": "Failed to update category",
+            "deleted": "Category deleted",
+            "deleteFailed": "Failed to delete category"
+        },
+        "confirmDelete": {
+            "title": "Delete Category",
+            "message": "Delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete",
+        "addSubcategory": "Add subcategory",
+        "toggle": "Expand / Collapse"
     },
-    "paymentMethods": {
-      "Cash": "Cash",
-      "Bank": "Bank",
-      "Visa": "Visa",
-      "Other": "Other"
+    "users": {
+        "title": "Users",
+        "description": "Manage system users and roles",
+        "searchPlaceholder": "Search users...",
+        "searchAriaLabel": "Search users",
+        "addUser": "Add User",
+        "columns": {
+            "name": "Name",
+            "role": "Role",
+            "phone": "Phone",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "empty": {
+            "noResultsTitle": "No users found",
+            "noResultsDescription": "Try a different search term",
+            "noUsersDescription": "Get started by adding your first user",
+            "addUser": "Add User"
+        },
+        "form": {
+            "createTitle": "Create User",
+            "createBtn": "Create User",
+            "editTitle": "Edit User",
+            "fullName": "Full Name",
+            "fullNamePlaceholder": "John Doe",
+            "email": "Email",
+            "emailPlaceholder": "john@company.com",
+            "password": "Password",
+            "passwordPlaceholder": "Min 8 characters",
+            "passwordHint": "Min 8 characters",
+            "phone": "Phone",
+            "phonePlaceholder": "+1234567890",
+            "phoneHint": "Optional",
+            "role": "Role",
+            "status": "Status",
+            "statusActive": "Active",
+            "statusInactive": "Inactive",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "creating": "Creating...",
+            "update": "Update",
+            "resetPassword": "Reset Password",
+            "resetPasswordTitle": "Reset Password — {{name}}",
+            "newPassword": "New Password",
+            "newPasswordPlaceholder": "Min 8 characters",
+            "resetting": "Resetting..."
+        },
+        "roles": {
+            "admin": "Admin",
+            "manager": "Manager",
+            "employee": "Employee"
+        },
+        "status": {
+            "active": "Active",
+            "inactive": "Inactive"
+        },
+        "validation": {
+            "nameRequired": "Name is required",
+            "nameTooLong": "Name too long",
+            "emailRequired": "Email is required",
+            "emailInvalid": "Invalid email",
+            "passwordMin": "Password must be at least 8 characters",
+            "phoneInvalid": "Phone must be 10-15 digits (optional +)"
+        },
+        "toast": {
+            "created": "User created",
+            "createFailed": "Failed to create user",
+            "updated": "User updated",
+            "updateFailed": "Failed to update user",
+            "deleted": "User deleted",
+            "deleteFailed": "Failed to delete user",
+            "passwordReset": "Password reset successfully",
+            "passwordResetFailed": "Failed to reset password"
+        },
+        "confirmDelete": {
+            "title": "Delete User",
+            "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete",
+        "resetPassword": "Reset password"
     },
-    "form": {
-      "title": "Add Expense",
-      "titleEdit": "Edit Expense",
-      "titleLabel": "Title",
-      "titlePlaceholder": "Enter expense title",
-      "categoryLabel": "Category",
-      "amountLabel": "Amount",
-      "amountPlaceholder": "Enter amount",
-      "dateLabel": "Date",
-      "paymentMethodLabel": "Payment Method",
-      "notesLabel": "Notes",
-      "notesPlaceholder": "Add any additional notes (optional)",
-      "cancel": "Cancel",
-      "save": "Save",
-      "saving": "Saving..."
+    "suppliers": {
+        "title": "Suppliers",
+        "description": "Manage your supplier directory",
+        "searchPlaceholder": "Search by name or phone...",
+        "searchAriaLabel": "Search suppliers",
+        "newSupplier": "New Supplier",
+        "columns": {
+            "name": "Name",
+            "phone": "Phone",
+            "email": "Email",
+            "address": "Address",
+            "actions": "Actions"
+        },
+        "empty": {
+            "noResultsTitle": "No suppliers found",
+            "noResultsDescription": "Try a different search",
+            "noSuppliersDescription": "Add your first supplier",
+            "addSupplier": "Add Supplier"
+        },
+        "form": {
+            "titleCreate": "New Supplier",
+            "titleEdit": "Edit Supplier",
+            "name": "Name",
+            "namePlaceholder": "Supplier name",
+            "phone": "Phone",
+            "phonePlaceholder": "Phone number",
+            "email": "Email",
+            "emailPlaceholder": "Email address (optional)",
+            "address": "Address",
+            "addressPlaceholder": "Address (optional)",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update"
+        },
+        "validation": {
+            "nameRequired": "Name is required",
+            "phoneRequired": "Phone is required"
+        },
+        "toast": {
+            "created": "Supplier created",
+            "createFailed": "Failed to create supplier",
+            "updated": "Supplier updated",
+            "updateFailed": "Failed to update supplier",
+            "deleted": "Supplier deleted",
+            "deleteFailed": "Failed to delete supplier"
+        },
+        "confirmDelete": {
+            "title": "Delete Supplier",
+            "message": "Delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete"
     },
-    "validation": {
-      "titleRequired": "Title is required",
-      "categoryRequired": "Please select a category",
-      "amountPositive": "Amount must be greater than zero",
-      "dateRequired": "Date is required"
+    "reports": {
+        "title": "Reports & Analytics",
+        "description": "Business performance overview and insights",
+        "summary": {
+            "todaySales": "Today Sales",
+            "monthlySales": "Monthly Sales",
+            "totalInvoices": "Total Invoices",
+            "avgInvoiceValue": "Avg Invoice Value",
+            "todayPurchases": "Today Purchases",
+            "monthlyPurchases": "Monthly Purchases",
+            "inventoryValue": "Inventory Value",
+            "lowStockItems": "Low Stock Items"
+        },
+        "topSelling": {
+            "title": "Top Selling Products",
+            "product": "Product",
+            "qtySold": "Qty Sold",
+            "revenue": "Revenue",
+            "empty": "No sales data available"
+        },
+        "recentSales": {
+            "title": "Recent Sales",
+            "invoice": "Invoice",
+            "amount": "Amount",
+            "date": "Date",
+            "empty": "No recent sales"
+        },
+        "salesAnalytics": "Sales Analytics",
+        "profitAnalytics": "Profit Analytics",
+        "productPerformance": "Product Performance",
+        "productPerformanceSub": {
+            "topPerforming": "Top Performing",
+            "slowMoving": "Slow Moving",
+            "product": "Product",
+            "qtySold": "Qty Sold",
+            "revenue": "Revenue",
+            "topEmpty": "No product sales data",
+            "slowEmpty": "All products have sales"
+        },
+        "supplierPerformance": "Supplier Performance",
+        "supplierPerformanceSub": {
+            "supplier": "Supplier",
+            "totalSpent": "Total Spent",
+            "orders": "Orders",
+            "empty": "No supplier data available"
+        },
+        "filters": {
+            "last7Days": "Last 7 Days",
+            "last30Days": "Last 30 Days",
+            "custom": "Custom",
+            "to": "to"
+        },
+        "charts": {
+            "noSalesData": "No sales data in this period"
+        },
+        "profitCards": {
+            "revenue": "Revenue",
+            "purchaseCost": "Purchase Cost",
+            "grossProfit": "Gross Profit",
+            "profitMargin": "Profit Margin"
+        },
+        "inventoryReport": {
+            "title": "Inventory Reports",
+            "subtitle": "Stock levels by location",
+            "product": "Product",
+            "warehouse": "Warehouse",
+            "store": "Store",
+            "total": "Total",
+            "minStock": "Min Stock",
+            "expiration": "Expiration",
+            "statuses": {
+                "expired": "Expired",
+                "expiring_soon": "Expiring Soon",
+                "normal": "Valid"
+            },
+            "empty": "No inventory data available",
+            "mostTransferred": "Most Transferred",
+            "qtyTransferred": "Qty Transferred",
+            "transferCount": "Transfers",
+            "monthlyMovement": "Monthly Movement",
+            "yearlyMovement": "Yearly Movement",
+            "lowestStock": "Lowest Stock Products"
+        },
+        "expenses": {
+            "title": "Expenses Report",
+            "totalExpenses": "Total Expenses",
+            "highestCategory": "Highest Category",
+            "monthlyComparison": "Monthly Comparison",
+            "periodExpenses": "Categories Used",
+            "dailyTrend": "Daily Expense Trend",
+            "noData": "No expense data available for this period",
+            "categoryBreakdown": "Category Breakdown",
+            "paymentBreakdown": "Payment Method Breakdown",
+            "paymentMethod": "Payment Method",
+            "category": "Category",
+            "count": "Count",
+            "highestCategories": "Highest Categories"
+        },
+        "audits": {
+            "title": "Inventory Audit Report",
+            "totalAudits": "Total Audits",
+            "completedAudits": "Completed",
+            "openAudits": "Open",
+            "cancelledAudits": "Cancelled",
+            "adjustedItems": "Items Adjusted",
+            "unitsAdded": "Units Added",
+            "unitsRemoved": "Units Removed",
+            "unitsAdjusted": "Net Units Adjusted",
+            "monthlySummary": "Monthly Audits",
+            "yearlySummary": "Yearly Audits",
+            "monthlyTrend": "Monthly Audit Trend",
+            "yearlyTrend": "Yearly Audit Trend",
+            "largestShortages": "Largest Shortages",
+            "largestOverages": "Largest Overages",
+            "totalDifference": "Total Difference",
+            "product": "Product",
+            "audit": "Audit",
+            "difference": "Difference",
+            "noData": "No audit data available for this period"
+        }
     },
-    "toast": {
-      "created": "Expense added successfully",
-      "updated": "Expense updated successfully",
-      "deleted": "Expense deleted successfully",
-      "createFailed": "Failed to add expense",
-      "updateFailed": "Failed to update expense",
-      "deleteFailed": "Failed to delete expense"
+    "expenses": {
+        "title": "Expenses",
+        "subtitle": "Track and manage your business expenses",
+        "today": "Today",
+        "thisMonth": "This Month",
+        "thisYear": "This Year",
+        "avgMonth": "Avg / Month",
+        "totalExpenses": "Total Expenses",
+        "highestCategory": "Highest Category",
+        "noExpenses": "No expenses yet",
+        "noExpensesHint": "Add your first expense to start tracking",
+        "newExpense": "New Expense",
+        "searchPlaceholder": "Search expenses...",
+        "allCategories": "All Categories",
+        "allMethods": "All Methods",
+        "fromDate": "From",
+        "toDate": "To",
+        "sortBy": "Sort",
+        "sortAsc": "Ascending",
+        "sortDesc": "Descending",
+        "statuses": {
+            "pending": "Pending",
+            "completed": "Completed"
+        },
+        "showing": "Showing {{count}} of {{total}}",
+        "pageOf": "Page {{page}} of {{pages}}",
+        "previous": "Previous",
+        "next": "Next",
+        "clear": "Clear",
+        "columns": {
+            "title": "Title",
+            "category": "Category",
+            "amount": "Amount",
+            "paymentMethod": "Payment Method",
+            "date": "Date",
+            "createdBy": "Created By",
+            "createdAt": "Created At",
+            "actions": "Actions"
+        },
+        "categories": {
+            "Rent": "Rent",
+            "Electricity": "Electricity",
+            "Water": "Water",
+            "Internet": "Internet",
+            "Transportation": "Transportation",
+            "Maintenance": "Maintenance",
+            "Marketing": "Marketing",
+            "Taxes": "Taxes",
+            "Purchases": "Purchases",
+            "Salaries": "Salaries",
+            "Other": "Other"
+        },
+        "paymentMethods": {
+            "Cash": "Cash",
+            "Bank": "Bank",
+            "Visa": "Visa",
+            "Other": "Other"
+        },
+        "form": {
+            "title": "Add Expense",
+            "titleEdit": "Edit Expense",
+            "titleLabel": "Title",
+            "titlePlaceholder": "Enter expense title",
+            "categoryLabel": "Category",
+            "amountLabel": "Amount",
+            "amountPlaceholder": "Enter amount",
+            "dateLabel": "Date",
+            "paymentMethodLabel": "Payment Method",
+            "notesLabel": "Notes",
+            "notesPlaceholder": "Add any additional notes (optional)",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving..."
+        },
+        "validation": {
+            "titleRequired": "Title is required",
+            "categoryRequired": "Please select a category",
+            "amountPositive": "Amount must be greater than zero",
+            "dateRequired": "Date is required"
+        },
+        "toast": {
+            "created": "Expense added successfully",
+            "updated": "Expense updated successfully",
+            "deleted": "Expense deleted successfully",
+            "createFailed": "Failed to add expense",
+            "updateFailed": "Failed to update expense",
+            "deleteFailed": "Failed to delete expense"
+        },
+        "confirmDelete": {
+            "title": "Delete Expense",
+            "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+        },
+        "details": {
+            "title": "Expense Details",
+            "close": "Close"
+        },
+        "charts": {
+            "title": "Expense Analysis",
+            "byCategory": "By Category",
+            "monthlyTrend": "Monthly Trend",
+            "yearlyTrend": "Yearly Trend",
+            "noData": "No expense data available"
+        }
     },
-    "confirmDelete": {
-      "title": "Delete Expense",
-      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    "inventoryAudits": {
+        "title": "Inventory Audits",
+        "subtitle": "Count stock and reconcile discrepancies by location",
+        "newAudit": "New Audit",
+        "totalAudits": "Total Audits",
+        "openAudits": "Open",
+        "completedAudits": "Completed",
+        "adjustedItems": "Items Adjusted",
+        "searchPlaceholder": "Search by name...",
+        "allLocations": "All Locations",
+        "allStatuses": "All Statuses",
+        "sortBy": "Sort",
+        "sortAsc": "Sort ascending",
+        "sortDesc": "Sort descending",
+        "showing": "Showing {{count}} of {{total}}",
+        "clear": "Clear",
+        "noAudits": "No audits found",
+        "noAuditsHint": "Create your first inventory audit to start counting stock",
+        "columns": {
+            "name": "Name",
+            "location": "Location",
+            "status": "Status",
+            "counted": "Counted",
+            "difference": "Difference",
+            "createdBy": "Created By",
+            "startedAt": "Started At",
+            "createdAt": "Created At",
+            "items": "Items",
+            "product": "Product",
+            "system": "System",
+            "actions": "Actions"
+        },
+        "locations": {
+            "warehouse": "Warehouse",
+            "store": "Store"
+        },
+        "statuses": {
+            "open": "Open",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "details": {
+            "title": "Audit Details",
+            "items": "Counted Items",
+            "close": "Close"
+        },
+        "form": {
+            "title": "New Inventory Audit",
+            "countTitle": "Enter Counts",
+            "nameLabel": "Audit Name",
+            "namePlaceholder": "e.g. Monthly warehouse count",
+            "locationLabel": "Location",
+            "hint": "Stock levels will be snapshotted from the selected location.",
+            "countHint": "Enter the physical count for each item. Blank rows stay uncounted. Completing the audit adjusts stock by the difference.",
+            "cancel": "Cancel",
+            "creating": "Creating...",
+            "create": "Create Audit",
+            "saving": "Saving...",
+            "save": "Save Counts"
+        },
+        "complete": "Complete",
+        "cancel": "Cancel Audit",
+        "completing": "Completing...",
+        "cancelling": "Cancelling...",
+        "delete": "Delete",
+        "deleting": "Deleting...",
+        "confirmComplete": {
+            "title": "Complete Audit",
+            "message": "Are you sure you want to complete \"{{name}}\"? Stock will be adjusted for all counted items."
+        },
+        "confirmCancel": {
+            "title": "Cancel Audit",
+            "message": "Are you sure you want to cancel \"{{name}}\"? No stock will be adjusted."
+        },
+        "confirmDelete": {
+            "title": "Delete Audit",
+            "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+        },
+        "entered": "{{entered}} of {{total}} items counted",
+        "noItems": "No items in this audit",
+        "enterCount": "Enter count",
+        "pageOf": "Page {{page}} of {{pages}}",
+        "previous": "Previous",
+        "next": "Next",
+        "toast": {
+            "created": "Audit created successfully",
+            "createFailed": "Failed to create audit",
+            "updated": "Counts saved successfully",
+            "updateFailed": "Failed to save counts",
+            "completed": "Audit completed and stock adjusted",
+            "completeFailed": "Failed to complete audit",
+            "deleted": "Audit deleted",
+            "deleteFailed": "Failed to delete audit"
+        },
+        "validation": {
+            "nameRequired": "Audit name is required",
+            "locationRequired": "Location is required"
+        }
     },
-    "details": {
-      "title": "Expense Details",
-      "close": "Close"
+    "common": {
+        "signOut": "Sign out",
+        "notifications": "Notifications",
+        "openMenu": "Open menu",
+        "closeSidebar": "Close sidebar",
+        "appName": "Business System",
+        "appSubtitle": "Management",
+        "somethingWentWrong": "Something went wrong",
+        "tryAgain": "Try again",
+        "closeDialog": "Close dialog",
+        "skipToContent": "Skip to content",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "noDataAvailable": "No data available",
+        "roles": {
+            "admin": "Admin",
+            "manager": "Manager",
+            "employee": "Employee"
+        }
     },
-    "charts": {
-      "title": "Expense Analysis",
-      "byCategory": "By Category",
-      "monthlyTrend": "Monthly Trend",
-      "yearlyTrend": "Yearly Trend",
-      "noData": "No expense data available"
-    }
-  },
-  "inventoryAudits": {
-    "title": "Inventory Audits",
-    "subtitle": "Count stock and reconcile discrepancies by location",
-    "newAudit": "New Audit",
-    "totalAudits": "Total Audits",
-    "openAudits": "Open",
-    "completedAudits": "Completed",
-    "adjustedItems": "Items Adjusted",
-    "searchPlaceholder": "Search by name...",
-    "allLocations": "All Locations",
-    "allStatuses": "All Statuses",
-    "sortBy": "Sort",
-    "sortAsc": "Sort ascending",
-    "sortDesc": "Sort descending",
-    "showing": "Showing {{count}} of {{total}}",
-    "clear": "Clear",
-    "noAudits": "No audits found",
-    "noAuditsHint": "Create your first inventory audit to start counting stock",
-    "columns": {
-      "name": "Name",
-      "location": "Location",
-      "status": "Status",
-      "counted": "Counted",
-      "difference": "Difference",
-      "createdBy": "Created By",
-      "startedAt": "Started At",
-      "createdAt": "Created At",
-      "items": "Items",
-      "product": "Product",
-      "system": "System",
-      "actions": "Actions"
+    "notifications": {
+        "title": "Notifications",
+        "loading": "Loading notifications...",
+        "markAllRead": "Mark all as read",
+        "empty": "You're all caught up",
+        "emptyDescription": "No notifications to show right now",
+        "filters": {
+            "all": "All",
+            "unread": "Unread",
+            "critical": "Critical"
+        },
+        "types": {
+            "low_stock": "Low stock",
+            "out_of_stock": "Out of stock",
+            "expired": "Expired",
+            "expiring_soon": "Expiring soon"
+        },
+        "message": {
+            "low_stock": "is running low ({{quantity}} left)",
+            "out_of_stock": "is out of stock",
+            "expired": "has an expired batch ({{expirationDate}})",
+            "expiring_soon": "expires soon ({{expirationDate}})"
+        }
     },
-    "locations": {
-      "warehouse": "Warehouse",
-      "store": "Store"
+    "language": {
+        "switch": "Language",
+        "english": "English",
+        "arabic": "العربية"
     },
-    "statuses": {
-      "open": "Open",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
+    "storeSettings": {
+        "title": "Business Settings",
+        "subtitle": "Manage your store identity, contact details, and receipt preferences",
+        "save": "Save Changes",
+        "uploadLogo": "Upload Logo",
+        "uploadImage": "Upload Image",
+        "removeLogo": "Remove Logo",
+        "removeImage": "Remove Image",
+        "logoPreviewAlt": "Store logo preview",
+        "loginBackgroundPreviewAlt": "Login background preview",
+        "loginLogoPreviewAlt": "Login logo preview",
+        "toast": {
+            "saved": "Store settings saved successfully",
+            "saveFailed": "Failed to save store settings",
+            "logoType": "Please choose a valid image file",
+            "logoSize": "Logo must be smaller than 2MB",
+            "loginImageType": "Please choose a valid image (PNG, JPG, JPEG, or WEBP)",
+            "loginImageSize": "Image must be smaller than 5MB"
+        },
+        "validation": {
+            "storeNameRequired": "Store name is required",
+            "required": "This field is required",
+            "emailInvalid": "Please enter a valid email address",
+            "phoneInvalid": "Please enter a valid phone number"
+        },
+        "sections": {
+            "general": {
+                "title": "General Information",
+                "description": "Basic details that identify your store"
+            },
+            "contact": {
+                "title": "Contact Information",
+                "description": "How customers can reach your business"
+            },
+            "business": {
+                "title": "Business Details",
+                "description": "Legal and financial identifiers for receipts"
+            },
+            "receipt": {
+                "title": "Receipt Footer",
+                "description": "Custom message shown at the bottom of receipts"
+            },
+            "branding": {
+                "title": "Store Logo",
+                "description": "Used on receipts and reports"
+            },
+            "loginBranding": {
+                "title": "Login Page Branding",
+                "description": "Customize the logo, background, and welcome text on the login page"
+            }
+        },
+        "fields": {
+            "storeName": "Store Name",
+            "ownerName": "Owner Name",
+            "phone": "Phone Number",
+            "email": "Email Address",
+            "website": "Website",
+            "address": "Address",
+            "taxNumber": "Tax Number",
+            "currency": "Currency",
+            "receiptFooter": "Receipt Footer",
+            "storeLogo": "Store Logo",
+            "loginBackground": "Login Background Image",
+            "loginLogo": "Login Logo",
+            "loginTitle": "Login Welcome Title",
+            "loginSubtitle": "Login Welcome Subtitle"
+        },
+        "placeholders": {
+            "storeName": "e.g. My Store",
+            "ownerName": "e.g. Ahmed Mohamed",
+            "phone": "+1 (555) 000-0000",
+            "email": "contact@store.com",
+            "website": "https://store.com",
+            "address": "123 Business Avenue, Suite 100",
+            "taxNumber": "e.g. 123456789",
+            "receiptFooter": "Thank you for your business!",
+            "loginTitle": "e.g. Sharaf Market",
+            "loginSubtitle": "e.g. Sign in to continue"
+        },
+        "hints": {
+            "logo": "PNG, JPG, JPEG, GIF, WEBP, or SVG. Max 2 MB.",
+            "loginImage": "PNG, JPG, JPEG, or WEBP. Max 5 MB."
+        },
+        "loginPreview": {
+            "title": "Login Page Preview",
+            "description": "Live preview of how your login page will appear"
+        },
+        "loginDefaults": {
+            "title": "Business System",
+            "subtitle": "Sign in to continue"
+        }
     },
-    "details": {
-      "title": "Audit Details",
-      "items": "Counted Items",
-      "close": "Close"
-    },
-    "form": {
-      "title": "New Inventory Audit",
-      "countTitle": "Enter Counts",
-      "nameLabel": "Audit Name",
-      "namePlaceholder": "e.g. Monthly warehouse count",
-      "locationLabel": "Location",
-      "hint": "Stock levels will be snapshotted from the selected location.",
-      "countHint": "Enter the physical count for each item. Blank rows stay uncounted. Completing the audit adjusts stock by the difference.",
-      "cancel": "Cancel",
-      "creating": "Creating...",
-      "create": "Create Audit",
-      "saving": "Saving...",
-      "save": "Save Counts"
-    },
-    "complete": "Complete",
-    "cancel": "Cancel Audit",
-    "completing": "Completing...",
-    "cancelling": "Cancelling...",
-    "delete": "Delete",
-    "deleting": "Deleting...",
-    "confirmComplete": {
-      "title": "Complete Audit",
-      "message": "Are you sure you want to complete \"{{name}}\"? Stock will be adjusted for all counted items."
-    },
-    "confirmCancel": {
-      "title": "Cancel Audit",
-      "message": "Are you sure you want to cancel \"{{name}}\"? No stock will be adjusted."
-    },
-    "confirmDelete": {
-      "title": "Delete Audit",
-      "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
-    },
-    "entered": "{{entered}} of {{total}} items counted",
-    "noItems": "No items in this audit",
-    "enterCount": "Enter count",
-    "pageOf": "Page {{page}} of {{pages}}",
-    "previous": "Previous",
-    "next": "Next",
-    "toast": {
-      "created": "Audit created successfully",
-      "createFailed": "Failed to create audit",
-      "updated": "Counts saved successfully",
-      "updateFailed": "Failed to save counts",
-      "completed": "Audit completed and stock adjusted",
-      "completeFailed": "Failed to complete audit",
-      "deleted": "Audit deleted",
-      "deleteFailed": "Failed to delete audit"
-    },
-    "validation": {
-      "nameRequired": "Audit name is required",
-      "locationRequired": "Location is required"
-    }
-  },
-  "common": {
-    "signOut": "Sign out",
-    "notifications": "Notifications",
-    "openMenu": "Open menu",
-    "closeSidebar": "Close sidebar",
-    "appName": "POS System",
-    "appSubtitle": "Management",
-    "somethingWentWrong": "Something went wrong",
-    "tryAgain": "Try again",
-    "closeDialog": "Close dialog",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "noDataAvailable": "No data available",
-    "roles": {
-      "admin": "Admin",
-      "manager": "Manager",
-      "employee": "Employee"
-    }
-  },
-  "notifications": {
-    "title": "Notifications",
-    "loading": "Loading notifications...",
-    "markAllRead": "Mark all as read",
-    "empty": "You're all caught up",
-    "emptyDescription": "No notifications to show right now",
-    "filters": {
-      "all": "All",
-      "unread": "Unread",
-      "critical": "Critical"
-    },
-    "types": {
-      "low_stock": "Low stock",
-      "out_of_stock": "Out of stock",
-      "expired": "Expired",
-      "expiring_soon": "Expiring soon"
-    },
-    "message": {
-      "low_stock": "is running low ({{quantity}} left)",
-      "out_of_stock": "is out of stock",
-      "expired": "has an expired batch ({{expirationDate}})",
-      "expiring_soon": "expires soon ({{expirationDate}})"
-    }
-  },
-  "language": {
-    "switch": "Language",
-    "english": "English",
-    "arabic": "العربية"
-  },
-  "storeSettings": {
-    "title": "Store Settings",
-    "subtitle": "Manage your store identity, contact details, and receipt preferences",
-    "save": "Save Changes",
-    "uploadLogo": "Upload Logo",
-    "uploadImage": "Upload Image",
-    "removeLogo": "Remove Logo",
-    "removeImage": "Remove Image",
-    "logoPreviewAlt": "Store logo preview",
-    "loginBackgroundPreviewAlt": "Login background preview",
-    "loginLogoPreviewAlt": "Login logo preview",
-    "toast": {
-      "saved": "Store settings saved successfully",
-      "saveFailed": "Failed to save store settings",
-      "logoType": "Please choose a valid image file",
-      "logoSize": "Logo must be smaller than 2MB",
-      "loginImageType": "Please choose a valid image (PNG, JPG, JPEG, or WEBP)",
-      "loginImageSize": "Image must be smaller than 5MB"
-    },
-    "validation": {
-      "storeNameRequired": "Store name is required",
-      "required": "This field is required",
-      "emailInvalid": "Please enter a valid email address",
-      "phoneInvalid": "Please enter a valid phone number"
-    },
-    "sections": {
-      "general": {
-        "title": "General Information",
-        "description": "Basic details that identify your store"
-      },
-      "contact": {
-        "title": "Contact Information",
-        "description": "How customers can reach your business"
-      },
-      "business": {
-        "title": "Business Details",
-        "description": "Legal and financial identifiers for receipts"
-      },
-      "receipt": {
-        "title": "Receipt Footer",
-        "description": "Custom message shown at the bottom of receipts"
-      },
-      "branding": {
-        "title": "Store Logo",
-        "description": "Used on receipts and reports"
-      },
-      "loginBranding": {
-        "title": "Login Page Branding",
-        "description": "Customize the logo, background, and welcome text on the login page"
-      }
-    },
-    "fields": {
-      "storeName": "Store Name",
-      "ownerName": "Owner Name",
-      "phone": "Phone Number",
-      "email": "Email Address",
-      "website": "Website",
-      "address": "Address",
-      "taxNumber": "Tax Number",
-      "currency": "Currency",
-      "receiptFooter": "Receipt Footer",
-      "storeLogo": "Store Logo",
-      "loginBackground": "Login Background Image",
-      "loginLogo": "Login Logo",
-      "loginTitle": "Login Welcome Title",
-      "loginSubtitle": "Login Welcome Subtitle"
-    },
-    "placeholders": {
-      "storeName": "e.g. My Store",
-      "ownerName": "e.g. Ahmed Mohamed",
-      "phone": "+1 (555) 000-0000",
-      "email": "contact@store.com",
-      "website": "https://store.com",
-      "address": "123 Business Avenue, Suite 100",
-      "taxNumber": "e.g. 123456789",
-      "receiptFooter": "Thank you for your business!",
-      "loginTitle": "e.g. Sharaf Market",
-      "loginSubtitle": "e.g. Sign in to continue"
-    },
-    "hints": {
-      "logo": "PNG, JPG, JPEG, GIF, WEBP, or SVG. Max 2 MB.",
-      "loginImage": "PNG, JPG, JPEG, or WEBP. Max 5 MB."
-    },
-    "loginPreview": {
-      "title": "Login Page Preview",
-      "description": "Live preview of how your login page will appear"
-    },
-    "loginDefaults": {
-      "title": "Business POS System",
-      "subtitle": "Sign in to continue"
-    }
-  },
-  "header": {
-    "search": {
-      "placeholder": "Search modules and pages...",
-      "noResults": "No pages found",
-      "noResultsHint": "Try a different keyword"
-    },
-    "clock": {
-      "now": "Current time"
+    "header": {
+        "search": {
+            "placeholder": "Search modules and pages...",
+            "noResults": "No pages found",
+            "noResultsHint": "Try a different keyword"
+        },
+        "clock": {
+            "now": "Current time"
+        },
+        "quickActions": {
+            "label": "Quick actions",
+            "comingSoon": "Coming soon",
+            "exportHint": "Export functionality will be available in a future update.",
+            "backupHint": "Backup functionality will be available in a future update."
+        }
     },
     "quickActions": {
-      "label": "Quick actions",
-      "comingSoon": "Coming soon",
-      "exportHint": "Export functionality will be available in a future update.",
-      "backupHint": "Backup functionality will be available in a future update."
+        "newSale": "New Sale",
+        "newPurchase": "New Purchase",
+        "products": "Products",
+        "customers": "Customers",
+        "categories": "Categories",
+        "audits": "Inventory Audits",
+        "suppliers": "Suppliers",
+        "print": "Print",
+        "refresh": "Refresh",
+        "export": "Export",
+        "users": "Users",
+        "storeSettings": "Business Settings",
+        "backup": "Backup",
+        "newClient": "New Client",
+        "newService": "New Service",
+        "clients": "Clients",
+        "newExpense": "New Expense",
+        "assignments": "Assignments"
+    },
+    "clients": {
+        "title": "Clients",
+        "description": "Manage your client relationships",
+        "searchPlaceholder": "Search by company, contact or email...",
+        "searchAriaLabel": "Search clients",
+        "newClient": "New Client",
+        "columns": {
+            "company": "Company",
+            "email": "Email",
+            "phone": "Phone",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "statuses": {
+            "lead": "Lead",
+            "prospect": "Prospect",
+            "customer": "Customer"
+        },
+        "empty": {
+            "noResultsTitle": "No clients found",
+            "noResultsDescription": "Try a different search",
+            "noClientsDescription": "Get started by adding your first client",
+            "addClient": "Add Client"
+        },
+        "form": {
+            "titleCreate": "New Client",
+            "titleEdit": "Edit Client",
+            "companyName": "Company Name",
+            "companyNamePlaceholder": "Acme Corp",
+            "contactPerson": "Contact Person",
+            "contactPersonPlaceholder": "Jane Doe",
+            "email": "Email",
+            "emailPlaceholder": "jane@acme.com",
+            "phone": "Phone",
+            "phonePlaceholder": "+1234567890",
+            "address": "Address",
+            "addressPlaceholder": "123 Main St, City",
+            "status": "Status",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update"
+        },
+        "validation": {
+            "companyRequired": "Company name is required",
+            "contactRequired": "Contact person is required",
+            "emailRequired": "Email is required",
+            "emailInvalid": "Invalid email address",
+            "phoneInvalid": "Phone must be 10-15 digits (optional + prefix)",
+            "addressRequired": "Address is required"
+        },
+        "toast": {
+            "created": "Client created",
+            "createFailed": "Failed to create client",
+            "updated": "Client updated",
+            "updateFailed": "Failed to update client",
+            "deleted": "Client deleted",
+            "deleteFailed": "Failed to delete client"
+        },
+        "confirmDelete": {
+            "title": "Delete Client",
+            "message": "Delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete"
+    },
+    "services": {
+        "title": "Services",
+        "searchPlaceholder": "Search by name or description...",
+        "searchAriaLabel": "Search services",
+        "newService": "New Service",
+        "columns": {
+            "name": "Name",
+            "category": "Category",
+            "price": "Price",
+            "duration": "Duration",
+            "durationValue": "{{count}} days",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "statuses": {
+            "active": "Active",
+            "inactive": "Inactive"
+        },
+        "empty": {
+            "noResultsTitle": "No services found",
+            "noResultsDescription": "Try a different search",
+            "noServicesDescription": "Add your first service",
+            "addService": "Add Service"
+        },
+        "form": {
+            "titleCreate": "New Service",
+            "titleEdit": "Edit Service",
+            "name": "Name",
+            "namePlaceholder": "Service name",
+            "description": "Description",
+            "descriptionPlaceholder": "Brief description of the service",
+            "category": "Category",
+            "categoryPlaceholder": "Select category",
+            "price": "Price",
+            "duration": "Duration (days)",
+            "status": "Status",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update"
+        },
+        "validation": {
+            "nameRequired": "Name is required",
+            "categoryRequired": "Category is required",
+            "priceInvalid": "Price must be positive",
+            "durationInvalid": "Duration must be at least 1 day"
+        },
+        "toast": {
+            "created": "Service created",
+            "createFailed": "Failed to create service",
+            "updated": "Service updated",
+            "updateFailed": "Failed to update service",
+            "deleted": "Service deleted",
+            "deleteFailed": "Failed to delete service"
+        },
+        "confirmDelete": {
+            "title": "Delete Service",
+            "message": "Delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete",
+        "subtitle": "Manage the systems and products your business offers",
+        "posSystem": "POS System",
+        "inventorySystem": "Inventory System",
+        "purchases": "Purchases",
+        "expenses": "Expenses",
+        "reports": "Reports",
+        "businessDevelopment": "Business Development",
+        "descriptions": {
+            "pos": "Process sales, manage checkout, and print invoices",
+            "inventory": "Track stock levels across warehouse and store",
+            "purchases": "Manage purchase orders and supplier replenishment",
+            "expenses": "Track and manage your business expenses",
+            "reports": "Sales, profit, inventory, and expense analytics",
+            "businessDevelopment": "Client relationships, service catalog, and assignments",
+            "workerManagement": "Worker profiles, attendance, salaries, and advances"
+        },
+        "openService": "Open service",
+        "comingSoon": "Coming soon",
+        "futureServices": "More services coming soon",
+        "futureServicesDescription": "New systems and products will be added here as your business grows.",
+        "placeholderNote": "Placeholder — no data required",
+        "workerManagement": "Worker Management"
+    },
+    "serviceCatalog": {
+        "title": "Service Catalog",
+        "description": "Manage the catalog of services and products offered to your clients"
+    },
+    "serviceCategories": {
+        "title": "Service Categories",
+        "description": "Organize your services into categories",
+        "searchPlaceholder": "Search categories...",
+        "searchAriaLabel": "Search service categories",
+        "newCategory": "New Category",
+        "columns": {
+            "name": "Name",
+            "description": "Description",
+            "actions": "Actions"
+        },
+        "empty": {
+            "noResultsTitle": "No categories found",
+            "noResultsDescription": "Try a different search",
+            "noCategoriesDescription": "Add your first category",
+            "addCategory": "Add Category"
+        },
+        "form": {
+            "titleCreate": "New Category",
+            "titleEdit": "Edit Category",
+            "name": "Name",
+            "namePlaceholder": "Category name",
+            "description": "Description",
+            "descriptionPlaceholder": "Brief description (optional)",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update"
+        },
+        "validation": {
+            "nameRequired": "Name is required"
+        },
+        "toast": {
+            "created": "Category created",
+            "createFailed": "Failed to create category",
+            "updated": "Category updated",
+            "updateFailed": "Failed to update category",
+            "deleted": "Category deleted",
+            "deleteFailed": "Failed to delete category"
+        },
+        "confirmDelete": {
+            "title": "Delete Category",
+            "message": "Delete \"{{name}}\"? This action cannot be undone."
+        },
+        "edit": "Edit",
+        "delete": "Delete"
+    },
+    "clientServices": {
+        "title": "Client Services",
+        "description": "Manage service assignments for clients",
+        "searchPlaceholder": "Search by client or service...",
+        "searchAriaLabel": "Search assignments",
+        "assignService": "Assign Service",
+        "columns": {
+            "client": "Client",
+            "service": "Service",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "statuses": {
+            "pending": "Pending",
+            "in_progress": "In Progress",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "empty": {
+            "noResultsTitle": "No assignments found",
+            "noResultsDescription": "Try a different search",
+            "noAssignmentsDescription": "Assign your first service to a client",
+            "assignService": "Assign Service"
+        },
+        "form": {
+            "titleAssign": "Assign Service",
+            "titleEdit": "Edit Assignment",
+            "client": "Client",
+            "clientPlaceholder": "Select client",
+            "service": "Service",
+            "servicePlaceholder": "Select service",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "status": "Status",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "assigning": "Assigning...",
+            "assign": "Assign",
+            "update": "Update"
+        },
+        "validation": {
+            "clientRequired": "Client is required",
+            "serviceRequired": "Service is required",
+            "startDateRequired": "Start date is required",
+            "endDateRequired": "End date is required"
+        },
+        "toast": {
+            "assigned": "Service assigned",
+            "assignFailed": "Failed to assign service",
+            "updated": "Assignment updated",
+            "updateFailed": "Failed to update assignment",
+            "removed": "Assignment removed",
+            "removeFailed": "Failed to remove assignment"
+        },
+        "confirmRemove": {
+            "title": "Remove Assignment",
+            "message": "Are you sure you want to remove this service assignment?"
+        },
+        "edit": "Edit",
+        "delete": "Delete"
+    },
+    "businessDevelopment": {
+        "title": "Business Development",
+        "description": "Overview of clients, services and assignments",
+        "refresh": "Refresh data",
+        "viewAll": "View all",
+        "kpis": {
+            "totalClients": "Total Clients",
+            "totalServices": "Total Services",
+            "totalCategories": "Service Categories",
+            "totalAssignments": "Assignments"
+        },
+        "breakdown": {
+            "clients": "Clients by Status",
+            "services": "Services by Status",
+            "assignments": "Assignments by Status"
+        },
+        "recent": {
+            "clients": "Recent Clients",
+            "services": "Recent Services",
+            "noClients": "No clients yet",
+            "noServices": "No services yet"
+        }
+    },
+    "workerManagement": {
+        "title": "Worker Management",
+        "subtitle": "Manage your workforce: worker profiles, attendance, salaries, and advances",
+        "refresh": "Refresh",
+        "detailsClose": "Close",
+        "edit": "Edit",
+        "delete": "Delete",
+        "viewAll": "View all",
+        "addFirstWorker": "Add your first worker",
+        "kpis": {
+            "totalWorkers": "Total Workers",
+            "activeWorkers": "Active Workers",
+            "todayAttendance": "Today's Attendance",
+            "outstandingAdvances": "Outstanding Advances"
+        },
+        "breakdown": {
+            "attendance": "Attendance Breakdown"
+        },
+        "payroll": {
+            "title": "Payroll",
+            "pending": "Pending Salaries",
+            "total": "Total"
+        },
+        "workforce": {
+            "title": "Workforce",
+            "total": "Total Workers",
+            "paidSalaries": "Salaries Paid"
+        },
+        "quickAccess": {
+            "title": "Quick Access"
+        },
+        "recent": {
+            "workers": "Recent Workers",
+            "noWorkers": "No workers added yet"
+        },
+        "statuses": {
+            "active": "Active",
+            "inactive": "Inactive",
+            "present": "Present",
+            "absent": "Absent",
+            "late": "Late",
+            "half_day": "Half Day",
+            "leave": "Leave",
+            "paid": "Paid",
+            "pending": "Pending",
+            "partial": "Partial",
+            "settled": "Settled"
+        },
+        "columns": {
+            "actions": "Actions"
+        },
+        "form": {
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "create": "Create",
+            "update": "Update"
+        },
+        "toast": {
+            "workerCreated": "Worker created successfully",
+            "workerCreateFailed": "Failed to create worker",
+            "workerUpdated": "Worker updated successfully",
+            "workerUpdateFailed": "Failed to update worker",
+            "workerStatusUpdated": "Worker status updated",
+            "workerStatusFailed": "Failed to update worker status",
+            "workerDeleted": "Worker deleted successfully",
+            "workerDeleteFailed": "Failed to delete worker",
+            "attendanceCreated": "Attendance record created",
+            "attendanceCreateFailed": "Failed to create attendance record",
+            "attendanceUpdated": "Attendance record updated",
+            "attendanceUpdateFailed": "Failed to update attendance record",
+            "attendanceDeleted": "Attendance record deleted",
+            "attendanceDeleteFailed": "Failed to delete attendance record",
+            "salaryCreated": "Salary created successfully",
+            "salaryCreateFailed": "Failed to create salary",
+            "salaryUpdated": "Salary updated successfully",
+            "salaryUpdateFailed": "Failed to update salary",
+            "salaryPaid": "Salary marked as paid",
+            "salaryPayFailed": "Failed to mark salary as paid",
+            "salaryDeleted": "Salary deleted successfully",
+            "salaryDeleteFailed": "Failed to delete salary",
+            "advanceCreated": "Advance created successfully",
+            "advanceCreateFailed": "Failed to create advance",
+            "advanceUpdated": "Advance updated successfully",
+            "advanceUpdateFailed": "Failed to update advance",
+            "advanceDeleted": "Advance deleted successfully",
+            "advanceDeleteFailed": "Failed to delete advance"
+        },
+        "workers": {
+            "title": "Workers",
+            "subtitle": "Worker profiles, roles, and employment details",
+            "newWorker": "New Worker",
+            "searchPlaceholder": "Search workers...",
+            "filterStatus": "Filter by status",
+            "allStatuses": "All statuses",
+            "view": "View",
+            "deactivate": "Deactivate",
+            "activate": "Activate",
+            "columns": {
+                "worker": "Worker",
+                "job": "Job / Department",
+                "hireDate": "Hire Date",
+                "salary": "Base Salary",
+                "status": "Status"
+            },
+            "empty": {
+                "title": "No workers found",
+                "description": "Add your first worker to start tracking attendance, salaries, and advances.",
+                "addFirst": "Add Worker"
+            },
+            "confirmDelete": {
+                "title": "Delete worker",
+                "message": "This will permanently delete {{name}} and all related records. This action cannot be undone."
+            },
+            "validation": {
+                "nameRequired": "Full name is required",
+                "phoneRequired": "Phone number is required",
+                "emailInvalid": "Invalid email address",
+                "salaryInvalid": "Salary cannot be negative"
+            },
+            "form": {
+                "titleCreate": "New Worker",
+                "titleEdit": "Edit Worker",
+                "fullName": "Full Name",
+                "fullNamePlaceholder": "e.g. Ahmed Hassan",
+                "phone": "Phone",
+                "phonePlaceholder": "e.g. 01012345678",
+                "email": "Email",
+                "emailPlaceholder": "worker@company.com",
+                "jobTitle": "Job Title",
+                "jobTitlePlaceholder": "e.g. Cashier",
+                "department": "Department",
+                "departmentPlaceholder": "e.g. Sales",
+                "hireDate": "Hire Date",
+                "baseSalary": "Base Salary",
+                "baseSalaryPlaceholder": "0.00",
+                "status": "Status",
+                "notes": "Notes",
+                "notesPlaceholder": "Additional notes..."
+            },
+            "details": {
+                "title": "Worker Details"
+            }
+        },
+        "attendance": {
+            "title": "Attendance",
+            "subtitle": "Daily check-in/out and attendance records",
+            "newRecord": "New Record",
+            "filterWorker": "Filter by worker",
+            "filterMonth": "Filter by month",
+            "allWorkers": "All workers",
+            "columns": {
+                "worker": "Worker",
+                "date": "Date",
+                "status": "Status",
+                "checkIn": "Check In",
+                "checkOut": "Check Out"
+            },
+            "empty": {
+                "title": "No attendance records",
+                "description": "Record daily attendance to start tracking worker presence.",
+                "addFirst": "Add Attendance"
+            },
+            "confirmDelete": {
+                "title": "Delete attendance record",
+                "message": "This will permanently delete the attendance record for {{worker}} on {{date}}."
+            },
+            "validation": {
+                "workerRequired": "Worker is required",
+                "dateRequired": "Date is required"
+            },
+            "form": {
+                "titleCreate": "New Attendance Record",
+                "titleEdit": "Edit Attendance Record",
+                "worker": "Worker",
+                "workerPlaceholder": "Select a worker",
+                "date": "Date",
+                "status": "Status",
+                "checkIn": "Check In",
+                "checkOut": "Check Out",
+                "notes": "Notes",
+                "notesPlaceholder": "Additional notes..."
+            }
+        },
+        "salaries": {
+            "title": "Salaries",
+            "subtitle": "Payroll cycles and salary statements",
+            "newSalary": "New Salary",
+            "filterWorker": "Filter by worker",
+            "filterPeriod": "Filter by period",
+            "filterStatus": "Filter by status",
+            "allWorkers": "All workers",
+            "allStatuses": "All statuses",
+            "markPaid": "Mark as paid",
+            "columns": {
+                "worker": "Worker",
+                "period": "Period",
+                "base": "Base",
+                "net": "Net",
+                "status": "Status"
+            },
+            "empty": {
+                "title": "No salary records",
+                "description": "Create a salary for a period to start payroll tracking.",
+                "addFirst": "Add Salary"
+            },
+            "confirmDelete": {
+                "title": "Delete salary",
+                "message": "This will permanently delete the {{period}} salary for {{worker}}."
+            },
+            "validation": {
+                "workerRequired": "Worker is required",
+                "periodInvalid": "Period must be in YYYY-MM format",
+                "baseNegative": "Base salary cannot be negative",
+                "bonusesNegative": "Bonuses cannot be negative",
+                "deductionsNegative": "Deductions cannot be negative",
+                "advancesNegative": "Advances deduction cannot be negative",
+                "paymentDateRequired": "Payment date is required"
+            },
+            "form": {
+                "titleCreate": "New Salary",
+                "titleEdit": "Edit Salary",
+                "worker": "Worker",
+                "workerPlaceholder": "Select a worker",
+                "period": "Period",
+                "baseSalary": "Base Salary",
+                "bonuses": "Bonuses",
+                "deductions": "Deductions",
+                "advancesDeduction": "Advances Deduction",
+                "status": "Status",
+                "paymentDate": "Payment Date",
+                "notes": "Notes",
+                "notesPlaceholder": "Additional notes...",
+                "netHint": "Net salary is computed automatically as base + bonuses - deductions - advances deduction."
+            },
+            "payModal": {
+                "title": "Mark Salary as Paid",
+                "message": "Mark the {{period}} salary for {{worker}} as paid.",
+                "paymentDate": "Payment Date",
+                "confirm": "Mark as Paid"
+            }
+        },
+        "advances": {
+            "title": "Advances",
+            "subtitle": "Salary advances and deductions",
+            "newAdvance": "New Advance",
+            "filterWorker": "Filter by worker",
+            "filterStatus": "Filter by status",
+            "allWorkers": "All workers",
+            "allStatuses": "All statuses",
+            "columns": {
+                "worker": "Worker",
+                "amount": "Amount",
+                "date": "Date",
+                "status": "Status",
+                "notes": "Notes"
+            },
+            "empty": {
+                "title": "No advances",
+                "description": "Give a worker a salary advance to track repayments.",
+                "addFirst": "Add Advance"
+            },
+            "confirmDelete": {
+                "title": "Delete advance",
+                "message": "This will permanently delete the advance for {{worker}}."
+            },
+            "validation": {
+                "workerRequired": "Worker is required",
+                "amountPositive": "Amount must be greater than zero",
+                "dateRequired": "Date is required"
+            },
+            "form": {
+                "titleCreate": "New Advance",
+                "titleEdit": "Edit Advance",
+                "worker": "Worker",
+                "workerPlaceholder": "Select a worker",
+                "amount": "Amount",
+                "date": "Date",
+                "status": "Status",
+                "notes": "Notes",
+                "notesPlaceholder": "Additional notes...",
+                "deductionHint": "Outstanding advances are automatically deducted from the worker's next salary."
+            }
+        },
+        "reports": {
+            "title": "Worker Reports",
+            "subtitle": "Attendance and payroll analytics",
+            "clear": "Clear",
+            "readOnlyHint": "You have read-only access to worker reports.",
+            "attendance": {
+                "tab": "Attendance",
+                "from": "From",
+                "to": "To",
+                "columns": {
+                    "worker": "Worker",
+                    "total": "Total Days",
+                    "present": "Present",
+                    "late": "Late",
+                    "half": "Half Days",
+                    "absent": "Absent",
+                    "leave": "Leave"
+                },
+                "summary": {
+                    "present": "Present Days",
+                    "late": "Late Days",
+                    "absent": "Absent Days",
+                    "total": "Total Records"
+                },
+                "empty": {
+                    "title": "No attendance data",
+                    "description": "Add attendance records to generate this report."
+                }
+            },
+            "salaries": {
+                "tab": "Salaries",
+                "from": "From",
+                "to": "To",
+                "columns": {
+                    "worker": "Worker",
+                    "period": "Period",
+                    "base": "Base",
+                    "bonuses": "Bonuses",
+                    "deductions": "Deductions",
+                    "advances": "Advances",
+                    "net": "Net",
+                    "status": "Status",
+                    "paidAt": "Paid At"
+                },
+                "summary": {
+                    "gross": "Gross Pay",
+                    "advances": "Advances Deducted",
+                    "net": "Net Pay"
+                },
+                "empty": {
+                    "title": "No salary data",
+                    "description": "Create salaries to generate this report."
+                }
+            }
+        }
     }
-  },
-  "quickActions": {
-    "newSale": "New Sale",
-    "newPurchase": "New Purchase",
-    "products": "Products",
-    "customers": "Customers",
-    "categories": "Categories",
-    "audits": "Inventory Audits",
-    "suppliers": "Suppliers",
-    "print": "Print",
-    "refresh": "Refresh",
-    "export": "Export",
-    "users": "Users",
-    "storeSettings": "Store Settings",
-    "backup": "Backup"
-  }
 }

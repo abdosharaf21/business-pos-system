@@ -40,11 +40,15 @@ class InventoryAuditService:
             ValueError: If the input data is invalid.
         """
         validated = InventoryAuditValidator.validate_create_audit(data)
-        products = self._repository.get_products_for_audit(validated["location"])
+        warehouse_id = validated.get("warehouse_id")
+        products = self._repository.get_products_for_audit(
+            validated["location"], warehouse_id=warehouse_id
+        )
 
         audit = InventoryAudit(
             name=validated["name"],
             location=validated["location"],
+            warehouse_id=warehouse_id,
             status="open",
             created_by=user_id,
         )

@@ -10,9 +10,9 @@ import {
   Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { expenseService, PAYMENT_METHODS } from "./api";
-import { reportService } from "../reports/api";
 import { useAuth } from "../../shared/context/AuthContext";
 import { PageHeader } from "../../shared/components/PageHeader";
+import { Pagination } from "../../shared/components/Pagination";
 import { StatCard } from "../../shared/components/StatCard";
 import { Modal } from "../../shared/components/Modal";
 import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
@@ -22,13 +22,13 @@ import { EmptyState } from "../../shared/components/EmptyState";
 import {
   inputClass, selectClass, labelClass, searchInputClass, filterBarClass, cardClass,
   cardClassOverflowHidden, primaryButtonClass, secondaryButtonClass, ghostButtonClass, iconButtonClass,
-  dangerIconButtonClass, paginationButtonClass, tableHeadClass, tableBodyClass, tableRowClass,
+  dangerIconButtonClass, tableHeadClass, tableBodyClass, tableRowClass,
 } from "../../shared/components/styles";
 import { formatCurrency } from "../../utils/formatCurrency";
 import {
   Plus, Pencil, Trash2, Eye, Search, Wallet, ReceiptText,
   CalendarDays, TrendingUp, Award, ArrowUp, ArrowUpDown, ArrowDown,
-  ChevronLeft, ChevronRight, Filter, X,
+  Filter, X,
 } from "lucide-react";
 
 const INPUT_CLASS = inputClass;
@@ -134,7 +134,9 @@ export default function ExpensesPage() {
   const { data: categoryData, isLoading: categoryLoading, error: categoryError } = useQuery({
     queryKey: ["expenses-category-chart", chartYear],
     queryFn: async () => {
-      const res = await reportService.getExpensesCategory();
+      const startDate = `${chartYear}-01-01`;
+      const endDate = `${chartYear}-12-31`;
+      const res = await expenseService.getByCategory({ start_date: startDate, end_date: endDate });
       return res.data.data.data;
     },
     enabled: canManage,
@@ -388,27 +390,14 @@ export default function ExpensesPage() {
 
           {/* Pagination */}
           {pages > 1 && (
-            <div className="flex items-center justify-between px-5 py-3.5 border-t border-surface-100 dark:border-surface-700/60">
-              <p className="text-[12px] text-surface-400 dark:text-surface-500">{t("expenses.pageOf", { page, pages })}</p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  className={paginationButtonClass}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {t("expenses.previous")}
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(pages, p + 1))}
-                  disabled={page >= pages}
-                  className={paginationButtonClass}
-                >
-                  {t("expenses.next")}
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              page={page}
+              pages={pages}
+              onPageChange={setPage}
+              pageText={t("expenses.pageOf", { page, pages })}
+              prevText={t("expenses.previous")}
+              nextText={t("expenses.next")}
+            />
           )}
         </div>
       )}

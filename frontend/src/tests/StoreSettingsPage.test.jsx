@@ -20,6 +20,7 @@ vi.mock("../shared/services/storeSettings", () => ({
     update: (...args) => updateMock(...args),
     updateWithLogo: (...args) => updateMock(...args),
   },
+  loadStoreSettings: async (...args) => (await getMock(...args)).data.data,
   setStoreSettings: vi.fn(),
   getAssetUrl: vi.fn(),
 }));

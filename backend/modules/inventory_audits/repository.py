@@ -48,11 +48,51 @@ class InventoryAuditRepository:
     # Read helpers
     # ------------------------------------------------------------------
 
-    def get_products_for_audit(self, location: str) -> List[Dict[str, Any]]:
+    @staticmethod
+    def _builtin_code(location: str) -> str:
+        """Return the built-in warehouse code for a location.
+
+        Args:
+            location: 'warehouse' or 'store'.
+
+        Returns:
+            Warehouse code ('WH-MAIN' or 'STORE').
+        """
+        return "STORE" if location == "store" else "WH-MAIN"
+
+    def _resolve_warehouse_id(
+        self, cursor, location: str, warehouse_id: Optional[int]
+    ) -> Optional[int]:
+        """Resolve a warehouse id from a location when not provided.
+
+        Args:
+            cursor: Active database cursor.
+            location: Audit location.
+            warehouse_id: Optional explicit warehouse id.
+
+        Returns:
+            Resolved warehouse id, or None when no warehouses exist.
+        """
+        if warehouse_id is not None:
+            return warehouse_id
+        cursor.execute(
+            "SELECT id FROM warehouses WHERE code = %s",
+            (self._builtin_code(location),),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return row["id"] if isinstance(row, dict) else row[0]
+
+    def get_products_for_audit(
+        self, location: str, warehouse_id: Optional[int] = None
+    ) -> List[Dict[str, Any]]:
         """Retrieve active products with their stock at a location.
 
         Args:
             location: Location to snapshot (warehouse or store).
+            warehouse_id: Optional warehouse to snapshot. Defaults to the
+                built-in warehouse for the location.
 
         Returns:
             List of product dictionaries with product_id, product_name,
@@ -63,15 +103,16 @@ class InventoryAuditRepository:
         """
         with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
+                target_id = self._resolve_warehouse_id(cursor, location, warehouse_id)
                 cursor.execute(
                     "SELECT p.id AS product_id, p.name AS product_name, "
                     "p.barcode, COALESCE(i.quantity, 0) AS system_quantity "
                     "FROM products p "
                     "LEFT JOIN inventory i ON i.product_id = p.id "
-                    "AND i.location = %s "
+                    "AND i.warehouse_id = %s "
                     "WHERE p.status = 'active' "
                     "ORDER BY p.name ASC",
-                    (location,),
+                    (target_id,),
                 )
                 rows = cursor.fetchall()
                 for row in rows:
@@ -144,7 +185,8 @@ class InventoryAuditRepository:
                 total = int(cursor.fetchone()["total"])
 
                 query = (
-                    "SELECT a.id, a.name, a.location, a.status, a.created_by, "
+                    "SELECT a.id, a.name, a.location, a.warehouse_id, a.status, "
+                    "a.created_by, "
                     "u.full_name AS created_by_name, "
                     "a.started_at, a.completed_at, a.created_at, "
                     "COUNT(ai.id) AS total_items, "
@@ -156,7 +198,8 @@ class InventoryAuditRepository:
                     "JOIN users u ON u.id = a.created_by "
                     "LEFT JOIN inventory_audit_items ai ON ai.audit_id = a.id "
                     f"{where_sql} "
-                    "GROUP BY a.id, a.name, a.location, a.status, a.created_by, "
+                    "GROUP BY a.id, a.name, a.location, a.warehouse_id, a.status, "
+                    "a.created_by, "
                     "u.full_name, a.started_at, a.completed_at, a.created_at "
                     f"ORDER BY {sort_column} {order_sql} "
                     "LIMIT %s OFFSET %s"
@@ -188,7 +231,8 @@ class InventoryAuditRepository:
         with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
-                    "SELECT a.id, a.name, a.location, a.status, a.created_by, "
+                    "SELECT a.id, a.name, a.location, a.warehouse_id, a.status, "
+                    "a.created_by, "
                     "u.full_name AS created_by_name, "
                     "a.started_at, a.completed_at, a.created_at, "
                     "COUNT(ai.id) AS total_items, "
@@ -200,7 +244,8 @@ class InventoryAuditRepository:
                     "JOIN users u ON u.id = a.created_by "
                     "LEFT JOIN inventory_audit_items ai ON ai.audit_id = a.id "
                     "WHERE a.id = %s "
-                    "GROUP BY a.id, a.name, a.location, a.status, a.created_by, "
+                    "GROUP BY a.id, a.name, a.location, a.warehouse_id, a.status, "
+                    "a.created_by, "
                     "u.full_name, a.started_at, a.completed_at, a.created_at",
                     (audit_id,),
                 )
@@ -274,13 +319,17 @@ class InventoryAuditRepository:
         """
         with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
+                target_id = self._resolve_warehouse_id(
+                    cursor, audit.location, audit.warehouse_id
+                )
                 cursor.execute(
                     "INSERT INTO inventory_audits "
-                    "(name, location, status, created_by) "
-                    "VALUES (%s, %s, 'open', %s)",
-                    (audit.name, audit.location, audit.created_by),
+                    "(name, location, warehouse_id, status, created_by) "
+                    "VALUES (%s, %s, %s, 'open', %s)",
+                    (audit.name, audit.location, target_id, audit.created_by),
                 )
                 audit.id = cursor.lastrowid
+                audit.warehouse_id = target_id
 
                 if products:
                     cursor.executemany(
@@ -414,7 +463,7 @@ class InventoryAuditRepository:
         with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 cursor.execute(
-                    "SELECT id, location, status FROM inventory_audits "
+                    "SELECT id, location, warehouse_id, status FROM inventory_audits "
                     "WHERE id = %s FOR UPDATE",
                     (audit_id,),
                 )
@@ -440,13 +489,18 @@ class InventoryAuditRepository:
                         continue
 
                     location = audit["location"]
+                    target_id = self._resolve_warehouse_id(
+                        cursor, location, audit["warehouse_id"]
+                    )
                     cursor.execute(
-                        "INSERT INTO inventory (product_id, location, quantity) "
-                        "VALUES (%s, %s, %s) "
+                        "INSERT INTO inventory "
+                        "(product_id, location, warehouse_id, quantity) "
+                        "VALUES (%s, %s, %s, %s) "
                         "ON DUPLICATE KEY UPDATE quantity = %s",
                         (
                             item["product_id"],
                             location,
+                            target_id,
                             counted,
                             counted,
                         ),
@@ -458,13 +512,14 @@ class InventoryAuditRepository:
 
                     cursor.execute(
                         "INSERT INTO stock_movements "
-                        "(product_id, from_location, to_location, quantity, "
-                        "movement_type, reference, notes, user_id) "
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        "(product_id, from_location, to_location, warehouse_id, "
+                        "quantity, movement_type, reference, notes, user_id) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                         (
                             item["product_id"],
                             from_location,
                             to_location,
+                            target_id,
                             abs(difference),
                             self.MOVEMENT_TYPE,
                             str(audit_id),

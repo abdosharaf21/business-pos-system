@@ -1,4 +1,4 @@
-"""Flask application entry point."""
+"""Flask application entry point for Worker Management + Expenses standalone."""
 
 import os
 import sys
@@ -28,56 +28,11 @@ from backend.modules.users.repository import UserRepository
 from backend.modules.users.service import UserService
 from backend.modules.users.model import User
 
-from backend.modules.dashboard.repository import DashboardRepository
 from backend.modules.dashboard.service import DashboardService
-
-from backend.modules.categories.routes import categories_bp, init_category_service as init_pos_category_service
-from backend.modules.categories.repository import CategoryRepository
-from backend.modules.categories.service import CategoryService
-
-from backend.modules.inventory.routes import inventory_bp, init_inventory_service
-from backend.modules.inventory.repository import InventoryRepository
-from backend.modules.inventory.service import InventoryService
-
-from backend.modules.products.routes import products_bp, init_product_service
-from backend.modules.products.repository import ProductRepository
-from backend.modules.products.service import ProductService
-
-from backend.modules.customers.routes import customers_bp, init_customer_service
-from backend.modules.customers.repository import CustomerRepository
-from backend.modules.customers.service import CustomerService
-
-from backend.modules.purchases.routes import (
-    purchases_bp, suppliers_bp, init_purchase_service,
-)
-from backend.modules.purchases.repository import PurchaseRepository
-from backend.modules.purchases.service import PurchaseService
-
-from backend.modules.pos.routes import pos_bp, init_pos_service
-from backend.modules.pos.repository import PosRepository
-from backend.modules.pos.service import PosService
-
-from backend.modules.reports.routes import reports_bp, init_report_service
-from backend.modules.reports.repository import ReportRepository
-from backend.modules.reports.service import ReportService
 
 from backend.modules.expenses.routes import expenses_bp, init_expense_service
 from backend.modules.expenses.repository import ExpenseRepository
 from backend.modules.expenses.service import ExpenseService
-
-from backend.modules.inventory_audits.routes import (
-    inventory_audits_bp,
-    init_audit_service,
-)
-from backend.modules.inventory_audits.repository import InventoryAuditRepository
-from backend.modules.inventory_audits.service import InventoryAuditService
-
-from backend.modules.notifications.routes import (
-    notifications_bp,
-    init_notification_service,
-)
-from backend.modules.notifications.repository import NotificationRepository
-from backend.modules.notifications.service import NotificationService
 
 from backend.modules.store_settings.routes import (
     store_settings_bp,
@@ -85,6 +40,22 @@ from backend.modules.store_settings.routes import (
 )
 from backend.modules.store_settings.repository import StoreSettingsRepository
 from backend.modules.store_settings.service import StoreSettingsService
+
+from backend.modules.worker_management.routes import (
+    worker_management_bp,
+    init_worker_management_service,
+)
+from backend.modules.worker_management.repository import (
+    AdvanceRepository,
+    AttendanceRepository,
+    SalaryRepository,
+    WorkerManagementRepository,
+    WorkerRepository,
+)
+from backend.modules.worker_management.service import WorkerManagementService
+
+from backend.modules.reports.routes import reports_bp, init_report_service
+from backend.modules.reports.service import ReportService
 
 from backend.middleware import (
     register_error_handlers,
@@ -317,71 +288,46 @@ def create_app(config: dict = None, bootstrap: bool = False) -> Flask:
     auth_service = AuthService(auth_repo, user_repo, jwt_blocklist)
     init_auth_service(auth_service)
 
-    dashboard_repo = DashboardRepository(database)
-    dashboard_service = DashboardService(dashboard_repository=dashboard_repo)
+    worker_management_repo = WorkerManagementRepository(database)
+    expense_repo = ExpenseRepository(database)
+    dashboard_service = DashboardService(
+        worker_management_repository=worker_management_repo,
+        expense_repository=expense_repo,
+    )
     init_dashboard_service(dashboard_service)
 
-    pos_category_repo = CategoryRepository(database)
-    pos_category_service = CategoryService(pos_category_repo)
-    init_pos_category_service(pos_category_service)
-
-    inventory_repo = InventoryRepository(database)
-    inventory_service = InventoryService(inventory_repo)
-    init_inventory_service(inventory_service)
-
-    product_repo = ProductRepository(database)
-    product_service = ProductService(product_repo, pos_category_repo)
-    init_product_service(product_service)
-
-    customer_repo = CustomerRepository(database)
-    customer_service = CustomerService(customer_repo)
-    init_customer_service(customer_service)
-
-    purchase_repo = PurchaseRepository(database)
-    purchase_service = PurchaseService(purchase_repo)
-    init_purchase_service(purchase_service)
-
-    pos_repo = PosRepository(database)
-    pos_service = PosService(pos_repo)
-    init_pos_service(pos_service)
-
-    expense_repo = ExpenseRepository(database)
     expense_service = ExpenseService(expense_repo)
     init_expense_service(expense_service)
-
-    audit_repo = InventoryAuditRepository(database)
-    audit_service = InventoryAuditService(audit_repo)
-    init_audit_service(audit_service)
-
-    report_repo = ReportRepository(database)
-    report_service = ReportService(report_repo, expense_repo, audit_repo)
-    init_report_service(report_service)
-
-    notification_repo = NotificationRepository(database)
-    notification_service = NotificationService(notification_repo)
-    init_notification_service(notification_service)
 
     store_settings_repo = StoreSettingsRepository(database)
     store_settings_service = StoreSettingsService(store_settings_repo)
     init_store_settings_service(store_settings_service)
+
+    worker_repo = WorkerRepository(database)
+    attendance_repo = AttendanceRepository(database)
+    salary_repo = SalaryRepository(database)
+    advance_repo = AdvanceRepository(database)
+    worker_management_service = WorkerManagementService(
+        worker_repo,
+        attendance_repo,
+        salary_repo,
+        advance_repo,
+        worker_management_repo,
+    )
+    init_worker_management_service(worker_management_service)
+
+    report_service = ReportService(expense_repo)
+    init_report_service(report_service)
 
     atexit.register(database.close_all)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(dashboard_bp)
-    app.register_blueprint(categories_bp)
-    app.register_blueprint(inventory_bp)
-    app.register_blueprint(products_bp)
-    app.register_blueprint(customers_bp)
-    app.register_blueprint(purchases_bp)
-    app.register_blueprint(suppliers_bp)
-    app.register_blueprint(pos_bp)
-    app.register_blueprint(reports_bp)
     app.register_blueprint(expenses_bp)
-    app.register_blueprint(inventory_audits_bp)
-    app.register_blueprint(notifications_bp)
     app.register_blueprint(store_settings_bp)
+    app.register_blueprint(worker_management_bp)
+    app.register_blueprint(reports_bp)
 
     @app.get("/api/setup/status")
     def setup_status():

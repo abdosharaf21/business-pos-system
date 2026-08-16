@@ -198,6 +198,29 @@ class InventoryAuditValidator:
         return validated
 
     @staticmethod
+    def validate_warehouse_id(warehouse_id: Any) -> Optional[int]:
+        """Validate an optional warehouse id.
+
+        Args:
+            warehouse_id: Warehouse id to validate, or None/empty.
+
+        Returns:
+            Validated warehouse id or None.
+
+        Raises:
+            ValueError: If the warehouse id is invalid.
+        """
+        if warehouse_id is None or warehouse_id == "":
+            return None
+        try:
+            warehouse_id = int(warehouse_id)
+        except (TypeError, ValueError):
+            raise ValueError("Warehouse must be a valid identifier")
+        if warehouse_id <= 0:
+            raise ValueError("Warehouse must be a valid identifier")
+        return warehouse_id
+
+    @staticmethod
     def validate_create_audit(data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate create audit data.
 
@@ -213,10 +236,16 @@ class InventoryAuditValidator:
         if not data:
             raise ValueError("Audit data is required")
 
-        return {
+        validated = {
             "name": InventoryAuditValidator.validate_name(data.get("name")),
             "location": InventoryAuditValidator.validate_location(data.get("location")),
         }
+        warehouse_id = InventoryAuditValidator.validate_warehouse_id(
+            data.get("warehouse_id")
+        )
+        if warehouse_id is not None:
+            validated["warehouse_id"] = warehouse_id
+        return validated
 
     @staticmethod
     def validate_update_audit(data: Dict[str, Any]) -> Dict[str, Any]:

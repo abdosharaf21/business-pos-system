@@ -87,7 +87,8 @@ business-pos-system/
 │   ├── index.html
 │   └── package.json
 ├── db/
-│   └── pos_system.sql          # Database schema
+│   ├── pos_system.sql           # POS System schema
+│   └── worker_management.sql    # Worker Management schema (standalone)
 ├── requirements.txt
 └── .env.example
 ```
@@ -124,18 +125,22 @@ pip install -r requirements.txt
 
 ### Database Setup
 
-Create a MySQL database and import the schema:
+The application defaults to the standalone `worker_management` database
+(auth-only foundation for the Worker Management service). Create a MySQL
+database and import its schema:
 
 ```sql
-CREATE DATABASE pos_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE worker_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ```bash
-mysql -u root -p pos_system < db/pos_system.sql
+mysql -u root -p worker_management < db/worker_management.sql
 ```
 
 Alternatively, run `python backend/app.py` once — the built-in idempotent
-bootstrap creates the database, imports the schema, and seeds the admin
+bootstrap creates the database, imports the matching schema
+(`db/worker_management.sql` when `DB_NAME=worker_management`,
+`db/pos_system.sql` for `DB_NAME=pos_system`), and seeds the admin
 account automatically.
 
 ### Configure Environment
@@ -150,7 +155,7 @@ Edit `.env` with your database credentials and secrets:
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
-DB_NAME=pos_system
+DB_NAME=worker_management
 SECRET_KEY=your-secret-key
 JWT_SECRET_KEY=your-jwt-secret
 ```

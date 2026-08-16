@@ -34,10 +34,10 @@ class DatabaseConfig:
 
     host: str = field(default_factory=lambda: os.getenv("DB_HOST", "localhost"))
     port: int = field(default_factory=lambda: int(os.getenv("DB_PORT", "3306")))
-    name: str = field(default_factory=lambda: os.getenv("DB_NAME", "pos_system"))
+    name: str = field(default_factory=lambda: os.getenv("DB_NAME", "worker_management"))
     user: str = field(default_factory=lambda: os.getenv("DB_USER", "root"))
     password: str = field(default_factory=lambda: os.getenv("DB_PASSWORD", ""))
-    pool_name: str = field(default_factory=lambda: os.getenv("DB_POOL_NAME", "pos_pool"))
+    pool_name: str = field(default_factory=lambda: os.getenv("DB_POOL_NAME", "worker_mgmt_pool"))
     pool_size: int = field(default_factory=lambda: int(os.getenv("DB_POOL_SIZE", "5")))
     pool_reset_session: list = field(
         default_factory=lambda: ["ROLLBACK"]

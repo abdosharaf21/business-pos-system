@@ -1,11 +1,14 @@
-"""First-run database bootstrap and schema migration for the POS System.
+"""First-run database bootstrap and schema migration for the application.
 
-Responsible for detecting MySQL Server, creating the ``pos_system``
-database when it is missing, importing the schema/seed from
-``db/pos_system.sql`` for a brand-new database, reconciling an existing
-database against the bundled schema (adding missing tables and columns
-without touching existing data), and ensuring the default admin user
-exists.
+Responsible for detecting MySQL Server, creating the configured database
+when it is missing, importing the matching schema/seed file for a
+brand-new database, reconciling an existing database against the bundled
+schema (adding missing tables and columns without touching existing
+data), and ensuring the default admin user exists.
+
+The schema file is chosen by database name so each standalone service
+database (``pos_system``, ``worker_management``) is bootstrapped from
+its own file under ``db/``.
 
 The bootstrap is intentionally idempotent and non-destructive:
 
@@ -27,7 +30,10 @@ from backend.database.config import get_database_config, DatabaseConfig
 
 logger = logging.getLogger(__name__)
 
-_SCHEMA_REL_PATH = os.path.join("db", "pos_system.sql")
+_SCHEMA_FILES = {
+    "pos_system": os.path.join("db", "pos_system.sql"),
+    "worker_management": os.path.join("db", "worker_management.sql"),
+}
 
 ADMIN_EMAIL = "admin@pos.com"
 ADMIN_FULL_NAME = "Admin User"
@@ -216,29 +222,35 @@ def _drop_database(server: mysql.connector.MySQLConnection, name: str) -> None:
     cursor.close()
 
 
-def _find_schema_file() -> str:
+def _find_schema_file(db_name: str = "pos_system") -> str:
     """Locate the bundled schema file across known install layouts.
 
+    Args:
+        db_name: Database name used to select the matching schema file
+            (``pos_system.sql``, ``worker_management.sql``, ...).
+
     Returns:
-        Absolute path to ``pos_system.sql`` or None if not found.
+        Absolute path to the matching schema file or None if not found.
     """
+    schema_rel = _SCHEMA_FILES.get(db_name, _SCHEMA_FILES["pos_system"])
+    schema_name = os.path.basename(schema_rel)
     candidates = []
     env_file = os.environ.get("ENV_FILE")
     if env_file:
-        candidates.append(os.path.join(os.path.dirname(env_file), _SCHEMA_REL_PATH))
-        candidates.append(os.path.join(os.path.dirname(env_file), "pos_system.sql"))
+        candidates.append(os.path.join(os.path.dirname(env_file), schema_rel))
+        candidates.append(os.path.join(os.path.dirname(env_file), schema_name))
     frontend_dist = os.environ.get("FRONTEND_DIST")
     if frontend_dist:
         resources_dir = os.path.dirname(os.path.dirname(frontend_dist))
-        candidates.append(os.path.join(resources_dir, _SCHEMA_REL_PATH))
-        candidates.append(os.path.join(resources_dir, "pos_system.sql"))
+        candidates.append(os.path.join(resources_dir, schema_rel))
+        candidates.append(os.path.join(resources_dir, schema_name))
     cwd = os.getcwd()
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     candidates.extend([
-        os.path.join(cwd, _SCHEMA_REL_PATH),
-        os.path.join(cwd, "resources", _SCHEMA_REL_PATH),
-        os.path.join(project_root, _SCHEMA_REL_PATH),
-        os.path.join(project_root, "resources", _SCHEMA_REL_PATH),
+        os.path.join(cwd, schema_rel),
+        os.path.join(cwd, "resources", schema_rel),
+        os.path.join(project_root, schema_rel),
+        os.path.join(project_root, "resources", schema_rel),
     ])
     for candidate in candidates:
         if candidate and os.path.isfile(candidate):
@@ -476,7 +488,10 @@ def _apply_safe_seeds(conn: mysql.connector.MySQLConnection) -> None:
     """Apply seed data that is safe on an existing database.
 
     Only seeds whose statements are idempotent or guarded by an empty
-    check run here; the admin user is handled separately.
+    check run here; the admin user is handled separately. POS-specific
+    seeds (warehouses, expense categories) only run when their tables
+    exist in the connected database, so standalone service databases
+    (e.g. ``worker_management``) are never touched by POS seeds.
 
     Args:
         conn: Connection to the target database (autocommit on).
@@ -488,23 +503,32 @@ def _apply_safe_seeds(conn: mysql.connector.MySQLConnection) -> None:
         "logo_path) VALUES (1, '', '', '', '', '', '', '', 'EGP', '', '') "
         "ON DUPLICATE KEY UPDATE id = id"
     )
+    if _table_exists(conn, "warehouses"):
+        cursor.execute(
+            "INSERT INTO warehouses (name, code, address, manager_name, phone, "
+            "status) VALUES "
+            "('Main Warehouse', 'WH-MAIN', '', '', '', 'active'), "
+            "('Store', 'STORE', '', '', '', 'active') "
+            "ON DUPLICATE KEY UPDATE id = id"
+        )
     cursor.close()
-    _seed_if_empty(
-        conn,
-        "expense_categories",
-        "INSERT INTO expense_categories (name, description) VALUES "
-        "('Rent', 'Payments for business premises'), "
-        "('Electricity', 'Electricity and utility bills'), "
-        "('Water', 'Water supply bills'), "
-        "('Internet', 'Internet and telecommunication bills'), "
-        "('Transportation', 'Shipping, delivery and travel costs'), "
-        "('Maintenance', 'Equipment and building maintenance'), "
-        "('Marketing', 'Advertising and promotional costs'), "
-        "('Taxes', 'Tax payments and government fees'), "
-        "('Purchases', 'Operational purchases'), "
-        "('Salaries', 'Employee wages and salaries'), "
-        "('Other', 'Other business expenses')",
-    )
+    if _table_exists(conn, "expense_categories"):
+        _seed_if_empty(
+            conn,
+            "expense_categories",
+            "INSERT INTO expense_categories (name, description) VALUES "
+            "('Rent', 'Payments for business premises'), "
+            "('Electricity', 'Electricity and utility bills'), "
+            "('Water', 'Water supply bills'), "
+            "('Internet', 'Internet and telecommunication bills'), "
+            "('Transportation', 'Shipping, delivery and travel costs'), "
+            "('Maintenance', 'Equipment and building maintenance'), "
+            "('Marketing', 'Advertising and promotional costs'), "
+            "('Taxes', 'Tax payments and government fees'), "
+            "('Purchases', 'Operational purchases'), "
+            "('Salaries', 'Employee wages and salaries'), "
+            "('Other', 'Other business expenses')",
+        )
 
 
 def _admin_exists(conn: mysql.connector.MySQLConnection) -> bool:
@@ -583,7 +607,7 @@ def ensure_database_ready(config: DatabaseConfig = None) -> dict:
                     connection_timeout=6,
                 )
                 try:
-                    schema_path = _find_schema_file()
+                    schema_path = _find_schema_file(config.name)
                     if schema_path:
                         migration = _reconcile_schema(db_conn, schema_path)
                         result.update(migration)
@@ -608,12 +632,15 @@ def ensure_database_ready(config: DatabaseConfig = None) -> dict:
         _create_database(server, config.name)
         result["database_created"] = True
 
-        schema_path = _find_schema_file()
+        schema_path = _find_schema_file(config.name)
         if schema_path is None:
+            schema_name = _SCHEMA_FILES.get(
+                config.name, _SCHEMA_FILES["pos_system"]
+            )
             raise BootstrapError(
-                "The database schema file (db/pos_system.sql) was not found.",
+                f"The database schema file ({schema_name}) was not found.",
                 instructions=GENERIC_ERROR.format(
-                    detail="db/pos_system.sql could not be located next to the "
+                    detail=f"{schema_name} could not be located next to the "
                     "application. Reinstall the application."
                 ),
             )

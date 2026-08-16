@@ -9,7 +9,7 @@ from backend.database import bootstrap
 _SCHEMA_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "db",
-    "pos_system.sql",
+    "worker_management.sql",
 )
 
 
@@ -65,26 +65,23 @@ def test_parse_create_statements_parses_all_tables():
     """The parser must discover every CREATE TABLE in the schema."""
     tables = _schema_tables()
     expected = {
-        "users", "categories", "products", "customers", "suppliers",
-        "sales", "sale_items", "purchases", "purchase_items",
-        "expense_categories", "expenses", "inventory_transactions",
-        "inventory", "stock_movements", "inventory_audits",
-        "inventory_audit_items", "notifications", "store_settings",
-        "refresh_token_blocklist",
+        "users", "refresh_token_blocklist", "store_settings",
+        "workers", "attendance", "salaries", "advances",
+        "expense_categories", "expenses",
     }
     assert set(tables.keys()) == expected
 
 
 def test_parse_create_statements_identifies_columns():
     """Column names must be extracted without constraint noise."""
-    purchases_columns = {
-        column for column, _ in _schema_tables()["purchases"]["columns"]
+    expenses_columns = {
+        column for column, _ in _schema_tables()["expenses"]["columns"]
     }
     assert {
-        "id", "supplier_id", "user_id", "invoice_number", "total_amount",
-        "status", "payment_method", "notes", "created_at",
-    }.issubset(purchases_columns)
-    assert not {"REFERENCES", "ON", "CONSTRAINT", "INDEX"} & purchases_columns
+        "id", "category_id", "amount", "payment_method",
+        "expense_date", "created_by", "created_at",
+    }.issubset(expenses_columns)
+    assert not {"REFERENCES", "ON", "CONSTRAINT", "INDEX"} & expenses_columns
 
 
 def test_parse_create_statements_keeps_full_create_sql():
@@ -102,11 +99,11 @@ def test_reconcile_schema_creates_missing_tables_and_adds_columns(monkeypatch):
     cursor = MockCursor()
     conn = MockConnection(cursor)
 
-    monkeypatch.setattr(bootstrap, "_table_exists", lambda conn, name: name == "products")
+    monkeypatch.setattr(bootstrap, "_table_exists", lambda conn, name: name == "users")
     monkeypatch.setattr(
         bootstrap,
         "_existing_columns",
-        lambda conn, name: {"id", "name"} if name == "products" else set(),
+        lambda conn, name: {"id", "email"} if name == "users" else set(),
     )
 
     result = bootstrap._reconcile_schema(conn, _SCHEMA_PATH)
@@ -157,5 +154,5 @@ def test_existing_columns_returns_column_names(monkeypatch):
     cursor = MockCursor(columns=[("id",), ("name",)])
     conn = MockConnection(cursor)
 
-    assert bootstrap._existing_columns(conn, "products") == {"id", "name"}
+    assert bootstrap._existing_columns(conn, "users") == {"id", "name"}
     assert "information_schema.columns" in cursor.last_execute

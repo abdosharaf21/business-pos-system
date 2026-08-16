@@ -1,6 +1,5 @@
-"""Reports module for analytics and business insights."""
+"""Reports module for analytics and business insights (standalone: Expenses only)."""
 
-from backend.modules.reports.repository import ReportRepository
 from backend.modules.reports.service import ReportService
 
-__all__ = ["ReportRepository", "ReportService"]
+__all__ = ["ReportService"]

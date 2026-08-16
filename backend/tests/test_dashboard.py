@@ -8,18 +8,42 @@ class TestGetDashboardStatistics:
 
     def test_get_statistics_success(self, client, admin_headers):
         """Test admin can view statistics."""
-        stats = {"total_products": 50, "total_categories": 8, "total_customers": 25, "total_suppliers": 5, "total_sales": 100, "total_purchases": 30, "low_stock_products": 3, "inventory_value": 15000.0, "todays_sales": 5, "todays_revenue": 450.0}
+        stats = {
+            "total_workers": 10,
+            "workers_by_status": {"active": 8, "inactive": 2},
+            "total_expenses": 150,
+            "monthly_expenses": 30000.0,
+            "today_expenses": 450.0,
+            "month_expenses": 30000.0,
+            "total_advances": 5,
+            "outstanding_advances": 1250.0,
+            "recent_workers": [],
+            "recent_expenses": [],
+            "expenses_by_status": {"pending": 0, "completed": 150},
+        }
         with patch("backend.modules.dashboard.service.DashboardService.get_dashboard_statistics") as mock_get:
             mock_get.return_value = stats
             response = client.get("/api/dashboard/statistics", headers=admin_headers)
             assert response.status_code == 200
             data = response.get_json()
             assert data["success"] is True
-            assert data["data"]["total_products"] == 50
+            assert data["data"]["total_workers"] == 10
 
     def test_get_statistics_manager(self, client, manager_headers):
         """Test manager can view statistics."""
-        stats = {"total_products": 30, "total_categories": 5, "total_customers": 10, "total_suppliers": 3, "total_sales": 50, "total_purchases": 15, "low_stock_products": 1, "inventory_value": 8000.0, "todays_sales": 2, "todays_revenue": 200.0}
+        stats = {
+            "total_workers": 5,
+            "workers_by_status": {"active": 4, "inactive": 1},
+            "total_expenses": 75,
+            "monthly_expenses": 15000.0,
+            "today_expenses": 200.0,
+            "month_expenses": 15000.0,
+            "total_advances": 3,
+            "outstanding_advances": 750.0,
+            "recent_workers": [],
+            "recent_expenses": [],
+            "expenses_by_status": {"pending": 0, "completed": 75},
+        }
         with patch("backend.modules.dashboard.service.DashboardService.get_dashboard_statistics") as mock_get:
             mock_get.return_value = stats
             response = client.get("/api/dashboard/statistics", headers=manager_headers)
@@ -29,7 +53,19 @@ class TestGetDashboardStatistics:
 
     def test_get_statistics_employee(self, client, employee_headers):
         """Test employee can also view statistics."""
-        stats = {"total_products": 30, "total_categories": 5, "total_customers": 10, "total_suppliers": 3, "total_sales": 50, "total_purchases": 15, "low_stock_products": 1, "inventory_value": 8000.0, "todays_sales": 2, "todays_revenue": 200.0}
+        stats = {
+            "total_workers": 3,
+            "workers_by_status": {"active": 2, "inactive": 1},
+            "total_expenses": 40,
+            "monthly_expenses": 8000.0,
+            "today_expenses": 100.0,
+            "month_expenses": 8000.0,
+            "total_advances": 2,
+            "outstanding_advances": 500.0,
+            "recent_workers": [],
+            "recent_expenses": [],
+            "expenses_by_status": {"pending": 0, "completed": 40},
+        }
         with patch("backend.modules.dashboard.service.DashboardService.get_dashboard_statistics") as mock_get:
             mock_get.return_value = stats
             response = client.get("/api/dashboard/statistics", headers=employee_headers)

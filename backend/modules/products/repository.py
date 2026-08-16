@@ -98,14 +98,28 @@ class ProductRepository:
                     product.minimum_stock,
                     product.status,
                 ))
-                conn.commit()
                 product.id = cursor.lastrowid
 
                 cursor.execute(
-                    "INSERT IGNORE INTO inventory (product_id, location, quantity) "
-                    "VALUES (%s, 'warehouse', 0), (%s, 'store', 0)",
-                    (product.id, product.id),
+                    "INSERT IGNORE INTO inventory (product_id, location, quantity, warehouse_id) "
+                    "VALUES (%s, 'warehouse', %s, "
+                    "(SELECT id FROM warehouses WHERE code = 'WH-MAIN')), "
+                    "(%s, 'store', 0, "
+                    "(SELECT id FROM warehouses WHERE code = 'STORE'))",
+                    (product.id, product.quantity, product.id),
                 )
+
+                if product.quantity > 0:
+                    cursor.execute(
+                        "INSERT INTO stock_movements "
+                        "(product_id, from_location, to_location, warehouse_id, "
+                        "quantity, movement_type, reference, notes, user_id) "
+                        "VALUES (%s, NULL, 'warehouse', "
+                        "(SELECT id FROM warehouses WHERE code = 'WH-MAIN'), "
+                        "%s, 'adjustment', %s, 'Initial stock on product creation', NULL)",
+                        (product.id, product.quantity, str(product.id)),
+                    )
+
                 conn.commit()
                 return product
             except mysql.connector.Error:
@@ -209,6 +223,16 @@ class ProductRepository:
         """
         with self._database.connection() as conn, db_cursor(conn) as cursor:
             try:
+                cursor.execute(
+                    "SELECT id, quantity FROM products WHERE id = %s FOR UPDATE",
+                    (product.id,),
+                )
+                current_row = cursor.fetchone()
+                if current_row is None:
+                    return None
+                current_total = int(current_row[1])
+                target_total = int(product.quantity)
+
                 query = """
                     UPDATE products
                     SET category_id = %s, name = %s, sku = %s, barcode = %s,
@@ -224,16 +248,67 @@ class ProductRepository:
                     product.description,
                     product.purchase_price,
                     product.selling_price,
-                    product.quantity,
+                    target_total,
                     product.minimum_stock,
                     product.status,
                     product.id,
                 ))
+
+                if target_total != current_total:
+                    delta = target_total - current_total
+                    cursor.execute(
+                        "INSERT IGNORE INTO inventory "
+                        "(product_id, location, quantity, warehouse_id) "
+                        "VALUES (%s, 'warehouse', 0, "
+                        "(SELECT id FROM warehouses WHERE code = 'WH-MAIN'))",
+                        (product.id,),
+                    )
+                    cursor.execute(
+                        "SELECT id, quantity FROM inventory "
+                        "WHERE product_id = %s AND location = 'warehouse' "
+                        "AND (warehouse_id = (SELECT id FROM warehouses "
+                        "WHERE code = 'WH-MAIN') OR warehouse_id IS NULL) "
+                        "ORDER BY warehouse_id IS NULL ASC LIMIT 1 FOR UPDATE",
+                        (product.id,),
+                    )
+                    row = cursor.fetchone()
+                    if row is None:
+                        raise ValueError("Product has no warehouse stock record")
+                    new_quantity = int(row[1]) + delta
+                    if new_quantity < 0:
+                        raise ValueError(
+                            "Stock cannot be negative; the requested quantity "
+                            "is less than the stock held in other locations"
+                        )
+                    cursor.execute(
+                        "UPDATE inventory SET quantity = %s WHERE id = %s",
+                        (new_quantity, row[0]),
+                    )
+                    cursor.execute(
+                        "INSERT INTO stock_movements "
+                        "(product_id, from_location, to_location, warehouse_id, "
+                        "quantity, movement_type, reference, notes, user_id) "
+                        "VALUES (%s, %s, %s, "
+                        "(SELECT id FROM warehouses WHERE code = 'WH-MAIN'), "
+                        "%s, 'adjustment', %s, 'Stock updated via product edit', NULL)",
+                        (
+                            product.id,
+                            None if delta > 0 else "warehouse",
+                            "warehouse" if delta > 0 else None,
+                            abs(delta),
+                            str(product.id),
+                        ),
+                    )
+                    cursor.execute(
+                        "UPDATE products p SET p.quantity = COALESCE(("
+                        "SELECT SUM(i.quantity) FROM inventory i "
+                        "WHERE i.product_id = %s), 0) WHERE p.id = %s",
+                        (product.id, product.id),
+                    )
+
                 conn.commit()
-                if cursor.rowcount > 0:
-                    return self.get_by_id(product.id)
-                return None
-            except mysql.connector.Error:
+                return self.get_by_id(product.id)
+            except Exception:
                 conn.rollback()
                 raise
 

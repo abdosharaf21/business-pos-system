@@ -140,6 +140,77 @@ class PosRepository:
             except Exception:
                 raise
 
+    def get_sales(
+        self,
+        search: Optional[str] = None,
+        limit: int = 20,
+        offset: int = 0,
+    ):
+        """Retrieve a paginated sales history list for receipts.
+
+        Each row carries the invoice number, timestamps, cashier and
+        customer names, payment details, item count, and totals so the
+        receipt history can be rendered from persisted sale data.
+
+        Args:
+            search: Optional search term for invoice number or customer name.
+            limit: Maximum number of rows to return.
+            offset: Pagination offset.
+
+        Returns:
+            Tuple of (list of sale dicts, total count).
+        """
+        search_clause = ""
+        params: list = []
+        if search:
+            search_clause = (
+                "WHERE s.invoice_number LIKE %s "
+                "OR COALESCE(c.name, '') LIKE %s"
+            )
+            like_term = f"%{search}%"
+            params.extend([like_term, like_term])
+
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
+            try:
+                cursor.execute(
+                    "SELECT COUNT(*) AS count FROM sales s "
+                    "LEFT JOIN customers c ON s.customer_id = c.id "
+                    + search_clause,
+                    tuple(params),
+                )
+                total = int(cursor.fetchone()["count"])
+
+                cursor.execute(
+                    "SELECT s.id, s.invoice_number, s.created_at, "
+                    "s.total_amount, s.discount, s.paid_amount, "
+                    "s.payment_method, s.status, "
+                    "u.full_name AS cashier_name, c.name AS customer_name, "
+                    "(SELECT COUNT(*) FROM sale_items si "
+                    "WHERE si.sale_id = s.id) AS item_count "
+                    "FROM sales s "
+                    "JOIN users u ON s.user_id = u.id "
+                    "LEFT JOIN customers c ON s.customer_id = c.id "
+                    + search_clause + " "
+                    "ORDER BY s.created_at DESC, s.id DESC "
+                    "LIMIT %s OFFSET %s",
+                    tuple(params + [limit, offset]),
+                )
+                rows = cursor.fetchall()
+
+                for row in rows:
+                    row["total_amount"] = float(row["total_amount"])
+                    row["discount"] = float(row["discount"])
+                    row["paid_amount"] = float(row["paid_amount"])
+                    row["item_count"] = int(row["item_count"])
+                    row["created_at"] = (
+                        row["created_at"].isoformat()
+                        if row["created_at"] else None
+                    )
+
+                return rows, total
+            except Exception:
+                raise
+
     def get_invoice(self, sale_id: int) -> Optional[Dict[str, Any]]:
         """Retrieve formatted invoice data for a completed sale.
 
@@ -267,7 +338,11 @@ class PosRepository:
 
                     cursor.execute(
                         "SELECT id, quantity FROM inventory "
-                        "WHERE product_id = %s AND location = 'store' FOR UPDATE",
+                        "WHERE product_id = %s AND location = 'store' "
+                        "AND (warehouse_id = "
+                        "(SELECT id FROM warehouses WHERE code = 'STORE') "
+                        "OR warehouse_id IS NULL) "
+                        "ORDER BY warehouse_id IS NULL ASC LIMIT 1 FOR UPDATE",
                         (product_id,),
                     )
                     store_stock = cursor.fetchone()

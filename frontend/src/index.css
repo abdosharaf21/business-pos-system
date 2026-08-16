@@ -72,6 +72,15 @@
 
   [dir="rtl"] body {
     font-family: var(--font-arabic);
+    line-height: 1.7;
+  }
+
+  /* Arabic text should not be letter-spaced; tracking utilities harm legibility. */
+  [dir="rtl"] .tracking-wide,
+  [dir="rtl"] .tracking-wider,
+  [dir="rtl"] .tracking-tight,
+  [dir="rtl"] .tracking-normal {
+    letter-spacing: 0 !important;
   }
 
   [dir="rtl"] input,
@@ -135,10 +144,6 @@
     overflow-wrap: anywhere;
   }
 
-  .animate-in {
-    animation: animate-in 0.2s ease-out;
-  }
-
   .animate-in-fast {
     animation: animate-in 0.15s ease-out;
   }
@@ -161,24 +166,4 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slide-in-from-bottom-2 {
-  from { transform: translateY(8px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes slide-in-from-top {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
 }

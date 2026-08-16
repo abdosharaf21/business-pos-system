@@ -19,7 +19,7 @@ export default function GlobalSearch() {
   const items = [];
   for (const module of getVisibleModules(user?.role)) {
     items.push({
-      key: module.to,
+      key: `module:${module.id}`,
       labelKey: module.labelKey,
       to: module.to,
       icon: module.icon,
@@ -29,7 +29,7 @@ export default function GlobalSearch() {
     for (const group of groups) {
       for (const item of group.items) {
         items.push({
-          key: item.to,
+          key: `${module.id}:${item.to}`,
           labelKey: item.labelKey,
           to: item.to,
           icon: item.icon,

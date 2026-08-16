@@ -21,7 +21,7 @@ export function DataTable({ columns, data, emptyMessage }) {
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-5 py-3.5 text-start text-[11px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider"
+                  className="px-5 py-3.5 text-start text-[12px] font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider"
                 >
                   {col.label}
                 </th>

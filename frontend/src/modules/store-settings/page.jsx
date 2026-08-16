@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import {
   setStoreSettings,
   getAssetUrl,
 } from "../../shared/services/storeSettings";
+import { useStoreSettings } from "../../shared/hooks/useStoreSettings";
 import { inputClass, labelClass } from "../../shared/components/styles";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
@@ -224,13 +225,7 @@ export default function StoreSettingsPage() {
   const [loginLogoPreviewUrl, setLoginLogoPreviewUrl] = useState(null);
   const [removeLoginLogo, setRemoveLoginLogo] = useState(false);
 
-  const { data: settings, isLoading, error, refetch } = useQuery({
-    queryKey: ["store-settings"],
-    queryFn: async () => {
-      const res = await storeSettingsService.get();
-      return res.data.data;
-    },
-  });
+  const { data: settings, isLoading, error, refetch } = useStoreSettings();
 
   const schema = useMemo(() => buildSchema(t), [t]);
 

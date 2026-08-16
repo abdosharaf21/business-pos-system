@@ -2,24 +2,18 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "../shared/context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
-import AppLayout from "../shared/layouts/AppLayout";
+import AppLayout from "../shared/layouts/ModuleLayout";
 import LoginPage from "../shared/pages/LoginPage";
 import DashboardPage from "../modules/dashboard/page";
-import ReportsPage from "../modules/reports/page";
-import CategoriesPage from "../modules/categories/page";
-import InventoryPage from "../modules/inventory/page";
-import InventoryHistoryPage from "../modules/inventory/history";
-import InventoryAuditsPage from "../modules/inventory_audits/page";
-import ProductsPage from "../modules/products/page";
-import CustomersPage from "../modules/customers/page";
-import SuppliersPage from "../modules/suppliers/page";
-import PurchasesPage from "../modules/purchases/page";
-import PurchaseInvoicePage from "../modules/purchases/invoice";
 import ExpensesPage from "../modules/expenses/page";
 import UsersPage from "../modules/users/page";
 import StoreSettingsPage from "../modules/store-settings/page";
-import PosPage from "../modules/pos/page";
-import InvoicePage from "../modules/pos/invoice";
+import WorkerManagementPage from "../modules/worker-management/page";
+import WorkersPage from "../modules/worker-management/workers";
+import AttendancePage from "../modules/worker-management/attendance";
+import SalariesPage from "../modules/worker-management/salaries";
+import AdvancesPage from "../modules/worker-management/advances";
+import WorkerReportsPage from "../modules/worker-management/reports";
 
 export default function AppRoutes() {
   return (
@@ -51,19 +45,13 @@ export default function AppRoutes() {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/inventory/movements" element={<InventoryHistoryPage />} />
-          <Route path="/inventory/audits" element={<InventoryAuditsPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/customers" element={<CustomersPage />} />
-          <Route path="/suppliers" element={<SuppliersPage />} />
-          <Route path="/purchases" element={<PurchasesPage />} />
-          <Route path="/purchases/:purchaseId" element={<PurchaseInvoicePage />} />
+          <Route path="/worker-management" element={<WorkerManagementPage />} />
+          <Route path="/worker-management/workers" element={<WorkersPage />} />
+          <Route path="/worker-management/attendance" element={<AttendancePage />} />
+          <Route path="/worker-management/salaries" element={<SalariesPage />} />
+          <Route path="/worker-management/advances" element={<AdvancesPage />} />
+          <Route path="/worker-management/reports" element={<WorkerReportsPage />} />
           <Route path="/expenses" element={<ExpensesPage />} />
-          <Route path="/pos" element={<PosPage />} />
-          <Route path="/pos/invoice/:saleId" element={<InvoicePage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/store-settings" element={<StoreSettingsPage />} />
         </Route>
