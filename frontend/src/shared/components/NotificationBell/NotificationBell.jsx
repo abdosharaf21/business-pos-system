@@ -132,11 +132,11 @@ export default function NotificationBell() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="relative p-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-xl transition-colors"
+        className="relative p-2 text-surface-400 hover:text-surface-600 hover:bg-surface-100 rounded-lg transition-colors"
         aria-label={t("common.notifications")}
         aria-expanded={open}
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-[18px] h-[18px]" />
         {unreadCount > 0 && (
           <span className="absolute top-0.5 end-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -145,9 +145,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute end-0 top-full mt-2 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white border border-surface-200 shadow-xl shadow-surface-900/10 overflow-hidden z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100">
-            <h3 className="text-sm font-bold text-surface-900">
+        <div className="absolute end-0 top-full mt-2 w-[360px] max-w-[calc(100vw-2rem)] rounded-xl bg-white border border-surface-200 shadow-xl shadow-surface-900/10 overflow-hidden z-50 dark:bg-surface-900 dark:border-surface-800">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 dark:border-surface-800">
+            <h3 className="text-sm font-bold text-surface-900 dark:text-surface-100">
               {t("notifications.title")}
             </h3>
             <div className="flex items-center gap-1">
@@ -169,7 +169,7 @@ export default function NotificationBell() {
             </div>
           </div>
 
-          <div className="flex gap-1 px-4 py-2 border-b border-surface-100">
+          <div className="flex gap-1 px-4 py-2 border-b border-surface-100 dark:border-surface-800">
             {filters.map(({ value, label }) => (
               <button
                 key={value}
@@ -201,28 +201,28 @@ export default function NotificationBell() {
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-surface-100">
+              <ul className="divide-y divide-surface-100 dark:divide-surface-800">
                 {notifications.map((notification) => {
                   const unread = !notification.is_read;
                   return (
                     <li key={notification.id}>
                       <button
                         onClick={() => handleOpenNotification(notification)}
-                        className="w-full text-start px-4 py-3 hover:bg-surface-50 transition-colors flex gap-3"
+                        className="w-full text-start px-4 py-3 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors flex gap-3"
                       >
                         <span
                           className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${PRIORITY_DOT[notification.priority] || "bg-surface-300"}`}
                         />
                         <span className="flex-1 min-w-0">
                           <span className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-bold text-surface-800 truncate">
+                            <span className="text-xs font-bold text-surface-800 dark:text-surface-100 truncate">
                               {notification.product_name}
                             </span>
                             {unread && (
                               <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-primary-500" />
                             )}
                           </span>
-                          <span className="block text-xs text-surface-500 mt-0.5">
+                          <span className="block text-xs text-surface-500 dark:text-surface-400 mt-0.5">
                             {notification.notification_type === "low_stock" &&
                               t("notifications.message.low_stock", { quantity: notification.quantity })}
                             {notification.notification_type === "out_of_stock" &&

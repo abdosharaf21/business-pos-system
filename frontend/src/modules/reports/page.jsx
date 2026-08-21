@@ -221,9 +221,7 @@ export default function ReportsPage() {
     trendParams.end_date = endDate;
   }
 
-  const profitParams = period === "last_7_days" || period === "custom"
-    ? { period: "custom", start_date: startDate, end_date: endDate }
-    : { period };
+  const profitParams = { period: "custom", start_date: startDate, end_date: endDate };
 
   const { data: dashData, isLoading: dashLoading, error: dashError, refetch: refetchDash } = useQuery({
     queryKey: ["reports-dashboard"],

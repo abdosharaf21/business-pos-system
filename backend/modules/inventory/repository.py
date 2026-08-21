@@ -44,7 +44,7 @@ class InventoryRepository:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.status, p.minimum_stock, "
                     "p.purchase_price, p.selling_price, "
-                    "COALESCE(wh.quantity, 0) AS warehouse_qty, "
+                    "COALESCE(SUM(wh.quantity), 0) AS warehouse_qty, "
                     "COALESCE(st.quantity, 0) AS store_qty, "
                     "e.expiration_date "
                     "FROM products p "
@@ -57,7 +57,10 @@ class InventoryRepository:
                     "FROM purchase_items WHERE expiration_date IS NOT NULL "
                     "GROUP BY product_id"
                     ") e ON e.product_id = p.id "
-                    "WHERE p.id = %s",
+                    "WHERE p.id = %s "
+                    "GROUP BY p.id, p.name, p.barcode, p.status, p.minimum_stock, "
+                    "p.purchase_price, p.selling_price, st.quantity, "
+                    "e.expiration_date",
                     (product_id,),
                 )
                 row = cursor.fetchone()
@@ -87,7 +90,7 @@ class InventoryRepository:
                     "SELECT p.id, p.name, p.barcode, p.minimum_stock, "
                     "p.purchase_price, p.selling_price, p.status, p.category_id, "
                     "c.name AS category_name, "
-                    "COALESCE(wh.quantity, 0) AS warehouse_qty, "
+                    "COALESCE(SUM(wh.quantity), 0) AS warehouse_qty, "
                     "COALESCE(st.quantity, 0) AS store_qty, "
                     "e.expiration_date "
                     "FROM products p "
@@ -110,7 +113,12 @@ class InventoryRepository:
                     )
                     params = (f"%{search}%", f"%{search}%")
 
-                query += "ORDER BY p.name ASC"
+                query += (
+                    "GROUP BY p.id, p.name, p.barcode, p.minimum_stock, "
+                    "p.purchase_price, p.selling_price, p.status, p.category_id, "
+                    "c.name, st.quantity, e.expiration_date "
+                    "ORDER BY p.name ASC"
+                )
                 cursor.execute(query, params)
                 rows = cursor.fetchall()
                 for row in rows:
@@ -196,9 +204,9 @@ class InventoryRepository:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.minimum_stock, "
                     "p.selling_price, c.name AS category_name, "
-                    "COALESCE(wh.quantity, 0) AS warehouse_qty, "
+                    "COALESCE(SUM(wh.quantity), 0) AS warehouse_qty, "
                     "COALESCE(st.quantity, 0) AS store_qty, "
-                    "(COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0)) AS total "
+                    "(COALESCE(SUM(wh.quantity), 0) + COALESCE(st.quantity, 0)) AS total "
                     "FROM products p "
                     "LEFT JOIN categories c ON c.id = p.category_id "
                     "LEFT JOIN inventory wh ON wh.product_id = p.id "
@@ -206,9 +214,11 @@ class InventoryRepository:
                     "LEFT JOIN inventory st ON st.product_id = p.id "
                     "AND st.location = 'store' "
                     "WHERE p.status = 'active' "
-                    "AND (COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0)) "
+                    "GROUP BY p.id, p.name, p.barcode, p.minimum_stock, "
+                    "p.selling_price, c.name, st.quantity "
+                    "HAVING (COALESCE(SUM(wh.quantity), 0) + COALESCE(st.quantity, 0)) "
                     "<= p.minimum_stock "
-                    "ORDER BY (COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0) "
+                    "ORDER BY (COALESCE(SUM(wh.quantity), 0) + COALESCE(st.quantity, 0) "
                     "- p.minimum_stock) ASC"
                 )
                 rows = cursor.fetchall()
@@ -220,10 +230,89 @@ class InventoryRepository:
             except mysql.connector.Error:
                 raise
 
+    def _movements_query(
+        self,
+        product_id: Optional[int] = None,
+        movement_type: Optional[str] = None,
+        warehouse_id: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> tuple:
+        """Build the shared movements WHERE clause.
+
+        Args:
+            product_id: Optional filter by product ID.
+            movement_type: Optional filter by movement type.
+            warehouse_id: Optional filter by warehouse ID.
+            start_date: Optional start date (YYYY-MM-DD) filter.
+            end_date: Optional end date (YYYY-MM-DD) filter.
+
+        Returns:
+            Tuple of (conditions list, params list).
+        """
+        conditions: list = []
+        params: list = []
+
+        if product_id:
+            conditions.append("m.product_id = %s")
+            params.append(product_id)
+
+        if movement_type:
+            conditions.append("m.movement_type = %s")
+            params.append(movement_type)
+
+        if warehouse_id:
+            conditions.append("m.warehouse_id = %s")
+            params.append(warehouse_id)
+
+        if start_date and end_date:
+            conditions.append("DATE(m.created_at) BETWEEN %s AND %s")
+            params.extend([start_date, end_date])
+
+        return conditions, params
+
+    def count_movements(
+        self,
+        product_id: Optional[int] = None,
+        movement_type: Optional[str] = None,
+        warehouse_id: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> int:
+        """Count stock movement records matching the given filters.
+
+        Args:
+            product_id: Optional filter by product ID.
+            movement_type: Optional filter by movement type.
+            warehouse_id: Optional filter by warehouse ID.
+            start_date: Optional start date (YYYY-MM-DD) filter.
+            end_date: Optional end date (YYYY-MM-DD) filter.
+
+        Returns:
+            Total number of matching movement records.
+        """
+        with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
+            try:
+                conditions, params = self._movements_query(
+                    product_id=product_id,
+                    movement_type=movement_type,
+                    warehouse_id=warehouse_id,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+                query = "SELECT COUNT(*) AS total FROM stock_movements m "
+                if conditions:
+                    query += "WHERE " + " AND ".join(conditions) + " "
+                cursor.execute(query, tuple(params))
+                return int(cursor.fetchone()["total"])
+            except mysql.connector.Error:
+                raise
+
     def get_movements(
         self,
         product_id: Optional[int] = None,
         movement_type: Optional[str] = None,
+        warehouse_id: Optional[int] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         limit: int = 50,
@@ -234,37 +323,37 @@ class InventoryRepository:
         Args:
             product_id: Optional filter by product ID.
             movement_type: Optional filter by movement type.
+            warehouse_id: Optional filter by warehouse ID.
             start_date: Optional start date (YYYY-MM-DD) filter.
             end_date: Optional end date (YYYY-MM-DD) filter.
             limit: Maximum number of records to return.
             offset: Pagination offset.
 
         Returns:
-            List of movement dictionaries with product name.
+            List of movement dictionaries with product, warehouse, and
+            user name enrichment.
         """
         with self._database.connection() as conn, db_cursor(conn, dictionary=True) as cursor:
             try:
                 query = (
                     "SELECT m.id, m.product_id, m.from_location, m.to_location, "
-                    "m.quantity, m.movement_type, m.reference, m.notes, "
-                    "m.user_id, m.created_at, p.name AS product_name "
+                    "m.warehouse_id, m.quantity, m.movement_type, m.reference, "
+                    "m.notes, m.user_id, m.created_at, "
+                    "p.name AS product_name, "
+                    "w.name AS warehouse_name, "
+                    "u.full_name AS user_name "
                     "FROM stock_movements m "
                     "JOIN products p ON p.id = m.product_id "
+                    "LEFT JOIN warehouses w ON w.id = m.warehouse_id "
+                    "LEFT JOIN users u ON u.id = m.user_id "
                 )
-                conditions: list = []
-                params: list = []
-
-                if product_id:
-                    conditions.append("m.product_id = %s")
-                    params.append(product_id)
-
-                if movement_type:
-                    conditions.append("m.movement_type = %s")
-                    params.append(movement_type)
-
-                if start_date and end_date:
-                    conditions.append("DATE(m.created_at) BETWEEN %s AND %s")
-                    params.extend([start_date, end_date])
+                conditions, params = self._movements_query(
+                    product_id=product_id,
+                    movement_type=movement_type,
+                    warehouse_id=warehouse_id,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
 
                 if conditions:
                     query += "WHERE " + " AND ".join(conditions) + " "
@@ -355,8 +444,10 @@ class InventoryRepository:
             cursor: Optional active cursor (used inside a transaction).
         """
         sql = (
-            "INSERT IGNORE INTO inventory (product_id, location, quantity) "
-            "VALUES (%s, 'warehouse', 0), (%s, 'store', 0)"
+            "INSERT IGNORE INTO inventory (product_id, location, quantity, warehouse_id) "
+            "VALUES (%s, 'warehouse', 0, "
+            "(SELECT id FROM warehouses WHERE code = 'WH-MAIN')), "
+            "(%s, 'store', 0, (SELECT id FROM warehouses WHERE code = 'STORE'))"
         )
         if cursor is not None:
             cursor.execute(sql, (product_id, product_id))
@@ -413,7 +504,10 @@ class InventoryRepository:
             try:
                 cursor.execute(
                     "SELECT id, quantity FROM inventory "
-                    "WHERE product_id = %s AND location = 'warehouse' FOR UPDATE",
+                    "WHERE product_id = %s AND location = 'warehouse' "
+                    "AND (warehouse_id = (SELECT id FROM warehouses "
+                    "WHERE code = 'WH-MAIN') OR warehouse_id IS NULL) "
+                    "ORDER BY warehouse_id IS NULL ASC LIMIT 1 FOR UPDATE",
                     (product_id,),
                 )
                 warehouse = cursor.fetchone()
@@ -432,17 +526,21 @@ class InventoryRepository:
                 )
 
                 cursor.execute(
-                    "INSERT INTO inventory (product_id, location, quantity) "
-                    "VALUES (%s, 'store', %s) "
+                    "INSERT INTO inventory "
+                    "(product_id, location, warehouse_id, quantity) "
+                    "VALUES (%s, 'store', "
+                    "(SELECT id FROM warehouses WHERE code = 'STORE'), %s) "
                     "ON DUPLICATE KEY UPDATE quantity = quantity + %s",
                     (product_id, quantity, quantity),
                 )
 
                 cursor.execute(
                     "INSERT INTO stock_movements "
-                    "(product_id, from_location, to_location, quantity, "
-                    "movement_type, reference, notes, user_id) "
-                    "VALUES (%s, 'warehouse', 'store', %s, 'transfer', %s, %s, %s)",
+                    "(product_id, from_location, to_location, warehouse_id, "
+                    "quantity, movement_type, reference, notes, user_id) "
+                    "VALUES (%s, 'warehouse', 'store', "
+                    "(SELECT id FROM warehouses WHERE code = 'STORE'), %s, "
+                    "'transfer', %s, %s, %s)",
                     (product_id, quantity, reference, notes, user_id),
                 )
 

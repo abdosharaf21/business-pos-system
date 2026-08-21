@@ -53,7 +53,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left decorative panel */}
-      <div className={`hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden ${backgroundUrl ? "bg-primary-900" : "bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900"}`}>
+      <div className={`hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden ${backgroundUrl ? "bg-primary-900" : "bg-gradient-to-br from-primary-700 via-primary-800 to-primary-950"}`}>
         {backgroundUrl ? (
           <img
             src={backgroundUrl}
@@ -70,7 +70,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-primary-900/55" />
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 w-full">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
+            <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
               {logoUrl ? (
                 <img src={logoUrl} alt={welcomeTitle} className="w-7 h-7 object-contain" />
               ) : (
@@ -110,7 +110,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile-only brand */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
-            <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/25">
+            <div className="w-11 h-11 bg-primary-700 rounded-xl flex items-center justify-center shadow-lg">
               {logoUrl ? (
                 <img src={logoUrl} alt={welcomeTitle} className="w-6 h-6 object-contain" />
               ) : (
@@ -140,7 +140,7 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   {...register("email")}
-                  className={`w-full ps-11 pe-4 py-3 border rounded-xl text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
+                  className={`w-full ps-11 pe-4 py-3 border rounded-lg text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
                     focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
                     ${errors.email ? "border-red-300 bg-red-50/30" : "border-surface-200 bg-surface-50 hover:border-surface-300"}`}
                   placeholder={t("auth.emailPlaceholder")}
@@ -162,7 +162,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   {...register("password")}
-                  className={`w-full ps-11 pe-12 py-3 border rounded-xl text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
+                  className={`w-full ps-11 pe-12 py-3 border rounded-lg text-sm text-surface-800 placeholder:text-surface-300 transition-all duration-150
                     focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
                     ${errors.password ? "border-red-300 bg-red-50/30" : "border-surface-200 bg-surface-50 hover:border-surface-300"}`}
                   placeholder={t("auth.passwordPlaceholder")}
@@ -185,7 +185,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-sm font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-primary-600/25 hover:shadow-xl hover:shadow-primary-600/30 active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-700 text-white text-sm font-semibold rounded-lg hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-primary-700/25 hover:shadow-xl hover:shadow-primary-700/30 active:scale-[0.98]"
             >
               {loading ? (
                 <>

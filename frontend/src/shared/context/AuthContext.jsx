@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
         setRefreshToken(refresh_token);
         setUser(userData);
         toast.success("Welcome back!");
-        navigate("/dashboard");
+        navigate("/business/dashboard");
       }
     },
     [navigate]

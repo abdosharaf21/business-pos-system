@@ -20,7 +20,18 @@
     "settings": "Settings",
     "newSale": "New Sale",
     "stock": "Stock",
-    "dashboardOverview": "Dashboard Overview"
+    "dashboardOverview": "Dashboard Overview",
+    "businessDevelopment": "Business Development",
+    "clients": "Clients",
+    "services": "Services",
+    "serviceCategories": "Service Categories",
+    "clientServices": "Client Services",
+    "warehouses": "Warehouses",
+    "system": "System",
+    "transfers": "Transfers",
+    "servicesCatalog": "Services Catalog",
+    "applications": "Applications",
+    "deals": "Deals"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -1141,6 +1152,7 @@
     "tryAgain": "Try again",
     "closeDialog": "Close dialog",
     "cancel": "Cancel",
+    "back": "Back",
     "confirm": "Confirm",
     "noDataAvailable": "No data available",
     "roles": {
@@ -1299,6 +1311,198 @@
     "export": "Export",
     "users": "Users",
     "storeSettings": "Store Settings",
-    "backup": "Backup"
+    "backup": "Backup",
+    "newClient": "New Client",
+    "services": "Services",
+    "clientServices": "Client Services",
+    "newDeal": "New Deal"
+  },
+  "warehouses": {
+    "title": "Warehouses",
+    "subtitle": "Manage stock locations and warehouse operations",
+    "addWarehouse": "Add Warehouse",
+    "searchPlaceholder": "Search warehouses...",
+    "emptyTitle": "No warehouses found",
+    "emptyDescription": "Create your first warehouse to start managing stock locations.",
+    "newWarehouse": "New Warehouse",
+    "editWarehouse": "Edit Warehouse",
+    "stockTitle": "Stock — {{name}}",
+    "stockSearchPlaceholder": "Search products...",
+    "noStock": "No stock in this warehouse",
+    "columns": {
+      "name": "Name",
+      "code": "Code",
+      "address": "Address",
+      "manager": "Manager",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "activateTitle": "Activate Warehouse",
+    "deactivateTitle": "Deactivate Warehouse",
+    "activateConfirm": "This warehouse will be available for stock operations.",
+    "deactivateConfirm": "This warehouse will be excluded from stock operations.",
+    "deleteTitle": "Delete Warehouse",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "form": {
+      "name": "Warehouse Name",
+      "namePlaceholder": "e.g. Main Warehouse",
+      "code": "Code",
+      "codePlaceholder": "e.g. WH-001",
+      "address": "Address",
+      "addressPlaceholder": "e.g. 123 Industrial Area",
+      "manager": "Manager",
+      "managerPlaceholder": "Manager name",
+      "phone": "Phone",
+      "phonePlaceholder": "Phone number"
+    },
+    "validation": {
+      "nameRequired": "Warehouse name is required",
+      "codeRequired": "Warehouse code is required"
+    },
+    "stockColumns": {
+      "product": "Product",
+      "quantity": "Quantity"
+    },
+    "toast": {
+      "created": "Warehouse created successfully",
+      "updated": "Warehouse updated successfully",
+      "deleted": "Warehouse deleted successfully",
+      "statusUpdated": "Warehouse status updated"
+    }
+  },
+  "transfers": {
+    "title": "Stock Transfers",
+    "subtitle": "Transfer stock between warehouses",
+    "newTransfer": "New Transfer",
+    "searchPlaceholder": "Search transfers...",
+    "allStatuses": "All Statuses",
+    "emptyTitle": "No transfers found",
+    "emptyDescription": "Create a transfer to move stock between warehouses.",
+    "createTitle": "Create Transfer",
+    "detailTitle": "Transfer #{{number}}",
+    "noItems": "No items in this transfer",
+    "complete": "Complete",
+    "cancel": "Cancel",
+    "completeTitle": "Complete Transfer",
+    "cancelTitle": "Cancel Transfer",
+    "completeConfirm": "This will move the stock between warehouses. This action cannot be undone.",
+    "cancelConfirm": "This will cancel the pending transfer. This action cannot be undone.",
+    "columns": {
+      "number": "Transfer #",
+      "from": "From",
+      "to": "To",
+      "items": "Items",
+      "date": "Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "form": {
+      "source": "Source Warehouse",
+      "destination": "Destination Warehouse",
+      "selectWarehouse": "Select warehouse...",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional notes for this transfer...",
+      "items": "Transfer Items",
+      "addItem": "Add Item",
+      "productId": "Product ID",
+      "quantity": "Qty",
+      "costPrice": "Cost Price"
+    },
+    "validation": {
+      "sourceRequired": "Source warehouse is required",
+      "destinationRequired": "Destination warehouse is required",
+      "itemsRequired": "At least one item is required",
+      "quantityMin": "Quantity must be at least 1"
+    },
+    "toast": {
+      "created": "Transfer created successfully",
+      "completed": "Transfer completed successfully",
+      "cancelled": "Transfer cancelled"
+    }
+  },
+  "appSwitcher": {
+    "label": "Switch application",
+    "applications": "Applications",
+    "selectApp": "Select application"
+  },
+  "applications": {
+    "title": "Applications",
+    "description": "Software applications and modules available in your suite",
+    "open": "Open"
+  },
+  "servicesCatalog": {
+    "title": "Services Catalog",
+    "description": "Select a service to open its dedicated workspace",
+    "open": "Open"
+  },
+  "bdDashboard": {
+    "title": "Business Development",
+    "description": "Overview of your business development activities",
+    "totalClients": "Total Clients",
+    "activeClients": "Active Clients",
+    "totalServices": "Total Services",
+    "activeServices": "Active Services",
+    "totalClientServices": "Total Assignments",
+    "activeClientServices": "Active Assignments",
+    "clientsByStatus": "Clients by Status",
+    "servicesByStatus": "Services by Status",
+    "clientServicesByStatus": "Assignments by Status",
+    "recentClients": "Recent Clients",
+    "recentClientServices": "Recent Assignments",
+    "noClients": "No clients yet",
+    "noServices": "No services yet",
+    "noClientServices": "No assignments yet",
+    "noRecentClients": "No recent clients",
+    "noRecentClientServices": "No recent assignments",
+    "emptyTitle": "No Business Development Data",
+    "emptyDescription": "Start adding clients, services, and assignments to see your business development dashboard.",
+    "backToServices": "Back to Services",
+    "quickAccess": "Quick Access",
+    "totalDeals": "Total Deals",
+    "totalRevenue": "Total Revenue",
+    "monthlyRevenue": "This Month",
+    "recentDeals": "Recent Deals",
+    "bestServices": "Best Selling Services",
+    "deals": "deals",
+    "dealStatusBreakdown": "Deals by Status",
+    "noDeals": "No deals yet",
+    "paymentBreakdown": "Payment Status Breakdown",
+    "statuses": {
+      "lead": "Lead",
+      "prospect": "Prospect",
+      "customer": "Customer",
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "draft": "Draft",
+      "confirmed": "Confirmed",
+      "delivered": "Delivered",
+      "paid": "Paid",
+      "partial": "Partial",
+      "refunded": "Refunded"
+    }
+  },
+  "bdReports": {
+    "clientActivationRate": "Client Activation",
+    "serviceUtilization": "Service Utilization",
+    "assignmentRate": "Assignment Rate",
+    "clientsActive": "clients active",
+    "servicesActive": "services active",
+    "assignmentsTotal": "total assignments"
   }
 }

@@ -20,7 +20,18 @@
     "storeSettings": "إعدادات المتجر",
     "newSale": "بيع جديد",
     "stock": "المخزون",
-    "dashboardOverview": "نظرة عامة على لوحة التحكم"
+    "dashboardOverview": "نظرة عامة على لوحة التحكم",
+    "businessDevelopment": "تطوير الأعمال",
+    "clients": "العملاء",
+    "services": "الخدمات",
+    "serviceCategories": "فئات الخدمات",
+    "clientServices": "خدمات العملاء",
+    "warehouses": "المستودعات",
+    "system": "النظام",
+    "transfers": "التحويلات",
+    "servicesCatalog": "كتالوج الخدمات",
+    "applications": "التطبيقات",
+    "deals": "الصفقات"
   },
   "auth": {
     "welcomeBack": "مرحبًا بعودتك",
@@ -1166,6 +1177,7 @@
     "tryAgain": "حاول مرة أخرى",
     "closeDialog": "إغلاق الحوار",
     "cancel": "إلغاء",
+    "back": "رجوع",
     "confirm": "تأكيد",
     "noDataAvailable": "لا توجد بيانات متاحة",
     "roles": {
@@ -1324,6 +1336,198 @@
     "export": "تصدير",
     "users": "المستخدمين",
     "storeSettings": "إعدادات المتجر",
-    "backup": "نسخ احتياطي"
+    "backup": "نسخ احتياطي",
+    "newClient": "عميل جديد",
+    "services": "الخدمات",
+    "clientServices": "خدمات العملاء",
+    "newDeal": "صفقة جديدة"
+  },
+  "warehouses": {
+    "title": "المستودعات",
+    "subtitle": "إدارة مواقع المخزون وعمليات المستودعات",
+    "addWarehouse": "إضافة مستودع",
+    "searchPlaceholder": "بحث في المستودعات...",
+    "emptyTitle": "لا توجد مستودعات",
+    "emptyDescription": "أنشئ أول مستودع لإدارة مواقع المخزون.",
+    "newWarehouse": "مستودع جديد",
+    "editWarehouse": "تعديل المستودع",
+    "stockTitle": "المخزون — {{name}}",
+    "stockSearchPlaceholder": "بحث في المنتجات...",
+    "noStock": "لا يوجد مخزون في هذا المستودع",
+    "columns": {
+      "name": "الاسم",
+      "code": "الكود",
+      "address": "العنوان",
+      "manager": "المدير",
+      "stock": "المخزون",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "activateTitle": "تفعيل المستودع",
+    "deactivateTitle": "تعطيل المستودع",
+    "activateConfirm": "سيكون المستودع متاحاً لعمليات المخزون.",
+    "deactivateConfirm": "سيتم استبعاد المستودع من عمليات المخزون.",
+    "deleteTitle": "حذف المستودع",
+    "deleteConfirm": "هل أنت متأكد من حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "form": {
+      "name": "اسم المستودع",
+      "namePlaceholder": "مثال: المستودع الرئيسي",
+      "code": "الكود",
+      "codePlaceholder": "مثال: WH-001",
+      "address": "العنوان",
+      "addressPlaceholder": "مثال: المنطقة الصناعية",
+      "manager": "المدير",
+      "managerPlaceholder": "اسم المدير",
+      "phone": "الهاتف",
+      "phonePlaceholder": "رقم الهاتف"
+    },
+    "validation": {
+      "nameRequired": "اسم المستودع مطلوب",
+      "codeRequired": "كود المستودع مطلوب"
+    },
+    "stockColumns": {
+      "product": "المنتج",
+      "quantity": "الكمية"
+    },
+    "toast": {
+      "created": "تم إنشاء المستودع بنجاح",
+      "updated": "تم تحديث المستودع بنجاح",
+      "deleted": "تم حذف المستودع بنجاح",
+      "statusUpdated": "تم تحديث حالة المستودع"
+    }
+  },
+  "transfers": {
+    "title": "تحويلات المخزون",
+    "subtitle": "نقل المخزون بين المستودعات",
+    "newTransfer": "تحويل جديد",
+    "searchPlaceholder": "بحث في التحويلات...",
+    "allStatuses": "جميع الحالات",
+    "emptyTitle": "لا توجد تحويلات",
+    "emptyDescription": "أنشئ تحويلة لنقل المخزون بين المستودعات.",
+    "createTitle": "إنشاء تحويلة",
+    "detailTitle": "تحويلة #{{number}}",
+    "noItems": "لا توجد عناصر في هذه التحويلة",
+    "complete": "إتمام",
+    "cancel": "إلغاء",
+    "completeTitle": "إتمام التحويلة",
+    "cancelTitle": "إلغاء التحويلة",
+    "completeConfirm": "سيتم نقل المخزون بين المستودعات. لا يمكن التراجع عن هذا الإجراء.",
+    "cancelConfirm": "سيتم إلغاء التحويلة المعلقة. لا يمكن التراجع عن هذا الإجراء.",
+    "columns": {
+      "number": "رقم التحويلة",
+      "from": "من",
+      "to": "إلى",
+      "items": "العناصر",
+      "date": "التاريخ",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "pending": "معلق",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "form": {
+      "source": "مستودع المصدر",
+      "destination": "مستودع الوجهة",
+      "selectWarehouse": "اختر مستودعاً...",
+      "notes": "ملاحظات",
+      "notesPlaceholder": "ملاحظات اختيارية لهذه التحويلة...",
+      "items": "عناصر التحويلة",
+      "addItem": "إضافة عنصر",
+      "productId": "معرّف المنتج",
+      "quantity": "الكمية",
+      "costPrice": "سعر التكلفة"
+    },
+    "validation": {
+      "sourceRequired": "مستودع المصدر مطلوب",
+      "destinationRequired": "مستودع الوجهة مطلوب",
+      "itemsRequired": "عنصر واحد على الأقل مطلوب",
+      "quantityMin": "الكمية يجب أن تكون 1 على الأقل"
+    },
+    "toast": {
+      "created": "تم إنشاء التحويلة بنجاح",
+      "completed": "تم إتمام التحويلة بنجاح",
+      "cancelled": "تم إلغاء التحويلة"
+    }
+  },
+  "appSwitcher": {
+    "label": "تبديل التطبيق",
+    "applications": "التطبيقات",
+    "selectApp": "اختر التطبيق"
+  },
+  "applications": {
+    "title": "التطبيقات",
+    "description": "التطبيقات والوحدات البرمجية المتاحة في حزمتك",
+    "open": "فتح"
+  },
+  "servicesCatalog": {
+    "title": "كتالوج الخدمات",
+    "description": "اختر خدمة لفتح مساحة عمل مخصصة لها",
+    "open": "فتح"
+  },
+  "bdDashboard": {
+    "title": "تطوير الأعمال",
+    "description": "نظرة عامة على أنشطة تطوير الأعمال",
+    "totalClients": "إجمالي العملاء",
+    "activeClients": "العملاء النشطون",
+    "totalServices": "إجمالي الخدمات",
+    "activeServices": "الخدمات النشطة",
+    "totalClientServices": "إجمالي التعيينات",
+    "activeClientServices": "التعيينات النشطة",
+    "clientsByStatus": "العملاء حسب الحالة",
+    "servicesByStatus": "الخدمات حسب الحالة",
+    "clientServicesByStatus": "التعيينات حسب الحالة",
+    "recentClients": "أحدث العملاء",
+    "recentClientServices": "أحدث التعيينات",
+    "noClients": "لا يوجد عملاء بعد",
+    "noServices": "لا توجد خدمات بعد",
+    "noClientServices": "لا توجد تعيينات بعد",
+    "noRecentClients": "لا يوجد عملاء حديثون",
+    "noRecentClientServices": "لا توجد تعيينات حديثة",
+    "emptyTitle": "لا توجد بيانات تطوير أعمال",
+    "emptyDescription": "ابدأ بإضافة العملاء والخدمات والتعيينات لرؤية لوحة تحكم تطوير الأعمال.",
+    "backToServices": "العودة إلى الخدمات",
+    "quickAccess": "إجراءات سريعة",
+    "totalDeals": "إجمالي الصفقات",
+    "totalRevenue": "إجمالي الإيرادات",
+    "monthlyRevenue": "هذا الشهر",
+    "recentDeals": "الصفقات الأخيرة",
+    "bestServices": "الخدمات الأكثر مبيعاً",
+    "deals": "صفقات",
+    "dealStatusBreakdown": "الصفقات حسب الحالة",
+    "noDeals": "لا توجد صفقات بعد",
+    "paymentBreakdown": "توزيع حالة الدفع",
+    "statuses": {
+      "lead": "عميل محتمل",
+      "prospect": "فرصة",
+      "customer": "عميل",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "pending": "قيد الانتظار",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "draft": "مسودة",
+      "confirmed": "مؤكد",
+      "delivered": "تم التسليم",
+      "paid": "مدفوع",
+      "partial": "جزئي",
+      "refunded": "مسترد"
+    }
+  },
+  "bdReports": {
+    "clientActivationRate": "معدل تنشيط العملاء",
+    "serviceUtilization": "استخدام الخدمات",
+    "assignmentRate": "معدل التعيين",
+    "clientsActive": "عميل نشط",
+    "servicesActive": "خدمة نشطة",
+    "assignmentsTotal": "إجمالي التعيينات"
   }
 }

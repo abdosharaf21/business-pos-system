@@ -120,7 +120,7 @@ export default function GlobalSearch() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 w-40 lg:w-60 px-3 py-2 rounded-xl border border-surface-200 bg-surface-50 text-surface-400 hover:bg-surface-100 hover:text-surface-600 transition-colors text-start"
+        className="flex items-center gap-2 w-40 lg:w-60 px-3 py-2 rounded-lg border border-surface-200 bg-surface-50 text-surface-400 hover:bg-surface-100 hover:text-surface-600 transition-colors text-start"
         aria-label={t("header.search.placeholder")}
         aria-expanded={open}
       >
@@ -133,7 +133,7 @@ export default function GlobalSearch() {
       </button>
 
       {open && (
-        <div className="absolute end-0 top-full mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-2xl bg-white border border-surface-200 shadow-xl shadow-surface-900/10 overflow-hidden z-50 dark:bg-surface-900 dark:border-surface-800 animate-in-fast">
+        <div className="absolute end-0 top-full mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-xl bg-white border border-surface-200 shadow-xl shadow-surface-900/10 overflow-hidden z-50 dark:bg-surface-900 dark:border-surface-800 animate-in-fast">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-surface-100 dark:border-surface-800">
             <Search className="w-4 h-4 text-surface-400 shrink-0" />
             <input

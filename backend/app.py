@@ -38,6 +38,8 @@ from backend.modules.categories.service import CategoryService
 from backend.modules.inventory.routes import inventory_bp, init_inventory_service
 from backend.modules.inventory.repository import InventoryRepository
 from backend.modules.inventory.service import InventoryService
+from backend.modules.inventory.warehouse_repository import WarehouseRepository
+from backend.modules.inventory.transfer_repository import TransferRepository
 
 from backend.modules.products.routes import products_bp, init_product_service
 from backend.modules.products.repository import ProductRepository
@@ -85,6 +87,30 @@ from backend.modules.store_settings.routes import (
 )
 from backend.modules.store_settings.repository import StoreSettingsRepository
 from backend.modules.store_settings.service import StoreSettingsService
+
+from backend.modules.clients.routes import clients_bp, init_client_service
+from backend.modules.clients.repository import ClientRepository
+from backend.modules.clients.service import ClientService
+
+from backend.modules.services.routes import services_bp, init_service_service
+from backend.modules.services.repository import ServiceRepository
+from backend.modules.services.service import ServiceService
+
+from backend.modules.client_services.routes import client_services_bp, init_assignment_service
+from backend.modules.client_services.repository import ClientServiceRepository
+from backend.modules.client_services.service import ClientServiceAssignmentService
+
+from backend.modules.service_categories.routes import service_categories_bp, init_category_service as init_service_category_service
+from backend.modules.service_categories.repository import ServiceCategoryRepository
+from backend.modules.service_categories.service import ServiceCategoryService
+
+from backend.modules.business_development.routes import business_development_bp, init_business_development_service
+from backend.modules.business_development.repository import BusinessDevelopmentRepository
+from backend.modules.business_development.service import BusinessDevelopmentService
+
+from backend.modules.deals.routes import deals_bp, init_deal_service
+from backend.modules.deals.repository import DealRepository
+from backend.modules.deals.service import DealService
 
 from backend.middleware import (
     register_error_handlers,
@@ -326,7 +352,9 @@ def create_app(config: dict = None, bootstrap: bool = False) -> Flask:
     init_pos_category_service(pos_category_service)
 
     inventory_repo = InventoryRepository(database)
-    inventory_service = InventoryService(inventory_repo)
+    warehouse_repo = WarehouseRepository(database)
+    transfer_repo = TransferRepository(database)
+    inventory_service = InventoryService(inventory_repo, warehouse_repo, transfer_repo)
     init_inventory_service(inventory_service)
 
     product_repo = ProductRepository(database)
@@ -365,6 +393,30 @@ def create_app(config: dict = None, bootstrap: bool = False) -> Flask:
     store_settings_service = StoreSettingsService(store_settings_repo)
     init_store_settings_service(store_settings_service)
 
+    client_repo = ClientRepository(database)
+    client_service = ClientService(client_repo)
+    init_client_service(client_service)
+
+    service_repo = ServiceRepository(database)
+    service_service = ServiceService(service_repo)
+    init_service_service(service_service)
+
+    client_service_repo = ClientServiceRepository(database)
+    assignment_service = ClientServiceAssignmentService(client_service_repo)
+    init_assignment_service(assignment_service)
+
+    service_category_repo = ServiceCategoryRepository(database)
+    service_category_service = ServiceCategoryService(service_category_repo)
+    init_service_category_service(service_category_service)
+
+    bd_repo = BusinessDevelopmentRepository(database)
+    bd_service = BusinessDevelopmentService(bd_repo)
+    init_business_development_service(bd_service)
+
+    deal_repo = DealRepository(database)
+    deal_service = DealService(deal_repo)
+    init_deal_service(deal_service)
+
     atexit.register(database.close_all)
 
     app.register_blueprint(auth_bp)
@@ -382,6 +434,12 @@ def create_app(config: dict = None, bootstrap: bool = False) -> Flask:
     app.register_blueprint(inventory_audits_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(store_settings_bp)
+    app.register_blueprint(clients_bp)
+    app.register_blueprint(services_bp)
+    app.register_blueprint(client_services_bp)
+    app.register_blueprint(service_categories_bp)
+    app.register_blueprint(business_development_bp)
+    app.register_blueprint(deals_bp)
 
     @app.get("/api/setup/status")
     def setup_status():

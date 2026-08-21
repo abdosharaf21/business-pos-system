@@ -1,25 +1,20 @@
 import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import TopNavigation from "./TopNavigation";
 import Sidebar from "./Sidebar";
-import { getActiveModule } from "./navigationConfig";
 
 export default function ModuleLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { pathname } = useLocation();
-  const activeModule = getActiveModule(pathname);
 
   return (
-    <div className="min-h-screen flex bg-surface-50">
+    <div className="min-h-screen flex bg-surface-50 dark:bg-surface-900">
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        activeModuleId={activeModule}
       />
 
-      <div className="flex-1 flex flex-col lg:ms-64 min-h-screen">
+      <div className="flex-1 flex flex-col lg:ms-[260px] min-h-screen">
         <TopNavigation
-          activeModuleId={activeModule}
           onOpenSidebar={() => setSidebarOpen(true)}
         />
 

@@ -6,14 +6,14 @@ export function DataTable({ columns, data, emptyMessage }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 p-16 text-center shadow-card">
-        <p className="text-surface-400 dark:text-surface-400 text-sm font-medium">{msg}</p>
+      <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200/80 dark:border-surface-700/60 p-16 text-center shadow-card">
+        <p className="text-surface-400 dark:text-surface-300 text-sm font-medium">{msg}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 overflow-hidden shadow-card">
+    <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200/80 dark:border-surface-700/60 overflow-hidden shadow-card">
       <div className="overflow-x-auto">
         <table className="w-full text-sm" role="table">
           <thead>

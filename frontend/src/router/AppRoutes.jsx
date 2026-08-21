@@ -20,6 +20,16 @@ import UsersPage from "../modules/users/page";
 import StoreSettingsPage from "../modules/store-settings/page";
 import PosPage from "../modules/pos/page";
 import InvoicePage from "../modules/pos/invoice";
+import ClientsPage from "../modules/clients/page";
+import ServicesPage from "../modules/services/page";
+import ClientServicesPage from "../modules/client_services/page";
+import ServiceCategoriesPage from "../modules/service_categories/page";
+import WarehousesPage from "../modules/warehouses/page";
+import TransfersPage from "../modules/transfers/page";
+import BusinessDashboardPage from "../modules/business/dashboard/page";
+import BusinessReportsPage from "../modules/business/reports/page";
+import ApplicationsPage from "../modules/applications/page";
+import DealsPage from "../modules/deals/page";
 
 export default function AppRoutes() {
   return (
@@ -50,24 +60,52 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         >
+          {/* ── Business Development Application ── */}
+          <Route path="/business">
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<BusinessDashboardPage />} />
+            <Route path="clients" element={<ClientsPage />} />
+            <Route path="applications" element={<ApplicationsPage />} />
+            <Route path="services" element={<ServicesPage />} />
+            <Route path="deals" element={<DealsPage />} />
+            <Route path="reports" element={<BusinessReportsPage />} />
+            <Route path="service-categories" element={<ServiceCategoriesPage />} />
+            <Route path="client-services" element={<ClientServicesPage />} />
+          </Route>
+
+          {/* Legacy flat BD routes (backward compatibility) */}
+          <Route path="/clients" element={<Navigate to="/business/clients" replace />} />
+          <Route path="/services" element={<Navigate to="/business/services" replace />} />
+          <Route path="/service-categories" element={<Navigate to="/business/service-categories" replace />} />
+          <Route path="/client-services" element={<Navigate to="/business/client-services" replace />} />
+
+          {/* ── POS Application ── */}
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/inventory/movements" element={<InventoryHistoryPage />} />
-          <Route path="/inventory/audits" element={<InventoryAuditsPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/suppliers" element={<SuppliersPage />} />
           <Route path="/purchases" element={<PurchasesPage />} />
           <Route path="/purchases/:purchaseId" element={<PurchaseInvoicePage />} />
-          <Route path="/expenses" element={<ExpensesPage />} />
           <Route path="/pos" element={<PosPage />} />
           <Route path="/pos/invoice/:saleId" element={<InvoicePage />} />
+
+          {/* ── Inventory Application ── */}
+          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/inventory/movements" element={<InventoryHistoryPage />} />
+          <Route path="/inventory/audits" element={<InventoryAuditsPage />} />
+          <Route path="/warehouses" element={<WarehousesPage />} />
+          <Route path="/transfers" element={<TransfersPage />} />
+
+          {/* ── Expenses Application ── */}
+          <Route path="/expenses" element={<ExpensesPage />} />
+
+          {/* ── Settings Application ── */}
           <Route path="/users" element={<UsersPage />} />
           <Route path="/store-settings" element={<StoreSettingsPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/business/dashboard" replace />} />
       </Routes>
     </AuthProvider>
   );

@@ -153,17 +153,17 @@ function compactNumber(value) {
 function KpiCard({ icon: Icon, color = "blue", label, value, subtitle }) {
   const s = KPI_COLORS[color] || KPI_COLORS.blue;
   return (
-    <div className="relative overflow-hidden bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-200">
+    <div className="relative overflow-hidden bg-white dark:bg-surface-800 rounded-xl border border-surface-200/80 dark:border-surface-700/60 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-200">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[12px] font-semibold text-surface-400 uppercase tracking-wide">{label}</p>
-          <p className={`numeric-value mt-1.5 text-[26px] font-bold tracking-tight leading-snug ${s.value}`}>{value}</p>
+          <p className="text-[12px] font-semibold text-surface-400 dark:text-surface-400 uppercase tracking-wide">{label}</p>
+          <p className={`numeric-value mt-1.5 text-[24px] font-bold tracking-tight leading-snug ${s.value}`}>{value}</p>
           {subtitle && (
-            <p className="mt-1 text-[12px] text-surface-400 truncate">{subtitle}</p>
+            <p className="mt-1 text-[12px] text-surface-400 dark:text-surface-400 truncate">{subtitle}</p>
           )}
         </div>
-        <div className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center ring-1 ${s.icon}`}>
-          <Icon className="w-[22px] h-[22px]" strokeWidth={1.8} />
+        <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ring-1 ${s.icon}`}>
+          <Icon className="w-5 h-5" strokeWidth={1.8} />
         </div>
       </div>
     </div>
@@ -173,16 +173,16 @@ function KpiCard({ icon: Icon, color = "blue", label, value, subtitle }) {
 function Panel({ icon: Icon, iconColor = "blue", title, subtitle, action, className, children }) {
   const iconClass = PANEL_ICON[iconColor] || PANEL_ICON.blue;
   return (
-    <section className={`bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 p-5 shadow-card ${className || ""}`}>
+    <section className={`bg-white dark:bg-surface-800 rounded-xl border border-surface-200/80 dark:border-surface-700/60 p-5 shadow-card ${className || ""}`}>
       <div className="flex items-start justify-between gap-3 mb-5">
         <div className="flex items-start gap-3 min-w-0">
-          <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ring-1 ${iconClass}`}>
-            <Icon className="w-5 h-5" strokeWidth={1.8} />
+          <div className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ring-1 ${iconClass}`}>
+            <Icon className="w-[18px] h-[18px]" strokeWidth={1.8} />
           </div>
           <div className="min-w-0">
             <h2 className="text-[14px] font-bold text-surface-900 dark:text-surface-100 leading-tight">{title}</h2>
             {subtitle && (
-              <p className="text-[12px] text-surface-400 mt-0.5">{subtitle}</p>
+              <p className="text-[12px] text-surface-400 dark:text-surface-400 mt-0.5">{subtitle}</p>
             )}
           </div>
         </div>
@@ -196,12 +196,12 @@ function Panel({ icon: Icon, iconColor = "blue", title, subtitle, action, classN
 function PanelEmpty({ icon: Icon = Inbox, title, description }) {
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center px-4">
-      <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700/50 rounded-xl flex items-center justify-center mb-3 ring-1 ring-surface-200/60">
-        <Icon className="w-6 h-6 text-surface-400" strokeWidth={1.5} />
+      <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700/50 rounded-lg flex items-center justify-center mb-3 ring-1 ring-surface-200/60">
+        <Icon className="w-6 h-6 text-surface-400 dark:text-surface-300" strokeWidth={1.5} />
       </div>
       <p className="text-[13px] font-semibold text-surface-600 dark:text-surface-300">{title}</p>
       {description && (
-        <p className="text-[12px] text-surface-400 mt-1 max-w-xs leading-relaxed">{description}</p>
+        <p className="text-[12px] text-surface-400 dark:text-surface-400 mt-1 max-w-xs leading-relaxed">{description}</p>
       )}
     </div>
   );
@@ -334,7 +334,7 @@ function TopProducts({ products }) {
               style={{ width: `${max ? (Number(product.revenue) / max) * 100 : 0}%` }}
             />
           </div>
-          <p className="mt-1 text-[11px] text-surface-400">
+          <p className="mt-1 text-[11px] text-surface-400 dark:text-surface-400">
             {t("dashboard.charts.quantity")}: {Number(product.quantity_sold).toLocaleString()}
           </p>
         </li>
@@ -366,13 +366,13 @@ function LowestStock({ products }) {
               <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-200 truncate group-hover:text-primary-600">
                 {product.name}
               </p>
-              <p className="text-[11px] text-surface-400 truncate">
+              <p className="text-[11px] text-surface-400 dark:text-surface-400 truncate">
                 {product.category_name || "—"}
               </p>
             </div>
             <div className="text-end shrink-0">
               <p className="numeric-value text-[13px] font-bold text-red-500">{product.total}</p>
-              <p className="text-[10px] text-surface-400">min {product.minimum_stock}</p>
+              <p className="text-[10px] text-surface-400 dark:text-surface-400">min {product.minimum_stock}</p>
             </div>
           </Link>
         </li>
@@ -561,7 +561,7 @@ export default function DashboardPage() {
         actions={
           <button
             onClick={handleRefresh}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-surface-800/60 border border-surface-200/80 dark:border-surface-700/60 text-[13px] font-semibold text-surface-600 dark:text-surface-300 hover:text-primary-600 hover:border-primary-300 shadow-card transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white dark:bg-surface-800 border border-surface-200/80 dark:border-surface-700/60 text-[13px] font-semibold text-surface-600 dark:text-surface-300 hover:text-primary-600 hover:border-primary-300 shadow-card transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             {t("dashboard.refresh")}
@@ -570,7 +570,7 @@ export default function DashboardPage() {
       />
 
       {!hasData && (
-        <div className="bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 shadow-card">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 shadow-card">
           <EmptyState
             icon={TrendingUp}
             title={t("dashboard.emptyTitle")}
@@ -580,9 +580,9 @@ export default function DashboardPage() {
       )}
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-surface-800/60 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 p-4 shadow-card">
+      <div className="bg-white dark:bg-surface-800 rounded-2xl border border-surface-200/80 dark:border-surface-700/60 p-4 shadow-card">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="inline-flex items-center gap-2 pe-2 text-[12px] font-semibold text-surface-400 uppercase tracking-wide">
+          <span className="inline-flex items-center gap-2 pe-2 text-[12px] font-semibold text-surface-400 dark:text-surface-400 uppercase tracking-wide">
             <Zap className="w-4 h-4" />
             {t("dashboard.activity.quickActions")}
           </span>
@@ -842,7 +842,7 @@ export default function DashboardPage() {
                     <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-200 truncate group-hover:text-primary-600">
                       {sale.invoice_number}
                     </p>
-                    <p className="text-[11px] text-surface-400">{formatTime(sale.created_at)}</p>
+                    <p className="text-[11px] text-surface-400 dark:text-surface-400">{formatTime(sale.created_at)}</p>
                   </div>
                   <span className="numeric-value text-[13px] font-bold text-emerald-600 shrink-0">
                     {formatCurrency(sale.total_amount)}
@@ -880,7 +880,7 @@ export default function DashboardPage() {
                       <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-200 truncate group-hover:text-primary-600">
                         {purchase.supplier_name || purchase.invoice_number}
                       </p>
-                      <p className="text-[11px] text-surface-400 truncate">{purchase.invoice_number}</p>
+                      <p className="text-[11px] text-surface-400 dark:text-surface-400 truncate">{purchase.invoice_number}</p>
                     </div>
                     <span className="numeric-value text-[13px] font-bold text-surface-900 dark:text-surface-100 shrink-0">
                       {formatCurrency(purchase.total_amount)}
@@ -919,7 +919,7 @@ export default function DashboardPage() {
                       <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-200 truncate group-hover:text-primary-600">
                         {audit.name || t("dashboard.activity.recentAudits")}
                       </p>
-                      <p className="text-[11px] text-surface-400">{formatTime(audit.created_at)}</p>
+                      <p className="text-[11px] text-surface-400 dark:text-surface-400">{formatTime(audit.created_at)}</p>
                     </div>
                     <span
                       className={`shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${
@@ -969,11 +969,11 @@ export default function DashboardPage() {
                       <p className="text-[13px] font-semibold text-surface-800 dark:text-surface-200 truncate group-hover:text-primary-600">
                         {notification.product_name}
                       </p>
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-surface-400">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-surface-400 dark:text-surface-400">
                         {t(`notifications.types.${notification.notification_type}`)}
                       </span>
                     </div>
-                    <span className="shrink-0 text-[10px] text-surface-400">
+                    <span className="shrink-0 text-[10px] text-surface-400 dark:text-surface-400">
                       {formatTime(notification.created_at)}
                     </span>
                   </Link>

@@ -38,6 +38,11 @@ def app():
     patches = [
         patch("backend.modules.auth.repository.AuthRepository"),
         patch("backend.modules.users.repository.UserRepository"),
+        patch("backend.modules.clients.repository.ClientRepository"),
+        patch("backend.modules.services.repository.ServiceRepository"),
+        patch("backend.modules.service_categories.repository.ServiceCategoryRepository"),
+        patch("backend.modules.client_services.repository.ClientServiceRepository"),
+        patch("backend.modules.deals.repository.DealRepository"),
         patch("backend.database.connection.Database._initialize_pool"),
     ]
 

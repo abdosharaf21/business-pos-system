@@ -4,7 +4,7 @@ export function PageHeader({ title, description, actions }) {
       <div>
         <h1 className="text-2xl font-bold text-surface-900 dark:text-surface-100 tracking-tight">{title}</h1>
         {description && (
-          <p className="text-sm text-surface-400 mt-1">{description}</p>
+          <p className="text-sm text-surface-400 dark:text-surface-400 mt-1">{description}</p>
         )}
       </div>
       {actions && <div className="flex items-center gap-3">{actions}</div>}
