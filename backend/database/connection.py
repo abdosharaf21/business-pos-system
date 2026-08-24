@@ -1,6 +1,7 @@
 """Database connection pool manager for MySQL."""
 
 import logging
+import time
 from contextlib import contextmanager
 from typing import Generator, Optional
 
@@ -11,6 +12,8 @@ from mysql.connector.pooling import MySQLConnectionPool, PoolError
 from backend.database.config import DatabaseConfig, get_database_config
 
 logger = logging.getLogger(__name__)
+
+POOL_RETRY_DELAYS_SECONDS = (0.02, 0.05, 0.1, 0.2)
 
 
 class DatabaseError(Exception):
@@ -73,6 +76,10 @@ class Database:
     def connection(self) -> Generator[MySQLConnection, None, None]:
         """Borrow a connection from the pool and return it after use.
 
+        Waits briefly (bounded retry) when the pool is momentarily
+        exhausted by concurrent requests instead of failing the
+        request immediately.
+
         Yields:
             MySQLConnection from the pool.
 
@@ -81,7 +88,7 @@ class Database:
         """
         conn: Optional[MySQLConnection] = None
         try:
-            conn = self._pool.get_connection()
+            conn = self._acquire_connection()
             logger.debug("Connection borrowed from pool (id=%s)", id(conn))
             yield conn
         except PoolError as e:
@@ -90,6 +97,34 @@ class Database:
         finally:
             if conn is not None:
                 self._return_connection(conn)
+
+    def _acquire_connection(self) -> MySQLConnection:
+        """Borrow a connection from the pool with bounded retry.
+
+        Retries a few times with short delays when the pool is
+        exhausted so bursts of concurrent requests queue briefly
+        rather than failing outright.
+
+        Returns:
+            A pooled MySQLConnection.
+
+        Raises:
+            DatabaseConnectionError: If the pool stays exhausted
+                after all retries.
+        """
+        for delay in POOL_RETRY_DELAYS_SECONDS:
+            try:
+                return self._pool.get_connection()
+            except PoolError:
+                logger.warning(
+                    "Connection pool exhausted, retrying in %d ms",
+                    int(delay * 1000),
+                )
+                time.sleep(delay)
+        try:
+            return self._pool.get_connection()
+        except PoolError as e:
+            raise DatabaseConnectionError(f"Connection unavailable: {e}") from e
 
     def _return_connection(self, conn: MySQLConnection) -> None:
         """Return a connection to the pool.

@@ -22,7 +22,6 @@ import {
   Zap,
   RefreshCw,
   ChevronRight,
-  Inbox,
   CheckCircle2,
   Users,
   ArrowRight,
@@ -39,6 +38,13 @@ import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { formatTime, getCurrentLocale } from "../../shared/utils/format";
+import {
+  AXIS_TICK,
+  AXIS_LINE,
+  GRID_LINE,
+  TOOLTIP_STYLE,
+} from "../../shared/utils/chartTheme";
 
 const KPI_COLORS = {
   blue: {
@@ -71,17 +77,6 @@ const PANEL_ICON = {
   red: "bg-red-50 text-red-600 ring-red-100",
 };
 
-const AXIS_TICK = { fontSize: 11, fill: "var(--color-surface-400)" };
-const AXIS_LINE = { stroke: "var(--color-surface-200)" };
-const GRID_LINE = "var(--color-surface-200)";
-const TOOLTIP_STYLE = {
-  borderRadius: 12,
-  border: "1px solid var(--color-surface-200)",
-  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-  fontSize: 13,
-  backgroundColor: "var(--color-surface-0)",
-  color: "var(--color-surface-800)",
-};
 
 function toLocalIso(date) {
   const y = date.getFullYear();
@@ -193,20 +188,6 @@ function Panel({ icon: Icon, iconColor = "blue", title, subtitle, action, classN
   );
 }
 
-function PanelEmpty({ icon: Icon = Inbox, title, description }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-10 text-center px-4">
-      <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700/50 rounded-xl flex items-center justify-center mb-3 ring-1 ring-surface-200/60">
-        <Icon className="w-6 h-6 text-surface-400" strokeWidth={1.5} />
-      </div>
-      <p className="text-[13px] font-semibold text-surface-600 dark:text-surface-300">{title}</p>
-      {description && (
-        <p className="text-[12px] text-surface-400 mt-1 max-w-xs leading-relaxed">{description}</p>
-      )}
-    </div>
-  );
-}
-
 function PanelSkeleton() {
   return (
     <div className="animate-pulse space-y-4 p-2">
@@ -235,7 +216,7 @@ function PanelError({ message, onRetry }) {
 
 function ChartBar({ data, dataKey, color, label, height = 280 }) {
   const { i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -278,7 +259,7 @@ function ChartBar({ data, dataKey, color, label, height = 280 }) {
 
 function MonthChart({ data, color, height = 280 }) {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -312,7 +293,7 @@ function TopProducts({ products }) {
   const max = products.length ? Math.max(...products.map((p) => Number(p.revenue) || 0)) : 0;
 
   if (!products.length) {
-    return <PanelEmpty title={t("dashboard.charts.noData")} />;
+    return <EmptyState compact title={t("dashboard.charts.noData")} />;
   }
 
   return (
@@ -348,7 +329,7 @@ function LowestStock({ products }) {
   const show = (products || []).slice(0, 6);
 
   if (!show.length) {
-    return <PanelEmpty title={t("dashboard.charts.noData")} />;
+    return <EmptyState compact title={t("dashboard.charts.noData")} />;
   }
 
   return (
@@ -384,14 +365,13 @@ function LowestStock({ products }) {
 function ActivityList({ items, renderItem, emptyTitle }) {
   const { t } = useTranslation();
   if (!items || !items.length) {
-    return <PanelEmpty title={emptyTitle || t("common.noDataAvailable")} />;
+    return <EmptyState compact title={emptyTitle || t("common.noDataAvailable")} />;
   }
   return <ul className="divide-y divide-surface-100 dark:divide-surface-700/60">{items.map(renderItem)}</ul>;
 }
 
 export default function DashboardPage() {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -516,20 +496,6 @@ export default function DashboardPage() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-  };
-
-  const formatTime = (value) => {
-    if (!value) return "";
-    try {
-      return new Date(value).toLocaleString(locale, {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      });
-    } catch {
-      return "";
-    }
   };
 
   if (statsQuery.isLoading || reportsQuery.isLoading) return <LoadingSpinner />;
@@ -691,7 +657,7 @@ export default function DashboardPage() {
           ) : salesTrendQuery.error ? (
             <PanelError message={salesTrendQuery.error.response?.data?.message || salesTrendQuery.error.message} onRetry={handleRefresh} />
           ) : !salesTrendData.some((d) => d.total_sales > 0) ? (
-            <PanelEmpty icon={BarChart3} title={t("dashboard.charts.noData")} />
+            <EmptyState compact icon={BarChart3} title={t("dashboard.charts.noData")} />
           ) : (
             <ChartBar data={salesTrendData} dataKey="total_sales" color="var(--color-primary-500)" label={t("dashboard.charts.salesTrend")} />
           )}
@@ -726,7 +692,7 @@ export default function DashboardPage() {
           ) : purchasesQuery.error ? (
             <PanelError message={purchasesQuery.error.response?.data?.message || purchasesQuery.error.message} onRetry={handleRefresh} />
           ) : !purchasesTrend.some((d) => d.total_amount > 0) ? (
-            <PanelEmpty icon={ArrowUpDown} title={t("dashboard.charts.noData")} />
+            <EmptyState compact icon={ArrowUpDown} title={t("dashboard.charts.noData")} />
           ) : (
             <ChartBar data={purchasesTrend} dataKey="total_amount" color="var(--color-violet-500)" label={t("dashboard.charts.purchasesTrend")} />
           )}
@@ -743,7 +709,7 @@ export default function DashboardPage() {
           ) : expensesQuery.error ? (
             <PanelError message={expensesQuery.error.response?.data?.message || expensesQuery.error.message} onRetry={handleRefresh} />
           ) : !expensesTrendData.some((d) => d.total > 0) ? (
-            <PanelEmpty icon={ReceiptText} title={t("dashboard.charts.noData")} />
+            <EmptyState compact icon={ReceiptText} title={t("dashboard.charts.noData")} />
           ) : (
             <ChartBar data={expensesTrendData} dataKey="total" color="var(--color-amber-500)" label={t("dashboard.charts.expensesTrend")} />
           )}
@@ -771,7 +737,7 @@ export default function DashboardPage() {
           ) : movementQuery.error ? (
             <PanelError message={movementQuery.error.response?.data?.message || movementQuery.error.message} onRetry={handleRefresh} />
           ) : !movementData.some((d) => d.quantity > 0) ? (
-            <PanelEmpty icon={History} title={t("dashboard.charts.noData")} />
+            <EmptyState compact icon={History} title={t("dashboard.charts.noData")} />
           ) : (
             <MonthChart data={movementData} color="var(--color-amber-500)" />
           )}
@@ -786,7 +752,7 @@ export default function DashboardPage() {
           title={t("dashboard.charts.topCustomers")}
           subtitle={t("dashboard.charts.topCustomersSubtitle")}
         >
-          <PanelEmpty
+          <EmptyState compact
             icon={Users}
             title={t("dashboard.charts.topCustomersEmptyTitle")}
             description={t("dashboard.charts.topCustomersEmptyDescription")}

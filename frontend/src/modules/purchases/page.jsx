@@ -3,7 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { purchaseService, supplierService } from "./api";
+import { purchaseService } from "./api";
+import { supplierService } from "../suppliers/api";
 import { useAuth } from "../../shared/context/AuthContext";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
@@ -16,6 +17,7 @@ import {
 } from "../../shared/components/styles";
 import { Plus, Search, ShoppingCart, Trash2, Eye, X, Minus, Plus as PlusIcon, Filter, ChevronLeft, ChevronRight, ReceiptText } from "lucide-react";
 import toast from "react-hot-toast";
+import { getCurrentLocale } from "../../shared/utils/format";
 
 const INPUT_CLASS = inputClass;
 const LABEL_CLASS = labelClass;
@@ -29,7 +31,7 @@ export default function PurchasesPage() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const canManage = ["admin", "manager"].includes(user?.role);
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   const [search, setSearch] = useState("");
   const [date, setDate] = useState("");

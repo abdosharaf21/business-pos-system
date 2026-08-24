@@ -1,13 +1,10 @@
 import api from "../../shared/services/axios";
+import { createCrudService } from "../../shared/services/crud";
 
 export const auditService = {
-  getAll: (params) => api.get("/inventory-audits/", { params }),
-  getById: (id) => api.get(`/inventory-audits/${id}`),
+  ...createCrudService("/inventory-audits"),
   getItems: (id) => api.get(`/inventory-audits/${id}/items`),
-  create: (data) => api.post("/inventory-audits/", data),
-  update: (id, data) => api.put(`/inventory-audits/${id}`, data),
   complete: (id) => api.post(`/inventory-audits/${id}/complete`),
-  delete: (id) => api.delete(`/inventory-audits/${id}`),
 };
 
 export const AUDIT_LOCATIONS = ["warehouse", "store"];

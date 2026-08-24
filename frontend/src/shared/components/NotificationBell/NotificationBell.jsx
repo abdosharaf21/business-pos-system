@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, Inbox, X } from "lucide-react";
-import { notificationService } from "../../../modules/notifications/api";
+import { notificationService } from "../../services/notifications";
+import { formatTime, getCurrentLocale } from "../../utils/format";
 
 const TYPE_VARIANT = {
   low_stock: "bg-amber-50 text-amber-700",
@@ -93,21 +94,7 @@ export default function NotificationBell() {
     navigate(`/products?product=${notification.product_id}`);
   };
 
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
-
-  const formatTime = (value) => {
-    if (!value) return "";
-    try {
-      return new Date(value).toLocaleString(locale, {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      });
-    } catch {
-      return "";
-    }
-  };
+  const locale = getCurrentLocale(i18n.language);
 
   const formatExpiration = (value) => {
     if (!value) return "";

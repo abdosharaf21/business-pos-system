@@ -7,7 +7,7 @@ from backend.modules.products.model import Product
 from backend.modules.products.repository import ProductRepository
 from backend.modules.products.validator import ProductValidator
 from backend.modules.categories.repository import CategoryRepository
-from backend.utils.expiration import classify_expiration
+from backend.shared.expiration import classify_expiration
 
 
 class ProductService:

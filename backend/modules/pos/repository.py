@@ -282,7 +282,11 @@ class PosRepository:
 
                     cursor.execute(
                         "SELECT id, quantity FROM inventory "
-                        "WHERE product_id = %s AND location = 'store' FOR UPDATE",
+                        "WHERE product_id = %s "
+                        "AND (warehouse_id = "
+                        "(SELECT id FROM warehouses WHERE code = 'STORE') "
+                        "OR (warehouse_id IS NULL AND location = 'store')) "
+                        "ORDER BY warehouse_id IS NULL ASC LIMIT 1 FOR UPDATE",
                         (product_id,),
                     )
                     store_stock = cursor.fetchone()

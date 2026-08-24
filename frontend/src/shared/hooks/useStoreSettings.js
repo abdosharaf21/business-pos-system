@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { loadStoreSettings } from "./cache";
-import { storeSettingsService } from "./api";
+import { loadStoreSettings, storeSettingsService } from "../services/storeSettings";
 
 export function useStoreSettings() {
   return useQuery({

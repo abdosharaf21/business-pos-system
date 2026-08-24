@@ -7,7 +7,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.products.model import Product
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
 
 
 class ProductRepository:
@@ -102,8 +102,12 @@ class ProductRepository:
                 product.id = cursor.lastrowid
 
                 cursor.execute(
-                    "INSERT IGNORE INTO inventory (product_id, location, quantity) "
-                    "VALUES (%s, 'warehouse', 0), (%s, 'store', 0)",
+                    "INSERT IGNORE INTO inventory "
+                    "(product_id, location, warehouse_id, quantity) "
+                    "VALUES (%s, 'warehouse', "
+                    "(SELECT id FROM warehouses WHERE code = 'WH-MAIN'), 0), "
+                    "(%s, 'store', "
+                    "(SELECT id FROM warehouses WHERE code = 'STORE'), 0)",
                     (product.id, product.id),
                 )
                 conn.commit()

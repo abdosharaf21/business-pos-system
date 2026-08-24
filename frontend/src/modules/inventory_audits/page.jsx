@@ -17,6 +17,7 @@ import { ConfirmDialog } from "../../shared/components/ConfirmDialog";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { EmptyState } from "../../shared/components/EmptyState";
+import { getCurrentLocale } from "../../shared/utils/format";
 import {
   Plus, Pencil, Trash2, Eye, Search, ClipboardList, ClipboardCheck,
   PackageCheck, CheckCircle2, ArrowUp, ArrowDown,
@@ -42,7 +43,7 @@ export default function InventoryAuditsPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const canManage = ["admin", "manager"].includes(user?.role);
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
@@ -575,7 +576,7 @@ function CountModal({ audit, onClose, onSubmit, loading }) {
 
 function AuditDetailsModal({ audit, onClose, onCount }) {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
   const [items, setItems] = useState([]);
   const [itemsLoading, setItemsLoading] = useState(false);
   const [itemsError, setItemsError] = useState(null);

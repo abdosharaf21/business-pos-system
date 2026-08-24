@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Building2, Loader2, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { useLoginBranding } from "../../modules/store-settings/hooks";
-import { getAssetUrl } from "../../modules/store-settings/cache";
+import { useLoginBranding } from "../hooks/useStoreSettings";
+import { getAssetUrl } from "../services/storeSettings";
 
 export default function LoginPage() {
   const { t } = useTranslation();

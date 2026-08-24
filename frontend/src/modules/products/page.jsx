@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
 import toast from "react-hot-toast";
+import { getCurrentLocale } from "../../shared/utils/format";
 
 const productSchema = z.object({
   name: z.string().min(1, () => i18n.t("products.validation.nameRequired")),
@@ -171,7 +172,7 @@ export default function ProductsPage() {
       key: "expiration_date",
       label: t("products.columns.expiration"),
       render: (val, row) => {
-        const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+        const locale = getCurrentLocale(i18n.language);
         const badgeVariant =
           row.expiration_status === "expired" ? "danger"
             : row.expiration_status === "expiring_soon" ? "warning"

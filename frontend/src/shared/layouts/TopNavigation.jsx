@@ -3,16 +3,15 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Menu, Building2, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { useStoreSettings } from "../../modules/store-settings/hooks";
-import { getLogoUrl } from "../../modules/store-settings/cache";
+import { useStoreSettings } from "../hooks/useStoreSettings";
+import { getLogoUrl } from "../services/storeSettings";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import NotificationBell from "../components/NotificationBell";
 import GlobalSearch from "../components/GlobalSearch";
-import QuickActionBar from "../components/QuickActionBar";
-import UserMenu from "../components/UserMenu";
+import DarkModeToggle from "../components/DarkModeToggle";
+import { getCurrentLocale } from "../utils/format";
 import {
   getVisibleModules,
-  getQuickActions,
   getBreadcrumb,
 } from "./navigationConfig";
 
@@ -25,7 +24,7 @@ function LiveClock() {
     return () => clearInterval(id);
   }, []);
 
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
   const time = now.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
   const date = now.toLocaleDateString(locale, { day: "numeric", month: "short" });
 
@@ -48,16 +47,13 @@ export default function TopNavigation({ activeModuleId, onOpenSidebar }) {
   const isRtl = i18n.language === "ar";
 
   const modules = getVisibleModules(user?.role);
-  const quickActions = getQuickActions(activeModuleId, user?.role);
   const { moduleLabelKey, sectionLabelKey } = getBreadcrumb(pathname);
 
   const storeName = settings?.store_name || t("common.appName");
   const logoUrl = getLogoUrl();
 
-  const showSecondRow = quickActions.length > 0 || modules.length > 0;
-
   return (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-surface-200/60 dark:bg-surface-900/80 dark:border-surface-800">
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-surface-200/60 dark:bg-surface-900 dark:border-surface-800">
       {/* Row 1 */}
       <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 lg:px-6 py-3">
         {/* Mobile menu trigger */}
@@ -108,51 +104,42 @@ export default function TopNavigation({ activeModuleId, onOpenSidebar }) {
         <div className="ms-auto flex items-center gap-1.5 sm:gap-2.5">
           <GlobalSearch />
           <NotificationBell />
+          <DarkModeToggle />
           <LanguageSwitcher />
           <LiveClock />
-          <div className="hidden sm:block h-6 w-px bg-surface-200 dark:bg-surface-800" />
-          <UserMenu />
         </div>
       </div>
 
-      {/* Row 2 - module switcher + quick actions */}
-      {showSecondRow && (
-        <div
-          className={`flex items-center gap-3 px-3 sm:px-5 lg:px-6 py-2 border-t border-surface-100/70 dark:border-surface-800/70 ${
-            quickActions.length === 0 ? "max-lg:hidden" : ""
-          }`}
+      {/* Row 2 - application switcher tabs */}
+      <div className="hidden lg:flex items-center gap-3 px-3 sm:px-5 lg:px-6 py-2 border-t border-surface-100/70 dark:border-surface-800/70">
+        <nav
+          className="flex flex-1 items-center gap-1 overflow-x-auto scrollbar-thin"
+          aria-label="Main modules"
         >
-          <nav
-            className="hidden lg:flex flex-1 items-center gap-1 overflow-x-auto scrollbar-thin"
-            aria-label="Main modules"
-          >
-            {modules.map((module) => {
-              const Icon = module.icon;
-              const isActive = module.id === activeModuleId;
-              return (
-                <NavLink
-                  key={module.id}
-                  to={module.to}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150 whitespace-nowrap ${
-                    isActive
-                      ? "bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/5"
-                      : "text-surface-500 hover:bg-surface-50 hover:text-surface-800"
-                  }`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <Icon
-                    className={`w-4 h-4 ${isActive ? "text-primary-600" : "text-surface-400"}`}
-                    strokeWidth={isActive ? 2.2 : 1.8}
-                  />
-                  {t(module.labelKey)}
-                </NavLink>
-              );
-            })}
-          </nav>
-
-          <QuickActionBar actions={quickActions} activeModuleId={activeModuleId} />
-        </div>
-      )}
+          {modules.map((module) => {
+            const Icon = module.icon;
+            const isActive = module.id === activeModuleId;
+            return (
+              <NavLink
+                key={module.id}
+                to={module.to}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150 whitespace-nowrap ${
+                  isActive
+                    ? "bg-primary-50 text-primary-700 shadow-sm shadow-primary-500/5 dark:bg-primary-500/10 dark:text-primary-300"
+                    : "text-surface-500 hover:bg-surface-50 hover:text-surface-800 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon
+                  className={`w-4 h-4 ${isActive ? "text-primary-600 dark:text-primary-400" : "text-surface-400"}`}
+                  strokeWidth={isActive ? 2.2 : 1.8}
+                />
+                {t(module.labelKey)}
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
     </header>
   );
 }

@@ -4,7 +4,7 @@ Tests /api/auth/login, /api/auth/logout, /api/auth/refresh,
 /api/auth/me, and /api/auth/change-password.
 """
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from backend.modules.users.model import User
 
@@ -15,6 +15,99 @@ def _user(**kw):
                     role="employee", status="active")
     defaults.update(kw)
     return User(**defaults)
+
+
+class TestAuthServiceSeedCredentials:
+    """Regression tests for the canonical admin seed credentials.
+
+    Verifies that the documented default admin account
+    (admin@pos.com / 123456) authenticates successfully through the
+    real ``AuthService.login`` + bcrypt path using the canonical
+    password hash defined by the database bootstrap. This guards
+    against login regressions caused by a drifted or mismatched
+    password hash in the database.
+    """
+
+    def test_admin_seed_credentials_login_succeeds(self, app):
+        """admin@pos.com + 123456 must authenticate with the seed hash."""
+        from backend.modules.auth.service import AuthService
+        from backend.database.bootstrap import ADMIN_PASSWORD_HASH
+
+        admin = _user(
+            id=1,
+            full_name="Admin User",
+            email="admin@pos.com",
+            password_hash=ADMIN_PASSWORD_HASH,
+            role="admin",
+            status="active",
+        )
+        user_repo = MagicMock()
+        user_repo.get_by_email.return_value = admin
+        service = AuthService(MagicMock(), user_repo, blocklist=set())
+
+        with app.app_context():
+            result = service.login("admin@pos.com", "123456")
+
+        assert "access_token" in result
+        assert "refresh_token" in result
+        assert result["user"]["email"] == "admin@pos.com"
+        assert result["user"]["role"] == "admin"
+        user_repo.get_by_email.assert_called_once_with("admin@pos.com")
+
+    def test_admin_seed_credentials_reject_wrong_password(self, app):
+        """Wrong password must be rejected even with the seed hash."""
+        from backend.modules.auth.service import AuthService
+        from backend.middleware.exceptions import UnauthorizedException
+        from backend.database.bootstrap import ADMIN_PASSWORD_HASH
+
+        admin = _user(
+            id=1,
+            full_name="Admin User",
+            email="admin@pos.com",
+            password_hash=ADMIN_PASSWORD_HASH,
+            role="admin",
+            status="active",
+        )
+        user_repo = MagicMock()
+        user_repo.get_by_email.return_value = admin
+        service = AuthService(MagicMock(), user_repo, blocklist=set())
+
+        with app.app_context():
+            try:
+                service.login("admin@pos.com", "not-the-password")
+            except UnauthorizedException:
+                pass
+            else:
+                raise AssertionError("login with wrong password must raise 401")
+
+    def test_admin_seed_credentials_login_via_api(self, app, client):
+        """Full HTTP path: canonical admin credentials return HTTP 200."""
+        from backend.modules.auth.routes import _auth_service
+        from backend.database.bootstrap import ADMIN_PASSWORD_HASH
+
+        admin = _user(
+            id=1,
+            full_name="Admin User",
+            email="admin@pos.com",
+            password_hash=ADMIN_PASSWORD_HASH,
+            role="admin",
+            status="active",
+        )
+        user_repo = MagicMock()
+        user_repo.get_by_email.return_value = admin
+        _auth_service._user_repository = user_repo
+
+        response = client.post("/api/auth/login", json={
+            "email": "admin@pos.com", "password": "123456"
+        })
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["success"] is True
+        assert data["data"]["user"]["email"] == "admin@pos.com"
+        assert data["data"]["user"]["role"] == "admin"
+        assert "access_token" in data["data"]
+        assert "refresh_token" in data["data"]
 
 
 class TestAuthLogin:

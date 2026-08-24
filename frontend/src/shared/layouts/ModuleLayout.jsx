@@ -10,7 +10,7 @@ export default function ModuleLayout() {
   const activeModule = getActiveModule(pathname);
 
   return (
-    <div className="min-h-screen flex bg-surface-50">
+    <div className="min-h-screen flex bg-surface-50 dark:bg-surface-950">
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}

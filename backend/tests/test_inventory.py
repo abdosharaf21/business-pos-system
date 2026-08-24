@@ -13,7 +13,7 @@ import mysql.connector
 from backend.modules.inventory.model import StockLevel, StockMovement
 from backend.modules.inventory.repository import InventoryRepository
 from backend.modules.inventory.service import InventoryService
-from backend.utils.expiration import classify_expiration
+from backend.shared.expiration import classify_expiration
 
 
 def _stock_row(**kw):

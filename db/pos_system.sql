@@ -276,16 +276,45 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- Inventory (multi-location stock)
+-- Warehouses (physical stock locations)
+-- =============================================================================
+-- Built-in warehouses are seeded by the bootstrap:
+--   WH-MAIN -> legacy 'warehouse' location stock
+--   STORE   -> legacy 'store' location stock sold by the POS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS warehouses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    code VARCHAR(50) NOT NULL,
+    address VARCHAR(255) DEFAULT NULL,
+    manager_name VARCHAR(150) DEFAULT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_warehouses_code (code),
+    INDEX idx_warehouses_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Inventory (per-warehouse stock)
+-- =============================================================================
+-- One row per (product_id, warehouse_id). The legacy 'location' column is
+-- kept in sync by every write path ('warehouse' for all non-STORE
+-- warehouses, 'store' for the STORE warehouse) so bucket-level reporting
+-- keeps working. warehouse_id is backfilled from 'location' during
+-- upgrades of pre-multi-warehouse databases.
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS inventory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     location ENUM('warehouse', 'store') NOT NULL,
+    warehouse_id INT DEFAULT NULL,
     quantity INT NOT NULL DEFAULT 0,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_inventory_product_location (product_id, location),
+    UNIQUE KEY uq_inventory_product_warehouse (product_id, warehouse_id),
     INDEX idx_inventory_location (location),
+    INDEX idx_inventory_warehouse (warehouse_id),
     CONSTRAINT fk_inventory_product
         FOREIGN KEY (product_id)
         REFERENCES products (id)
@@ -301,6 +330,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
     product_id INT NOT NULL,
     from_location ENUM('warehouse', 'store') DEFAULT NULL,
     to_location ENUM('warehouse', 'store') DEFAULT NULL,
+    warehouse_id INT DEFAULT NULL,
     quantity INT NOT NULL DEFAULT 0,
     movement_type ENUM('transfer', 'sale', 'purchase', 'return', 'damage', 'adjustment') NOT NULL,
     reference VARCHAR(50) DEFAULT NULL,
@@ -312,6 +342,7 @@ CREATE TABLE IF NOT EXISTS stock_movements (
     INDEX idx_movements_created (created_at),
     INDEX idx_movements_from (from_location),
     INDEX idx_movements_to (to_location),
+    INDEX idx_movements_warehouse (warehouse_id),
     CONSTRAINT fk_movements_product
         FOREIGN KEY (product_id)
         REFERENCES products (id)
@@ -331,6 +362,7 @@ CREATE TABLE IF NOT EXISTS inventory_audits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     location ENUM('warehouse', 'store') NOT NULL,
+    warehouse_id INT DEFAULT NULL,
     status ENUM('open', 'completed', 'cancelled') NOT NULL DEFAULT 'open',
     created_by INT NOT NULL,
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -338,6 +370,7 @@ CREATE TABLE IF NOT EXISTS inventory_audits (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_audits_name (name),
     INDEX idx_audits_location (location),
+    INDEX idx_audits_warehouse (warehouse_id),
     INDEX idx_audits_status (status),
     INDEX idx_audits_created_by (created_by),
     INDEX idx_audits_created_at (created_at),
@@ -367,6 +400,69 @@ CREATE TABLE IF NOT EXISTS inventory_audit_items (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     CONSTRAINT fk_audit_items_product
+        FOREIGN KEY (product_id)
+        REFERENCES products (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Transfers (stock movements between warehouses)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS transfers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transfer_number VARCHAR(50) NOT NULL,
+    source_warehouse_id INT NOT NULL,
+    destination_warehouse_id INT NOT NULL,
+    status ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+    created_by INT NOT NULL,
+    completed_by INT DEFAULT NULL,
+    completed_at TIMESTAMP NULL DEFAULT NULL,
+    notes VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_transfers_number (transfer_number),
+    INDEX idx_transfers_source (source_warehouse_id),
+    INDEX idx_transfers_destination (destination_warehouse_id),
+    INDEX idx_transfers_status (status),
+    CONSTRAINT fk_transfers_source
+        FOREIGN KEY (source_warehouse_id)
+        REFERENCES warehouses (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_transfers_destination
+        FOREIGN KEY (destination_warehouse_id)
+        REFERENCES warehouses (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_transfers_created_by
+        FOREIGN KEY (created_by)
+        REFERENCES users (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_transfers_completed_by
+        FOREIGN KEY (completed_by)
+        REFERENCES users (id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Transfer Items
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS transfer_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transfer_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    cost_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    UNIQUE KEY uq_transfer_items_transfer_product (transfer_id, product_id),
+    INDEX idx_transfer_items_product (product_id),
+    CONSTRAINT fk_transfer_items_transfer
+        FOREIGN KEY (transfer_id)
+        REFERENCES transfers (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_transfer_items_product
         FOREIGN KEY (product_id)
         REFERENCES products (id)
         ON DELETE CASCADE
@@ -420,6 +516,152 @@ CREATE TABLE IF NOT EXISTS store_settings (
 
 INSERT INTO store_settings (id, store_name, owner_name, phone, email, address, website, tax_number, currency, receipt_footer, logo_path)
 VALUES (1, '', '', '', '', '', '', '', 'EGP', '', '')
+ON DUPLICATE KEY UPDATE id = id;
+
+-- =============================================================================
+-- Refresh Token Blocklist (revoked JWT ids at logout)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS refresh_token_blocklist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    jti VARCHAR(36) NOT NULL,
+    token_type ENUM('access', 'refresh') NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_token_blocklist_jti (jti),
+    INDEX idx_token_blocklist_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Clients (Business Development)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS clients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(150) NOT NULL,
+    contact_person VARCHAR(100) NOT NULL,
+    email VARCHAR(150) DEFAULT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
+    address TEXT DEFAULT NULL,
+    status ENUM('lead', 'prospect', 'customer') NOT NULL DEFAULT 'lead',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_clients_status (status),
+    INDEX idx_clients_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Service Categories (Business Development)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS service_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Services (Business Development)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS services (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_id INT DEFAULT NULL,
+    name VARCHAR(150) NOT NULL,
+    description TEXT DEFAULT NULL,
+    price DECIMAL(10, 2) DEFAULT NULL,
+    duration_days INT DEFAULT NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_services_category (category_id),
+    INDEX idx_services_status (status),
+    CONSTRAINT fk_services_category
+        FOREIGN KEY (category_id)
+        REFERENCES service_categories (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Client Services / Assignments (Business Development)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS client_services (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    service_id INT NOT NULL,
+    assigned_by INT DEFAULT NULL,
+    start_date DATE DEFAULT NULL,
+    end_date DATE DEFAULT NULL,
+    status ENUM('pending', 'in_progress', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_cs_client (client_id),
+    INDEX idx_cs_service (service_id),
+    INDEX idx_cs_assigned_by (assigned_by),
+    INDEX idx_cs_status (status),
+    CONSTRAINT fk_cs_client
+        FOREIGN KEY (client_id)
+        REFERENCES clients (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_cs_service
+        FOREIGN KEY (service_id)
+        REFERENCES services (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_cs_assigned_by
+        FOREIGN KEY (assigned_by)
+        REFERENCES users (id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Deals (Business Development sales)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS deals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    deal_number VARCHAR(50) NOT NULL,
+    client_id INT NOT NULL,
+    service_id INT NOT NULL,
+    package_name VARCHAR(200) DEFAULT NULL,
+    sale_date DATE NOT NULL,
+    price DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    discount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    tax DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    final_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    payment_status ENUM('pending', 'partial', 'paid', 'refunded') NOT NULL DEFAULT 'pending',
+    deal_status ENUM('draft', 'confirmed', 'delivered', 'cancelled') NOT NULL DEFAULT 'draft',
+    notes TEXT DEFAULT NULL,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE INDEX idx_deals_number (deal_number),
+    INDEX idx_deals_client (client_id),
+    INDEX idx_deals_service (service_id),
+    INDEX idx_deals_sale_date (sale_date),
+    INDEX idx_deals_payment_status (payment_status),
+    INDEX idx_deals_deal_status (deal_status),
+    INDEX idx_deals_created_by (created_by),
+    CONSTRAINT fk_deals_client
+        FOREIGN KEY (client_id)
+        REFERENCES clients (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_deals_service
+        FOREIGN KEY (service_id)
+        REFERENCES services (id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_deals_created_by
+        FOREIGN KEY (created_by)
+        REFERENCES users (id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- Seed Data: Built-in Warehouses
+-- =============================================================================
+INSERT INTO warehouses (name, code, address, manager_name, phone, status)
+VALUES
+    ('Main Warehouse', 'WH-MAIN', '', '', '', 'active'),
+    ('Store', 'STORE', '', '', '', 'active')
 ON DUPLICATE KEY UPDATE id = id;
 
 -- =============================================================================

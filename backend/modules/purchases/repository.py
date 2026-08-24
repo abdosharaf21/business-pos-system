@@ -8,7 +8,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.purchases.model import Purchase, PurchaseItem
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
 
 
 class PurchaseRepository:
@@ -375,17 +375,21 @@ class PurchaseRepository:
                     )
 
                     cursor.execute(
-                        "INSERT INTO inventory (product_id, location, quantity) "
-                        "VALUES (%s, 'warehouse', %s) "
+                        "INSERT INTO inventory "
+                        "(product_id, location, warehouse_id, quantity) "
+                        "VALUES (%s, 'warehouse', "
+                        "(SELECT id FROM warehouses WHERE code = 'WH-MAIN'), %s) "
                         "ON DUPLICATE KEY UPDATE quantity = quantity + %s",
                         (product_id, quantity, quantity),
                     )
 
                     cursor.execute(
                         "INSERT INTO stock_movements "
-                        "(product_id, from_location, to_location, quantity, "
-                        "movement_type, reference, notes, user_id) "
-                        "VALUES (%s, NULL, 'warehouse', %s, 'purchase', %s, %s, %s)",
+                        "(product_id, from_location, to_location, warehouse_id, "
+                        "quantity, movement_type, reference, notes, user_id) "
+                        "VALUES (%s, NULL, 'warehouse', "
+                        "(SELECT id FROM warehouses WHERE code = 'WH-MAIN'), "
+                        "%s, 'purchase', %s, %s, %s)",
                         (product_id, quantity, invoice_number, "Purchase", user_id),
                     )
 

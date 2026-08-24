@@ -14,12 +14,14 @@ vi.mock("react-hot-toast", () => ({
 
 const getMock = vi.fn();
 const updateMock = vi.fn();
-vi.mock("../modules/store-settings/api", () => ({
+vi.mock("../shared/services/storeSettings", () => ({
   storeSettingsService: {
     get: (...args) => getMock(...args),
     update: (...args) => updateMock(...args),
     updateWithLogo: (...args) => updateMock(...args),
   },
+  setStoreSettings: vi.fn(),
+  getAssetUrl: vi.fn(),
 }));
 
 const sampleSettings = {

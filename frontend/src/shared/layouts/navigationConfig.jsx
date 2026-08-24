@@ -1,80 +1,105 @@
 import {
-  LayoutDashboard,
   CreditCard,
   Package,
-  ShoppingCart,
   BarChart3,
-  Settings,
   ShoppingBag,
   FolderOpen,
   Boxes,
   ClipboardList,
   History,
-  Contact2,
-  Truck,
   Wallet,
   Store,
   UserCog,
-  Plus,
-  Printer,
-  RefreshCw,
-  Download,
-  DatabaseBackup,
+  Handshake,
+  Contact2,
+  BriefcaseBusiness,
+  FolderTree,
+  Link2,
+  ArrowLeftRight,
+  Warehouse as WarehouseIcon,
+  CalendarClock,
+  LayoutDashboard,
+  ShoppingCart,
+  LayoutGrid,
 } from "lucide-react";
 
-const MANAGE_ROLES = ["admin", "manager"];
-
 const QUICK_ACTIONS = {
-  dashboard: [
+  business: [
+    { id: "clients", labelKey: "quickActions.clients", icon: Contact2, to: "/clients" },
+    { id: "services", labelKey: "quickActions.services", icon: BriefcaseBusiness, to: "/business/services" },
+    { id: "deals", labelKey: "quickActions.deals", icon: Handshake, to: "/deals" },
+    { id: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/business/reports" },
+  ],
+  pos: [
     { id: "new-sale", labelKey: "quickActions.newSale", icon: CreditCard, to: "/pos" },
-    { id: "new-purchase", labelKey: "quickActions.newPurchase", icon: Plus, to: "/purchases?new=1", roles: MANAGE_ROLES },
     { id: "products", labelKey: "quickActions.products", icon: ShoppingBag, to: "/products" },
     { id: "customers", labelKey: "quickActions.customers", icon: Contact2, to: "/customers" },
   ],
   inventory: [
-    { id: "products", labelKey: "quickActions.products", icon: ShoppingBag, to: "/products" },
-    { id: "categories", labelKey: "quickActions.categories", icon: FolderOpen, to: "/categories" },
+    { id: "stock", labelKey: "nav.stock", icon: Boxes, to: "/inventory" },
     { id: "audits", labelKey: "quickActions.audits", icon: ClipboardList, to: "/inventory/audits" },
+    { id: "transfers", labelKey: "nav.transfers", icon: ArrowLeftRight, to: "/inventory/transfers" },
   ],
-  purchases: [
-    { id: "new-purchase", labelKey: "quickActions.newPurchase", icon: Plus, to: "/purchases?new=1", roles: MANAGE_ROLES },
-    { id: "suppliers", labelKey: "quickActions.suppliers", icon: Truck, to: "/suppliers" },
+  expenses: [
+    { id: "expenses", labelKey: "nav.expensesList", icon: Wallet, to: "/expenses" },
+    { id: "categories", labelKey: "quickActions.categories", icon: FolderOpen, to: "/expenses/categories" },
+    { id: "reports", labelKey: "nav.reports", icon: BarChart3, to: "/expenses/reports" },
   ],
-  reports: [
-    { id: "print", labelKey: "quickActions.print", icon: Printer, kind: "print" },
-    { id: "refresh", labelKey: "quickActions.refresh", icon: RefreshCw, kind: "refresh" },
-    { id: "export", labelKey: "quickActions.export", icon: Download, kind: "disabled" },
-  ],
-  settings: [
-    { id: "users", labelKey: "quickActions.users", icon: UserCog, to: "/users" },
-    { id: "store-settings", labelKey: "quickActions.storeSettings", icon: Store, to: "/store-settings" },
-    { id: "backup", labelKey: "quickActions.backup", icon: DatabaseBackup, kind: "disabled" },
-  ],
-  pos: [],
 };
 
 export const MODULES = [
-  { id: "dashboard", labelKey: "nav.dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { id: "business", labelKey: "nav.businessDevelopment", to: "/business", icon: Handshake },
   { id: "pos", labelKey: "nav.pos", to: "/pos", icon: CreditCard },
-  { id: "inventory", labelKey: "nav.inventory", to: "/inventory", icon: Package },
-  { id: "purchases", labelKey: "nav.purchases", to: "/purchases", icon: ShoppingCart },
-  { id: "reports", labelKey: "nav.reports", to: "/reports", icon: BarChart3 },
-  { id: "settings", labelKey: "nav.settings", to: "/store-settings", icon: Settings, roles: ["admin"] },
+  { id: "inventory", labelKey: "nav.inventory", to: "/inventory/overview", icon: Package },
+  { id: "expenses", labelKey: "nav.expenses", to: "/expenses/dashboard", icon: Wallet },
 ];
 
+/**
+ * Route opened when an application is launched from the Services
+ * application catalog. Every target is the application's dashboard so the
+ * active context switches through the single canonical URL mapping.
+ */
+export const APPLICATION_LAUNCH_ROUTES = {
+  business: "/business",
+  pos: "/dashboard",
+  inventory: "/inventory/overview",
+  expenses: "/expenses/dashboard",
+};
+
+const ADMIN_GROUP = {
+  labelKey: "nav.administration",
+  items: [
+    { to: "/store-settings", labelKey: "nav.storeSettings", icon: Store },
+    { to: "/users", labelKey: "nav.users", icon: UserCog },
+  ],
+};
+
 export const MODULE_SIDEBARS = {
-  dashboard: [
+  business: [
     {
-      labelKey: "nav.overview",
-      items: [{ to: "/dashboard", labelKey: "nav.dashboardOverview", icon: LayoutDashboard }],
+      labelKey: "nav.businessDevelopment",
+      items: [
+        { to: "/business", labelKey: "nav.businessHome", icon: Handshake },
+        { to: "/services", labelKey: "nav.servicesCatalog", icon: LayoutGrid },
+        { to: "/business/services", labelKey: "nav.serviceRecords", icon: BriefcaseBusiness },
+        { to: "/clients", labelKey: "nav.clients", icon: Contact2 },
+        { to: "/service-categories", labelKey: "nav.serviceCategories", icon: FolderTree },
+        { to: "/client-services", labelKey: "nav.clientServices", icon: Link2 },
+        { to: "/deals", labelKey: "nav.deals", icon: Handshake },
+        { to: "/business/reports", labelKey: "nav.reports", icon: BarChart3 },
+      ],
     },
   ],
   pos: [
     {
       labelKey: "nav.pos",
       items: [
+        { to: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
         { to: "/pos", labelKey: "nav.newSale", icon: CreditCard },
-        { to: "/customers", labelKey: "nav.customers", icon: Contact2 },
+        { to: "/products", labelKey: "nav.products", icon: ShoppingBag },
+        { to: "/categories", labelKey: "nav.categories", icon: FolderOpen },
+        { to: "/inventory", labelKey: "nav.stock", icon: Boxes },
+        { to: "/purchases", labelKey: "nav.purchases", icon: ShoppingCart },
       ],
     },
   ],
@@ -82,38 +107,26 @@ export const MODULE_SIDEBARS = {
     {
       labelKey: "nav.inventory",
       items: [
-        { to: "/products", labelKey: "nav.products", icon: ShoppingBag },
-        { to: "/categories", labelKey: "nav.categories", icon: FolderOpen },
+        { to: "/inventory/overview", labelKey: "nav.dashboard", icon: LayoutDashboard },
         { to: "/inventory", labelKey: "nav.stock", icon: Boxes },
+        { to: "/inventory/warehouses", labelKey: "nav.warehouses", icon: WarehouseIcon },
+        { to: "/inventory/transfers", labelKey: "nav.transfers", icon: ArrowLeftRight },
         { to: "/inventory/audits", labelKey: "nav.inventoryAudits", icon: ClipboardList },
         { to: "/inventory/movements", labelKey: "nav.movementHistory", icon: History },
+        { to: "/inventory/reorder", labelKey: "nav.reorder", icon: ShoppingCart },
+        { to: "/inventory/expiration", labelKey: "nav.expiration", icon: CalendarClock },
+        { to: "/inventory/reports", labelKey: "nav.reports", icon: BarChart3 },
       ],
     },
   ],
-  purchases: [
+  expenses: [
     {
-      labelKey: "nav.purchases",
+      labelKey: "nav.expenses",
       items: [
-        { to: "/purchases", labelKey: "nav.purchases", icon: ShoppingCart },
-        { to: "/suppliers", labelKey: "nav.suppliers", icon: Truck },
-      ],
-    },
-  ],
-  reports: [
-    {
-      labelKey: "nav.reports",
-      items: [
-        { to: "/reports", labelKey: "nav.overview", icon: BarChart3 },
-        { to: "/expenses", labelKey: "nav.expenses", icon: Wallet },
-      ],
-    },
-  ],
-  settings: [
-    {
-      labelKey: "nav.administration",
-      items: [
-        { to: "/store-settings", labelKey: "nav.storeSettings", icon: Store, roles: ["admin"] },
-        { to: "/users", labelKey: "nav.users", icon: UserCog, roles: ["admin"] },
+        { to: "/expenses/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+        { to: "/expenses", labelKey: "nav.expensesList", icon: Wallet },
+        { to: "/expenses/categories", labelKey: "nav.expenseCategories", icon: FolderOpen },
+        { to: "/expenses/reports", labelKey: "nav.reports", icon: BarChart3 },
       ],
     },
   ],
@@ -133,24 +146,52 @@ const MODULE_PATHS = (() => {
       }
     }
   }
+  map.pos.push("/suppliers");
+  map.pos.push("/customers");
+  map.pos.push("/reports");
   return map;
 })();
 
+export const BACK_TARGET = { to: "/services", labelKey: "nav.backToServices" };
+const BACK_ENABLED_MODULES = ["pos", "inventory", "expenses"];
+
 export function getActiveModule(pathname) {
-  let best = "dashboard";
-  let bestLength = -1;
+  if (pathname === "/store-settings" || pathname.startsWith("/store-settings/") || pathname === "/users") {
+    return "admin";
+  }
+  const candidates = [];
   for (const [moduleId, paths] of Object.entries(MODULE_PATHS)) {
     for (const path of paths) {
-      if (
-        (pathname === path || pathname.startsWith(`${path}/`)) &&
-        path.length > bestLength
-      ) {
-        best = moduleId;
-        bestLength = path.length;
+      const exact = pathname === path;
+      if (exact || pathname.startsWith(`${path}/`)) {
+        candidates.push({ moduleId, score: (exact ? 100000 : 0) + path.length });
       }
     }
   }
+  if (candidates.length === 0) return "business";
+
+  const topScore = Math.max(...candidates.map((c) => c.score));
+  const tied = candidates.filter((c) => c.score === topScore);
+  if (tied.length === 1) return tied[0].moduleId;
+
+  const homeRoute = (id) => MODULES.find((m) => m.id === id)?.to || "";
+  let best = tied[0].moduleId;
+  let bestShared = -1;
+  for (const candidate of tied) {
+    const home = homeRoute(candidate.moduleId);
+    let shared = 0;
+    while (shared < home.length && home[shared] === pathname[shared]) shared++;
+    if (shared > bestShared) {
+      bestShared = shared;
+      best = candidate.moduleId;
+    }
+  }
   return best;
+}
+
+export function getContextBack(pathname) {
+  const moduleId = getActiveModule(pathname);
+  return BACK_ENABLED_MODULES.includes(moduleId) ? BACK_TARGET : null;
 }
 
 export function getVisibleModules(role) {
@@ -158,13 +199,21 @@ export function getVisibleModules(role) {
 }
 
 export function getVisibleSidebarGroups(moduleId, role) {
-  const groups = MODULE_SIDEBARS[moduleId] || [];
-  return groups
+  const isAdmin = role === "admin";
+  if (moduleId === "admin") {
+    return isAdmin ? [{ ...ADMIN_GROUP }] : [];
+  }
+  const baseGroups = (MODULE_SIDEBARS[moduleId] || [])
     .map((group) => ({
       labelKey: group.labelKey,
       items: (group.items || []).filter((item) => !item.roles || item.roles.includes(role)),
     }))
     .filter((group) => group.items.length > 0);
+
+  if (isAdmin) {
+    return [...baseGroups, { ...ADMIN_GROUP }];
+  }
+  return baseGroups;
 }
 
 export function getQuickActions(moduleId, role) {
@@ -176,19 +225,26 @@ export function getBreadcrumb(pathname) {
   const moduleId = getActiveModule(pathname);
   const module = MODULES.find((m) => m.id === moduleId);
   const groups = MODULE_SIDEBARS[moduleId] || [];
-  let section = null;
-  for (const group of groups) {
-    for (const item of group.items) {
-      if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {
-        section = item;
-        break;
+  const findSection = (matcher) => {
+    for (const group of groups) {
+      for (const item of group.items) {
+        if (matcher(item.to)) return item;
       }
     }
-    if (section) break;
+    return null;
+  };
+  let section = findSection((to) => pathname === to);
+  if (!section) {
+    section = findSection((to) => pathname.startsWith(`${to}/`));
+  }
+  if (!section && moduleId === "admin") {
+    section = ADMIN_GROUP.items.find((item) =>
+      pathname === item.to || pathname.startsWith(`${item.to}/`)
+    );
   }
   return {
     moduleId,
-    moduleLabelKey: module?.labelKey || "nav.dashboard",
-    sectionLabelKey: section?.labelKey || module?.labelKey || "nav.dashboard",
+    moduleLabelKey: section?.labelKey || module?.labelKey || "nav.businessHome",
+    sectionLabelKey: section?.labelKey || module?.labelKey || "nav.businessHome",
   };
 }

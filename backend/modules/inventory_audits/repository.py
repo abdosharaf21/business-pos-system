@@ -65,10 +65,12 @@ class InventoryAuditRepository:
             try:
                 cursor.execute(
                     "SELECT p.id AS product_id, p.name AS product_name, "
-                    "p.barcode, COALESCE(i.quantity, 0) AS system_quantity "
+                    "p.barcode, COALESCE(i.bucket_quantity, 0) AS system_quantity "
                     "FROM products p "
-                    "LEFT JOIN inventory i ON i.product_id = p.id "
-                    "AND i.location = %s "
+                    "LEFT JOIN ("
+                    "SELECT product_id, SUM(quantity) AS bucket_quantity "
+                    "FROM inventory WHERE location = %s GROUP BY product_id"
+                    ") i ON i.product_id = p.id "
                     "WHERE p.status = 'active' "
                     "ORDER BY p.name ASC",
                     (location,),
@@ -462,13 +464,16 @@ class InventoryAuditRepository:
 
                     location = audit["location"]
                     cursor.execute(
-                        "INSERT INTO inventory (product_id, location, quantity) "
-                        "VALUES (%s, %s, %s) "
-                        "ON DUPLICATE KEY UPDATE quantity = %s",
+                        "INSERT INTO inventory "
+                        "(product_id, location, warehouse_id, quantity) "
+                        "VALUES (%s, %s, "
+                        "(SELECT id FROM warehouses WHERE code = "
+                        "IF(%s = 'store', 'STORE', 'WH-MAIN')), %s) "
+                        "ON DUPLICATE KEY UPDATE quantity = VALUES(quantity)",
                         (
                             item["product_id"],
                             location,
-                            counted,
+                            location,
                             counted,
                         ),
                     )
@@ -479,13 +484,17 @@ class InventoryAuditRepository:
 
                     cursor.execute(
                         "INSERT INTO stock_movements "
-                        "(product_id, from_location, to_location, quantity, "
-                        "movement_type, reference, notes, user_id) "
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        "(product_id, from_location, to_location, warehouse_id, "
+                        "quantity, movement_type, reference, notes, user_id) "
+                        "VALUES (%s, %s, %s, "
+                        "(SELECT id FROM warehouses WHERE code = "
+                        "IF(%s = 'store', 'STORE', 'WH-MAIN')), "
+                        "%s, %s, %s, %s, %s)",
                         (
                             item["product_id"],
                             from_location,
                             to_location,
+                            location,
                             abs(difference),
                             self.MOVEMENT_TYPE,
                             str(audit_id),

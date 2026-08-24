@@ -23,6 +23,7 @@ import {
   ArrowUpDown, Warehouse, Store, ArrowLeftRight, ClipboardCheck, CalendarDays,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getCurrentLocale } from "../../shared/utils/format";
 
 const transferSchema = z.object({
   quantity: z.coerce
@@ -206,7 +207,7 @@ export default function InventoryPage() {
       key: "expiration_date",
       label: t("inventory.columns.expiration"),
       render: (val, row) => {
-        const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+        const locale = getCurrentLocale(i18n.language);
         return (
           <div className="flex items-center gap-2">
             <span className="text-[13px] text-surface-600 dark:text-surface-300 whitespace-nowrap">
@@ -641,7 +642,7 @@ function ExpirationModal({ isOpen, onClose, product, onSubmit, loading }) {
     }
   }, [isOpen, product, reset]);
 
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t("inventory.expiration.editTitle", { name: product?.name || "" })}>

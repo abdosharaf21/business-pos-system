@@ -7,7 +7,7 @@ import mysql.connector
 
 from backend.database import Database
 from backend.modules.notifications.model import Notification
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
 
 
 class NotificationRepository:
@@ -45,13 +45,12 @@ class NotificationRepository:
             try:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.sku, p.minimum_stock, "
-                    "COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0) "
-                    "AS total_quantity "
+                    "COALESCE(inv.total_qty, 0) AS total_quantity "
                     "FROM products p "
-                    "LEFT JOIN inventory wh ON wh.product_id = p.id "
-                    "AND wh.location = 'warehouse' "
-                    "LEFT JOIN inventory st ON st.product_id = p.id "
-                    "AND st.location = 'store' "
+                    "LEFT JOIN ("
+                    "SELECT product_id, SUM(quantity) AS total_qty "
+                    "FROM inventory GROUP BY product_id"
+                    ") inv ON inv.product_id = p.id "
                     "WHERE p.status = 'active' "
                     "ORDER BY p.name ASC"
                 )
@@ -75,13 +74,13 @@ class NotificationRepository:
             try:
                 cursor.execute(
                     "SELECT p.id, p.name, p.barcode, p.sku, "
-                    "COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0) "
-                    "AS total_quantity, e.expiration_date "
+                    "COALESCE(inv.total_qty, 0) AS total_quantity, "
+                    "e.expiration_date "
                     "FROM products p "
-                    "LEFT JOIN inventory wh ON wh.product_id = p.id "
-                    "AND wh.location = 'warehouse' "
-                    "LEFT JOIN inventory st ON st.product_id = p.id "
-                    "AND st.location = 'store' "
+                    "LEFT JOIN ("
+                    "SELECT product_id, SUM(quantity) AS total_qty "
+                    "FROM inventory GROUP BY product_id"
+                    ") inv ON inv.product_id = p.id "
                     "LEFT JOIN ("
                     "SELECT product_id, MIN(expiration_date) AS expiration_date "
                     "FROM purchase_items WHERE expiration_date IS NOT NULL "
@@ -196,14 +195,14 @@ class NotificationRepository:
                     "SELECT n.id, n.product_id, n.notification_type, "
                     "n.priority, n.is_read, n.created_at, "
                     "p.name AS product_name, p.barcode, p.sku, "
-                    "COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0) "
-                    "AS total_quantity, e.expiration_date "
+                    "COALESCE(inv.total_qty, 0) AS total_quantity, "
+                    "e.expiration_date "
                     "FROM notifications n "
                     "JOIN products p ON p.id = n.product_id "
-                    "LEFT JOIN inventory wh ON wh.product_id = n.product_id "
-                    "AND wh.location = 'warehouse' "
-                    "LEFT JOIN inventory st ON st.product_id = n.product_id "
-                    "AND st.location = 'store' "
+                    "LEFT JOIN ("
+                    "SELECT product_id, SUM(quantity) AS total_qty "
+                    "FROM inventory GROUP BY product_id"
+                    ") inv ON inv.product_id = n.product_id "
                     "LEFT JOIN ("
                     "SELECT product_id, MIN(expiration_date) AS expiration_date "
                     "FROM purchase_items WHERE expiration_date IS NOT NULL "

@@ -4,8 +4,11 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { storeSettingsService } from "./api";
-import { setStoreSettings, getAssetUrl } from "./cache";
+import {
+  storeSettingsService,
+  setStoreSettings,
+  getAssetUrl,
+} from "../../shared/services/storeSettings";
 import { inputClass, labelClass } from "../../shared/components/styles";
 import { PageHeader } from "../../shared/components/PageHeader";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";

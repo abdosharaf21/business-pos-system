@@ -4,8 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { purchaseService } from "./api";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
-import { useStoreSettings } from "../store-settings/hooks";
+import { useStoreSettings } from "../../shared/hooks/useStoreSettings";
 import { Printer, ArrowLeft } from "lucide-react";
+import { getCurrentLocale } from "../../shared/utils/format";
 
 export default function PurchaseInvoicePage() {
   const { purchaseId } = useParams();
@@ -62,7 +63,7 @@ export default function PurchaseInvoicePage() {
     );
   }
 
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   const formattedDate = invoice.created_at
     ? new Date(invoice.created_at).toLocaleDateString(locale, {

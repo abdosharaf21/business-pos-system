@@ -21,10 +21,13 @@ class MockCursor:
         self._columns = list(columns or [])
         self.executed_statements = []
         self.last_execute = ""
+        self.rowcount = 0
 
     def execute(self, sql, params=None):
         self.last_execute = sql
         self.executed_statements.append(sql)
+        if sql.lstrip().upper().startswith("INSERT"):
+            self.rowcount = 1
 
     def fetchone(self):
         if "information_schema.tables" in self.last_execute:
@@ -70,6 +73,10 @@ def test_parse_create_statements_parses_all_tables():
         "expense_categories", "expenses", "inventory_transactions",
         "inventory", "stock_movements", "inventory_audits",
         "inventory_audit_items", "notifications", "store_settings",
+        "refresh_token_blocklist", "warehouses", "transfers",
+        "transfer_items",
+        "clients", "service_categories", "services", "client_services",
+        "deals",
     }
     assert set(tables.keys()) == expected
 
@@ -158,3 +165,84 @@ def test_existing_columns_returns_column_names(monkeypatch):
 
     assert bootstrap._existing_columns(conn, "products") == {"id", "name"}
     assert "information_schema.columns" in cursor.last_execute
+
+
+def _run_reconcile(monkeypatch, cursor, indexes=None, not_null=None):
+    """Run _reconcile_warehouse_model with information_schema doubles."""
+    monkeypatch.setattr(
+        bootstrap,
+        "_index_exists",
+        lambda conn, table, name: name in (indexes or set()),
+    )
+    monkeypatch.setattr(
+        bootstrap,
+        "_column_is_not_null",
+        lambda conn, table, column: column in (not_null or set()),
+    )
+    conn = MockConnection(cursor)
+    return bootstrap._reconcile_warehouse_model(conn)
+
+
+def test_reconcile_warehouse_model_full_upgrade(monkeypatch):
+    """Legacy DB: seeds warehouses, backfills stock, swaps unique key."""
+    cursor = MockCursor()
+    result = _run_reconcile(
+        monkeypatch,
+        cursor,
+        indexes={bootstrap.LEGACY_INVENTORY_UNIQUE_KEY},
+        not_null={"category_id"},
+    )
+
+    assert result["warehouses_seeded"] is True
+    assert result["inventory_backfilled"] >= 0
+    assert result["unique_key_swapped"] is True
+    assert result["category_nullable_fixed"] is True
+
+    executed = [stmt for stmt in cursor.executed_statements]
+    assert any("INSERT INTO warehouses" in stmt for stmt in executed)
+    add_key_at = next(
+        i for i, stmt in enumerate(executed) if "ADD UNIQUE KEY" in stmt
+    )
+    drop_key_at = next(
+        i for i, stmt in enumerate(executed) if "DROP INDEX" in stmt
+    )
+    assert add_key_at < drop_key_at
+    assert any(
+        "MODIFY COLUMN category_id INT NULL" in stmt for stmt in executed
+    )
+
+
+def test_reconcile_warehouse_model_is_noop_when_migrated(monkeypatch):
+    """A database already on the warehouse model must not be altered."""
+    cursor = MockCursor()
+    result = _run_reconcile(
+        monkeypatch,
+        cursor,
+        indexes={bootstrap.NEW_INVENTORY_UNIQUE_KEY},
+        not_null=set(),
+    )
+
+    assert result["unique_key_swapped"] is False
+    assert result["category_nullable_fixed"] is False
+    executed = cursor.executed_statements
+    assert not any("ADD UNIQUE KEY" in stmt for stmt in executed)
+    assert not any("DROP INDEX" in stmt for stmt in executed)
+    assert not any("MODIFY COLUMN" in stmt for stmt in executed)
+
+
+def test_reconcile_warehouse_model_seeds_use_duplicate_guard(monkeypatch):
+    """Warehouse seeding must be idempotent via ON DUPLICATE KEY."""
+    cursor = MockCursor()
+    result = _run_reconcile(
+        monkeypatch,
+        cursor,
+        indexes={bootstrap.LEGACY_INVENTORY_UNIQUE_KEY},
+        not_null=set(),
+    )
+
+    seed_stmt = next(
+        stmt for stmt in cursor.executed_statements
+        if "INSERT INTO warehouses" in stmt
+    )
+    assert "ON DUPLICATE KEY UPDATE id = id" in seed_stmt
+    assert isinstance(result["warehouses_seeded"], bool)

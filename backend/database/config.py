@@ -38,7 +38,7 @@ class DatabaseConfig:
     user: str = field(default_factory=lambda: os.getenv("DB_USER", "root"))
     password: str = field(default_factory=lambda: os.getenv("DB_PASSWORD", ""))
     pool_name: str = field(default_factory=lambda: os.getenv("DB_POOL_NAME", "pos_pool"))
-    pool_size: int = field(default_factory=lambda: int(os.getenv("DB_POOL_SIZE", "5")))
+    pool_size: int = field(default_factory=lambda: int(os.getenv("DB_POOL_SIZE", "10")))
     pool_reset_session: list = field(
         default_factory=lambda: ["ROLLBACK"]
     )

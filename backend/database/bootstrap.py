@@ -12,6 +12,11 @@ The bootstrap is intentionally idempotent and non-destructive:
 * An existing database is reconciled forward: missing tables are created
   and missing columns are added, but existing data is never altered,
   dropped, or overwritten.
+* The multi-warehouse model is reconciled on legacy databases: the two
+  built-in warehouses (WH-MAIN, STORE) are seeded, legacy inventory rows
+  are backfilled with the matching warehouse_id from their location,
+  the inventory unique key moves from (product_id, location) to
+  (product_id, warehouse_id), and services.category_id becomes nullable.
 * A database that is newly created but fails to import is dropped again
   so the next launch retries cleanly instead of leaving a partial schema.
 * The admin user is only inserted when it does not already exist.
@@ -37,6 +42,15 @@ ADMIN_PASSWORD_HASH = (
 ADMIN_PHONE = "+10000000000"
 ADMIN_ROLE = "admin"
 ADMIN_STATUS = "active"
+
+BUILTIN_WAREHOUSES = (
+    ("Main Warehouse", "WH-MAIN"),
+    ("Store", "STORE"),
+)
+LEGACY_WAREHOUSE_CODE = "WH-MAIN"
+LEGACY_STORE_CODE = "STORE"
+NEW_INVENTORY_UNIQUE_KEY = "uq_inventory_product_warehouse"
+LEGACY_INVENTORY_UNIQUE_KEY = "uq_inventory_product_location"
 
 MYSQL_NOT_DETECTED = (
     "The Business POS System could not connect to MySQL Server at "
@@ -448,6 +462,136 @@ def _reconcile_schema(
     return result
 
 
+def _index_exists(
+    conn: mysql.connector.MySQLConnection, table_name: str, index_name: str
+) -> bool:
+    """Check whether an index exists on a table in the connected database.
+
+    Args:
+        conn: Connection to the target database.
+        table_name: Table the index belongs to.
+        index_name: Name of the index.
+
+    Returns:
+        True if the index exists, False otherwise.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT COUNT(*) FROM information_schema.statistics "
+        "WHERE table_schema = DATABASE() AND table_name = %s "
+        "AND index_name = %s",
+        (table_name, index_name),
+    )
+    exists = bool(cursor.fetchone()[0])
+    cursor.close()
+    return exists
+
+
+def _column_is_not_null(
+    conn: mysql.connector.MySQLConnection, table_name: str, column_name: str
+) -> bool:
+    """Check whether a column is declared NOT NULL.
+
+    Args:
+        conn: Connection to the target database.
+        table_name: Table containing the column.
+        column_name: Column to inspect.
+
+    Returns:
+        True if the column is NOT NULL, False otherwise (including when
+        the column or table does not exist).
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT is_nullable FROM information_schema.columns "
+        "WHERE table_schema = DATABASE() AND table_name = %s "
+        "AND column_name = %s",
+        (table_name, column_name),
+    )
+    row = cursor.fetchone()
+    cursor.close()
+    return row is not None and row[0] == "NO"
+
+
+def _reconcile_warehouse_model(conn: mysql.connector.MySQLConnection) -> dict:
+    """Migrate legacy single-pair inventory databases to warehouses.
+
+    Performs the data-level part of the multi-warehouse migration that
+    schema reconciliation cannot express. Every step is idempotent and
+    non-destructive:
+
+    1. Seeds the built-in warehouses (WH-MAIN, STORE) when missing.
+    2. Backfills ``inventory.warehouse_id`` from each row's legacy
+       ``location`` value ('warehouse' -> WH-MAIN, 'store' -> STORE).
+    3. Adds the ``(product_id, warehouse_id)`` unique key before dropping
+       the legacy ``(product_id, location)`` unique key so the product
+       foreign key never loses its supporting index (MySQL error 1553).
+    4. Makes ``services.category_id`` nullable for databases created
+       before services stopped requiring a category.
+
+    Args:
+        conn: Connection to the target database (autocommit on).
+
+    Returns:
+        Dictionary with keys ``warehouses_seeded``, ``inventory_backfilled``,
+        ``unique_key_swapped`` and ``category_nullable_fixed``.
+
+    Raises:
+        BootstrapError: If any reconciliation statement fails.
+    """
+    result = {
+        "warehouses_seeded": False,
+        "inventory_backfilled": 0,
+        "unique_key_swapped": False,
+        "category_nullable_fixed": False,
+    }
+    cursor = conn.cursor()
+    try:
+        placeholders = ", ".join(["(%s, %s, '', '', '', 'active')"] * len(BUILTIN_WAREHOUSES))
+        values = [value for warehouse in BUILTIN_WAREHOUSES for value in warehouse]
+        cursor.execute(
+            "INSERT INTO warehouses (name, code, address, manager_name, "
+            f"phone, status) VALUES {placeholders} "
+            "ON DUPLICATE KEY UPDATE id = id",
+            values,
+        )
+        result["warehouses_seeded"] = cursor.rowcount > 0
+
+        cursor.execute(
+            "UPDATE inventory i "
+            "LEFT JOIN warehouses w ON w.code = "
+            "IF(i.location = 'store', %s, %s) "
+            "SET i.warehouse_id = w.id "
+            "WHERE i.warehouse_id IS NULL AND w.id IS NOT NULL",
+            (LEGACY_STORE_CODE, LEGACY_WAREHOUSE_CODE),
+        )
+        result["inventory_backfilled"] = max(cursor.rowcount, 0)
+
+        if not _index_exists(conn, "inventory", NEW_INVENTORY_UNIQUE_KEY):
+            cursor.execute(
+                "ALTER TABLE `inventory` ADD UNIQUE KEY `%s` "
+                "(product_id, warehouse_id)" % NEW_INVENTORY_UNIQUE_KEY
+            )
+            result["unique_key_swapped"] = True
+            if _index_exists(conn, "inventory", LEGACY_INVENTORY_UNIQUE_KEY):
+                cursor.execute(
+                    "ALTER TABLE `inventory` DROP INDEX `%s`"
+                    % LEGACY_INVENTORY_UNIQUE_KEY
+                )
+
+        if _column_is_not_null(conn, "services", "category_id"):
+            cursor.execute("ALTER TABLE `services` MODIFY COLUMN category_id INT NULL")
+            result["category_nullable_fixed"] = True
+    except mysql.connector.Error as e:
+        cursor.close()
+        raise BootstrapError(
+            f"Failed to reconcile warehouse model: {e}",
+            instructions=GENERIC_ERROR.format(detail=str(e)),
+        ) from e
+    cursor.close()
+    return result
+
+
 def _seed_if_empty(
     conn: mysql.connector.MySQLConnection, table_name: str, insert_sql: str
 ) -> bool:
@@ -550,15 +694,20 @@ def _ensure_admin(conn: mysql.connector.MySQLConnection) -> bool:
 def ensure_database_ready(config: DatabaseConfig = None) -> dict:
     """Detect MySQL and prepare the database on first run.
 
-    Idempotent: on an existing database it only ensures the default admin
-    exists and never re-imports the schema.
+    Idempotent: on an existing database it reconciles the schema and
+    warehouse model forward, ensures the default admin exists, and never
+    re-imports the schema.
 
     Args:
         config: Optional DatabaseConfig; defaults to environment.
 
     Returns:
-        Dictionary with keys ``database_created``, ``schema_imported``
-        and ``admin_present``.
+        Dictionary with keys ``database_created``, ``schema_imported``,
+        ``admin_present`` plus reconciliation counters
+        (``tables_created``, ``columns_added``, ``warehouses_seeded``,
+        ``inventory_backfilled``, ``unique_key_swapped``,
+        ``category_nullable_fixed``) when an existing database is
+        reconciled.
 
     Raises:
         BootstrapError: If MySQL is unreachable, login fails, or the
@@ -587,11 +736,14 @@ def ensure_database_ready(config: DatabaseConfig = None) -> dict:
                     if schema_path:
                         migration = _reconcile_schema(db_conn, schema_path)
                         result.update(migration)
+                        warehouse_migration = _reconcile_warehouse_model(db_conn)
+                        result.update(warehouse_migration)
                         logger.info(
                             "Schema reconciliation: tables_created=%s "
-                            "columns_added=%s",
+                            "columns_added=%s inventory_backfilled=%s",
                             migration["tables_created"],
                             migration["columns_added"],
+                            warehouse_migration["inventory_backfilled"],
                         )
                     _apply_safe_seeds(db_conn)
                     result["admin_present"] = _ensure_admin(db_conn)

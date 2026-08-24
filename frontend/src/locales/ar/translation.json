@@ -20,7 +20,22 @@
     "storeSettings": "إعدادات المتجر",
     "newSale": "بيع جديد",
     "stock": "المخزون",
-    "dashboardOverview": "نظرة عامة على لوحة التحكم"
+    "dashboardOverview": "نظرة عامة على لوحة التحكم",
+    "businessDevelopment": "تطوير الأعمال",
+    "businessHome": "الرئيسية",
+    "clients": "العملاء",
+    "servicesCatalog": "الخدمات",
+    "serviceRecords": "سجلات الخدمات",
+    "serviceCategories": "تصنيفات الخدمات",
+    "clientServices": "خدمات العملاء",
+    "deals": "الصفقات",
+    "warehouses": "المستودعات",
+    "transfers": "التحويلات",
+    "reorder": "إعادة الطلب",
+    "expiration": "انتهاء الصلاحية",
+    "expensesList": "المصروفات",
+    "expenseCategories": "التصنيفات",
+    "backToServices": "رجوع إلى الخدمات"
   },
   "auth": {
     "welcomeBack": "مرحبًا بعودتك",
@@ -379,6 +394,204 @@
       "quantityPositive": "يجب أن تكون الكمية أكبر من صفر",
       "quantityRequired": "الكمية المعدودة مطلوبة",
       "quantityNonNegative": "لا يمكن أن تكون الكمية المعدودة سالبة"
+    },
+    "overview": {
+      "title": "نظرة عامة على المخزون",
+      "description": "صحة المخزون في المستودع والمتجر",
+      "kpi": {
+        "products": "المنتجات النشطة",
+        "totalQuantity": "إجمالي الكمية",
+        "stockValue": "قيمة المخزون",
+        "lowStock": "أصناف منخفضة المخزون"
+      },
+      "distribution": {
+        "title": "توزيع المخزون",
+        "warehouse": "المستودع",
+        "store": "المتجر"
+      },
+      "recentMovements": "أحدث الحركات",
+      "movementColumns": {
+        "product": "المنتج",
+        "type": "النوع",
+        "quantity": "الكمية",
+        "warehouse": "المستودع",
+        "user": "المستخدم"
+      }
+    },
+    "warehouses": {
+      "title": "المستودعات",
+      "description": "مواقع التخزين الفعلية للمخزون",
+      "new": "مستودع جديد",
+      "searchPlaceholder": "ابحث في المستودعات...",
+      "statuses": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "columns": {
+        "name": "المستودع",
+        "location": "الموقع",
+        "status": "الحالة"
+      },
+      "form": {
+        "createTitle": "مستودع جديد",
+        "editTitle": "تعديل المستودع",
+        "name": "الاسم",
+        "location": "الموقع",
+        "status": "الحالة"
+      },
+      "validation": {
+        "nameRequired": "اسم المستودع مطلوب"
+      },
+      "confirmDelete": {
+        "title": "حذف المستودع؟",
+        "message": "سيتم حذف \"{{name}}\" نهائياً."
+      },
+      "empty": {
+        "title": "لا توجد مستودعات بعد",
+        "noWarehouses": "أضف أول موقع تخزين",
+        "noResults": "لا توجد مستودعات مطابقة للبحث"
+      },
+      "toast": {
+        "created": "تم إنشاء المستودع بنجاح",
+        "createFailed": "فشل إنشاء المستودع",
+        "updated": "تم تحديث المستودع بنجاح",
+        "updateFailed": "فشل تحديث المستودع",
+        "deleted": "تم حذف المستودع بنجاح",
+        "deleteFailed": "فشل حذف المستودع"
+      }
+    },
+    "transfers": {
+      "title": "التحويلات",
+      "description": "انقل المخزون بين المستودعات",
+      "new": "تحويل جديد",
+      "filters": {
+        "status": "تصفية حسب الحالة",
+        "allStatuses": "كل الحالات"
+      },
+      "statuses": {
+        "pending": "قيد الانتظار",
+        "completed": "مكتمل",
+        "cancelled": "ملغى"
+      },
+      "columns": {
+        "number": "الرقم",
+        "source": "المصدر",
+        "destination": "الوجهة",
+        "itemsCount": "الأصناف",
+        "status": "الحالة"
+      },
+      "form": {
+        "createTitle": "تحويل جديد",
+        "source": "مستودع المصدر",
+        "destination": "مستودع الوجهة",
+        "chooseWarehouse": "اختر مستودعاً",
+        "addItem": "إضافة صنف",
+        "removeItem": "إزالة الصنف",
+        "chooseProduct": "اختر منتجاً",
+        "quantityPlaceholder": "الكمية",
+        "notes": "ملاحظات",
+        "submitCreate": "إنشاء التحويل"
+      },
+      "details": {
+        "title": "التحويل {{name}}",
+        "items": "الأصناف",
+        "product": "المنتج",
+        "quantity": "الكمية"
+      },
+      "actions": {
+        "viewDetails": "عرض التفاصيل",
+        "complete": "إكمال",
+        "completing": "جارٍ الإكمال...",
+        "cancel": "إلغاء التحويل",
+        "cancelling": "جارٍ الإلغاء..."
+      },
+      "confirmComplete": {
+        "title": "إكمال التحويل؟",
+        "message": "سيتم نقل مخزون التحويل \"{{name}}\" إلى مستودع الوجهة."
+      },
+      "confirmCancel": {
+        "title": "إلغاء التحويل؟",
+        "message": "سيُلغى التحويل \"{{name}}\" ولن يتم نقل أي مخزون."
+      },
+      "validation": {
+        "sourceRequired": "مستودع المصدر مطلوب",
+        "destinationRequired": "مستودع الوجهة مطلوب",
+        "sameWarehouse": "يجب أن يختلف المصدر عن الوجهة",
+        "itemsRequired": "مطلوب صنف واحد على الأقل",
+        "productRequired": "يرجى اختيار منتج",
+        "quantityInvalid": "يجب أن تكون الكمية عدداً صحيحاً موجباً"
+      },
+      "empty": {
+        "title": "لا توجد تحويلات بعد",
+        "noTransfers": "أنشئ تحويلاً لنقل المخزون بين المستودعات",
+        "noResults": "لا توجد تحويلات مطابقة للفلتر الحالي"
+      },
+      "toast": {
+        "created": "تم إنشاء التحويل بنجاح",
+        "createFailed": "فشل إنشاء التحويل",
+        "completed": "تم إكمال التحويل بنجاح",
+        "completeFailed": "فشل إكمال التحويل",
+        "cancelled": "تم إلغاء التحويل بنجاح",
+        "cancelFailed": "فشل إلغاء التحويل"
+      }
+    },
+    "reorder": {
+      "title": "إعادة الطلب",
+      "description": "منتجات عند أو تحت الحد الأدنى للمخزون",
+      "searchPlaceholder": "ابحث في المنتجات...",
+      "columns": {
+        "product": "المنتج",
+        "current": "المخزون الحالي",
+        "minimum": "الحد الأدنى",
+        "suggestedOrder": "الكمية المقترحة",
+        "unitPrice": "سعر الوحدة"
+      },
+      "empty": {
+        "title": "كل شيء متوفر",
+        "allStocked": "لا توجد منتجات تحت الحد الأدنى للمخزون",
+        "noResults": "لا توجد منتجات مطابقة للبحث"
+      }
+    },
+    "expirationPage": {
+      "title": "تتبع انتهاء الصلاحية",
+      "description": "المنتجات ذات تواريخ صلاحية مسجلة",
+      "searchPlaceholder": "ابحث في المنتجات...",
+      "columns": {
+        "product": "المنتج",
+        "stock": "المخزون",
+        "expirationDate": "تاريخ الانتهاء",
+        "status": "الحالة"
+      },
+      "empty": {
+        "title": "لا شيء ينتهي قريباً",
+        "noTracked": "لا توجد منتجات بتواريخ انتهاء محددة",
+        "noResults": "لا توجد منتجات مطابقة للبحث"
+      }
+    },
+    "reports": {
+      "title": "تقارير المخزون",
+      "description": "تقييم المخزون ورؤى الحركات",
+      "tabs": {
+        "inventory": "قيمة المخزون",
+        "mostTransferred": "الأكثر تحويلاً",
+        "lowestStock": "الأقل مخزوناً"
+      },
+      "inventoryColumns": {
+        "category": "التصنيف",
+        "products": "المنتجات",
+        "quantity": "الكمية",
+        "value": "القيمة"
+      },
+      "transferredColumns": {
+        "product": "المنتج",
+        "transfers": "عدد التحويلات",
+        "quantity": "الكمية المنقولة"
+      },
+      "lowestColumns": {
+        "product": "المنتج",
+        "stock": "المخزون الحالي",
+        "minimum": "الحد الأدنى"
+      }
     }
   },
   "purchases": {
@@ -1054,6 +1267,53 @@
       "monthlyTrend": "الاتجاه الشهري",
       "yearlyTrend": "الاتجاه السنوي",
       "noData": "لا توجد بيانات مصروفات متاحة"
+    },
+    "dashboard": {
+      "title": "لوحة المصروفات",
+      "description": "أين تذهب أموالك",
+      "kpi": {
+        "today": "اليوم",
+        "thisMonth": "هذا الشهر",
+        "thisYear": "هذه السنة",
+        "avgMonthly": "متوسط شهري"
+      },
+      "charts": {
+        "yearly": "الإجماليات الشهرية — {{year}}"
+      },
+      "highestCategory": {
+        "title": "أعلى تصنيف إنفاقاً"
+      },
+      "byCategory": "الإنفاق حسب التصنيف",
+      "categoryColumns": {
+        "category": "التصنيف",
+        "expenses": "المصروفات",
+        "total": "الإجمالي"
+      }
+    },
+    "categoriesPage": {
+      "title": "تصنيفات المصروفات",
+      "description": "قائمة للقراءة فقط يديرها المسؤولون",
+      "columns": {
+        "name": "التصنيف",
+        "description": "الوصف"
+      },
+      "empty": {
+        "title": "لا توجد تصنيفات",
+        "noCategories": "لم يتم تعريف تصنيفات مصروفات بعد"
+      }
+    },
+    "reports": {
+      "title": "تقارير المصروفات",
+      "description": "حلّل الإنفاق حسب التصنيف وطريقة الدفع",
+      "tabs": {
+        "byCategory": "حسب التصنيف",
+        "byPayment": "حسب طريقة الدفع"
+      },
+      "columns": {
+        "expenses": "المصروفات",
+        "total": "الإجمالي",
+        "share": "النسبة"
+      }
     }
   },
   "inventoryAudits": {
@@ -1172,7 +1432,36 @@
       "admin": "مدير",
       "manager": "مشرف",
       "employee": "موظف"
-    }
+    },
+    "none": "بدون",
+    "actions": {
+      "edit": "تعديل",
+      "delete": "حذف",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "saving": "جارٍ الحفظ...",
+      "cancel": "إلغاء",
+      "close": "إغلاق",
+      "clearFilters": "مسح الفلاتر"
+    },
+    "columns": {
+      "actions": "إجراءات"
+    },
+    "months": {
+      "1": "ينا",
+      "2": "فبر",
+      "3": "مار",
+      "4": "أبر",
+      "5": "ماي",
+      "6": "يون",
+      "7": "يول",
+      "8": "أغس",
+      "9": "سبت",
+      "10": "أكت",
+      "11": "نوف",
+      "12": "ديس"
+    },
+    "toggleTheme": "تبديل الوضع الليلي"
   },
   "language": {
     "switch": "اللغة",
@@ -1324,6 +1613,344 @@
     "export": "تصدير",
     "users": "المستخدمين",
     "storeSettings": "إعدادات المتجر",
-    "backup": "نسخ احتياطي"
+    "backup": "نسخ احتياطي",
+    "clients": "العملاء",
+    "services": "الخدمات",
+    "deals": "الصفقات"
+  },
+  "business": {
+    "clientStatus": {
+      "lead": "عميل محتمل",
+      "prospect": "فرصة بيع",
+      "customer": "عميل"
+    },
+    "serviceStatus": {
+      "active": "نشطة",
+      "inactive": "غير نشطة"
+    },
+    "assignmentStatus": {
+      "pending": "قيد الانتظار",
+      "in_progress": "جارية",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة"
+    },
+    "paymentStatus": {
+      "pending": "معلق",
+      "partial": "جزئي",
+      "paid": "مدفوع",
+      "refunded": "مسترد"
+    },
+    "dealStatus": {
+      "draft": "مسودة",
+      "confirmed": "مؤكدة",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغاة"
+    },
+    "dashboard": {
+      "title": "تطوير الأعمال",
+      "description": "نظرة عامة على العملاء والخدمات والصفقات",
+      "kpi": {
+        "clients": "إجمالي العملاء",
+        "activeClients": "العملاء النشطون",
+        "services": "الخدمات",
+        "deals": "الصفقات",
+        "clientServices": "خدمات العملاء",
+        "activeClientServices": "التعيينات النشطة",
+        "monthlyRevenue": "إيرادات الشهر"
+      },
+      "totalRevenue": "إجمالي الإيرادات",
+      "monthlyRevenue": "إيرادات الشهر",
+      "revenue": "الإيرادات",
+      "recentDeals": "أحدث الصفقات",
+      "noDeals": "لا توجد صفقات بعد",
+      "bestServices": "أفضل الخدمات أداءً",
+      "noBestServices": "لا توجد بيانات أداء للخدمات بعد",
+      "paymentBreakdown": "توزيع حالات الدفع",
+      "recentClientServices": "أحدث خدمات العملاء",
+      "noClientServices": "لم يتم تعيين خدمات للعملاء بعد",
+      "viewReports": "عرض التقارير"
+    },
+    "reports": {
+      "title": "تقارير الأعمال",
+      "description": "تحليلات إيرادات وحالات الصفقات",
+      "kpi": {
+        "totalDeals": "إجمالي الصفقات",
+        "totalRevenue": "إجمالي الإيرادات",
+        "monthlyRevenue": "إيرادات الشهر",
+        "clients": "العملاء"
+      },
+      "charts": {
+        "paymentStatus": "الإيرادات حسب حالة الدفع",
+        "dealStatus": "الصفقات حسب الحالة"
+      },
+      "tables": {
+        "serviceRevenue": "إيرادات الخدمات"
+      },
+      "columns": {
+        "service": "الخدمة",
+        "deals": "الصفقات",
+        "revenue": "الإيرادات"
+      }
+    },
+    "clients": {
+      "title": "العملاء",
+      "description": "إدارة عملاء تطوير الأعمال",
+      "new": "عميل جديد",
+      "searchPlaceholder": "ابحث في العملاء...",
+      "filters": {
+        "status": "تصفية حسب الحالة",
+        "allStatuses": "كل الحالات"
+      },
+      "columns": {
+        "company": "الشركة",
+        "contactPerson": "جهة الاتصال",
+        "phone": "الهاتف",
+        "email": "البريد الإلكتروني",
+        "industry": "المجال",
+        "status": "الحالة"
+      },
+      "form": {
+        "createTitle": "عميل جديد",
+        "editTitle": "تعديل العميل",
+        "company": "اسم الشركة",
+        "contactPerson": "جهة الاتصال",
+        "phone": "الهاتف",
+        "email": "البريد الإلكتروني",
+        "industry": "المجال",
+        "address": "العنوان"
+      },
+      "validation": {
+        "companyRequired": "اسم الشركة مطلوب",
+        "contactRequired": "جهة الاتصال مطلوبة"
+      },
+      "confirmDelete": {
+        "title": "حذف العميل؟",
+        "message": "سيتم حذف \"{{name}}\" نهائياً مع كل تعييناته."
+      },
+      "empty": {
+        "title": "لا يوجد عملاء بعد",
+        "noClients": "أنشئ أول عميل لتبدأ تتبع الصفقات",
+        "noResults": "لا يوجد عملاء مطابقون للبحث"
+      },
+      "toast": {
+        "created": "تم إنشاء العميل بنجاح",
+        "createFailed": "فشل إنشاء العميل",
+        "updated": "تم تحديث العميل بنجاح",
+        "updateFailed": "فشل تحديث العميل",
+        "deleted": "تم حذف العميل بنجاح",
+        "deleteFailed": "فشل حذف العميل"
+      }
+    },
+    "services": {
+      "title": "الخدمات",
+      "description": "كتالوج الخدمات التي تقدمها",
+      "new": "خدمة جديدة",
+      "searchPlaceholder": "ابحث في الخدمات...",
+      "filters": {
+        "category": "تصفية حسب التصنيف",
+        "allCategories": "كل التصنيفات",
+        "status": "تصفية حسب الحالة",
+        "allStatuses": "كل الحالات"
+      },
+      "durationDays": "{{count}} يوم",
+      "columns": {
+        "name": "الخدمة",
+        "category": "التصنيف",
+        "price": "السعر",
+        "duration": "المدة",
+        "status": "الحالة"
+      },
+      "form": {
+        "createTitle": "خدمة جديدة",
+        "editTitle": "تعديل الخدمة",
+        "name": "الاسم",
+        "description": "الوصف",
+        "category": "التصنيف",
+        "noCategory": "بدون تصنيف",
+        "price": "السعر",
+        "duration": "المدة (أيام)",
+        "status": "الحالة"
+      },
+      "validation": {
+        "nameRequired": "اسم الخدمة مطلوب",
+        "priceInvalid": "يجب أن يكون السعر صفراً أو أكثر"
+      },
+      "confirmDelete": {
+        "title": "حذف الخدمة؟",
+        "message": "سيتم حذف \"{{name}}\" نهائياً من الكتالوج."
+      },
+      "empty": {
+        "title": "لا توجد خدمات بعد",
+        "noServices": "أضف أول خدمة لتبدأ البيع",
+        "noResults": "لا توجد خدمات مطابقة للبحث"
+      },
+      "toast": {
+        "created": "تم إنشاء الخدمة بنجاح",
+        "createFailed": "فشل إنشاء الخدمة",
+        "updated": "تم تحديث الخدمة بنجاح",
+        "updateFailed": "فشل تحديث الخدمة",
+        "deleted": "تم حذف الخدمة بنجاح",
+        "deleteFailed": "فشل حذف الخدمة"
+      }
+    },
+    "serviceCategories": {
+      "title": "تصنيفات الخدمات",
+      "description": "نظّم كتالوج خدماتك",
+      "new": "تصنيف جديد",
+      "searchPlaceholder": "ابحث في التصنيفات...",
+      "columns": {
+        "name": "التصنيف",
+        "description": "الوصف"
+      },
+      "form": {
+        "createTitle": "تصنيف جديد",
+        "editTitle": "تعديل التصنيف",
+        "name": "الاسم",
+        "description": "الوصف"
+      },
+      "validation": {
+        "nameRequired": "اسم التصنيف مطلوب"
+      },
+      "confirmDelete": {
+        "title": "حذف التصنيف؟",
+        "message": "سيتم حذف \"{{name}}\" نهائياً. الخدمات ستبقى بدون تصنيف."
+      },
+      "empty": {
+        "title": "لا توجد تصنيفات بعد",
+        "noCategories": "أنشئ تصنيفاً لتجميع خدماتك",
+        "noResults": "لا توجد تصنيفات مطابقة للبحث"
+      },
+      "toast": {
+        "created": "تم إنشاء التصنيف بنجاح",
+        "createFailed": "فشل إنشاء التصنيف",
+        "updated": "تم تحديث التصنيف بنجاح",
+        "updateFailed": "فشل تحديث التصنيف",
+        "deleted": "تم حذف التصنيف بنجاح",
+        "deleteFailed": "فشل حذف التصنيف"
+      }
+    },
+    "clientServices": {
+      "title": "خدمات العملاء",
+      "description": "عيّن الخدمات للعملاء وتابع تقدمها",
+      "assignNew": "تعيين خدمة",
+      "selectClient": "اختر عميلاً",
+      "chooseClient": "اختر عميلاً لعرض خدماته",
+      "columns": {
+        "service": "الخدمة",
+        "price": "السعر",
+        "status": "الحالة",
+        "notes": "ملاحظات"
+      },
+      "form": {
+        "assignTitle": "تعيين خدمة",
+        "editTitle": "تعديل التعيين",
+        "service": "الخدمة",
+        "chooseService": "اختر خدمة",
+        "price": "السعر",
+        "status": "الحالة",
+        "notes": "ملاحظات",
+        "assignAction": "تعيين"
+      },
+      "validation": {
+        "serviceRequired": "يرجى اختيار خدمة",
+        "priceInvalid": "يجب أن يكون السعر صفراً أو أكثر"
+      },
+      "confirmDelete": {
+        "title": "إزالة التعيين؟",
+        "message": "لن تكون خدمة \"{{name}}\" معينة لهذا العميل بعد الآن."
+      },
+      "empty": {
+        "title": "خدمات العملاء",
+        "pickClient": "اختر عميلاً بالأعلى لعرض خدماته المعينة",
+        "noAssignments": "لا توجد خدمات معينة لـ \"{{name}}\" بعد"
+      },
+      "toast": {
+        "assigned": "تم تعيين الخدمة بنجاح",
+        "assignFailed": "فشل تعيين الخدمة",
+        "updated": "تم تحديث التعيين بنجاح",
+        "updateFailed": "فشل تحديث التعيين",
+        "deleted": "تمت إزالة التعيين بنجاح",
+        "deleteFailed": "فشلت إزالة التعيين"
+      }
+    },
+    "deals": {
+      "title": "الصفقات",
+      "description": "تابع الصفقات المتفاوض عليها ومدفوعاتها",
+      "new": "صفقة جديدة",
+      "searchPlaceholder": "ابحث برقم الصفقة أو العميل أو الخدمة...",
+      "filters": {
+        "dealStatus": "تصفية حسب حالة الصفقة",
+        "allDealStatuses": "كل حالات الصفقة",
+        "paymentStatus": "تصفية حسب حالة الدفع",
+        "allPaymentStatuses": "كل حالات الدفع"
+      },
+      "columns": {
+        "number": "الرقم",
+        "client": "العميل",
+        "service": "الخدمة",
+        "finalAmount": "المبلغ النهائي",
+        "paymentStatus": "الدفع",
+        "dealStatus": "الحالة"
+      },
+      "form": {
+        "createTitle": "صفقة جديدة",
+        "editTitle": "تعديل الصفقة",
+        "client": "العميل",
+        "chooseClient": "اختر عميلاً",
+        "service": "الخدمة",
+        "chooseService": "اختر خدمة",
+        "price": "السعر",
+        "discount": "الخصم",
+        "tax": "الضريبة",
+        "dealStatus": "حالة الصفقة",
+        "paymentStatus": "حالة الدفع",
+        "notes": "ملاحظات"
+      },
+      "summary": {
+        "price": "السعر",
+        "discount": "الخصم",
+        "tax": "الضريبة",
+        "finalAmount": "المبلغ النهائي"
+      },
+      "validation": {
+        "clientRequired": "يرجى اختيار عميل",
+        "serviceRequired": "يرجى اختيار خدمة",
+        "priceInvalid": "يجب أن يكون السعر صفراً أو أكثر"
+      },
+      "confirmDelete": {
+        "title": "حذف الصفقة؟",
+        "message": "سيتم حذف الصفقة \"{{name}}\" نهائياً."
+      },
+      "empty": {
+        "title": "لا توجد صفقات بعد",
+        "noDeals": "أنشئ أول صفقة لتبدأ تتبع الإيرادات",
+        "noResults": "لا توجد صفقات مطابقة للبحث"
+      },
+      "toast": {
+        "created": "تم إنشاء الصفقة بنجاح",
+        "createFailed": "فشل إنشاء الصفقة",
+        "updated": "تم تحديث الصفقة بنجاح",
+        "updateFailed": "فشل تحديث الصفقة",
+        "deleted": "تم حذف الصفقة بنجاح",
+        "deleteFailed": "فشل حذف الصفقة"
+      }
+    }
+  },
+  "catalog": {
+    "title": "كتالوج التطبيقات",
+    "description": "جميع التطبيقات المتوفرة في مساحة عملك. افتح أي تطبيق للتبديل إليه.",
+    "open": "فتح",
+    "currentApp": "التطبيق الحالي",
+    "appDescriptions": {
+      "business": "العملاء والخدمات المباعة وصفقات التطوير.",
+      "pos": "البيع ومتابعة المبيعات وإدارة العملاء.",
+      "inventory": "المخزون والمستودعات والتحويلات والجرد.",
+      "expenses": "تسجيل المصروفات وتحليل الإنفاق."
+    },
+    "serviceRecords": {
+      "title": "سجلات الخدمات",
+      "description": "الخدمات القابلة للبيع التي يشتريها عملاؤك — تُدار بشكل منفصل عن هذه التطبيقات.",
+      "manage": "إدارة سجلات الخدمات"
+    }
   }
 }

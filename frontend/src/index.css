@@ -70,6 +70,11 @@
     margin: 0;
   }
 
+  .dark body {
+    color: var(--color-surface-100);
+    background-color: var(--color-surface-950);
+  }
+
   [dir="rtl"] body {
     font-family: var(--font-arabic);
   }

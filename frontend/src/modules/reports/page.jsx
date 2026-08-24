@@ -14,6 +14,13 @@ import { Badge, statusBadge } from "../../shared/components/Badge";
 import { LoadingSpinner } from "../../shared/components/LoadingSpinner";
 import { ErrorDisplay } from "../../shared/components/ErrorDisplay";
 import { cardClass, filterBarClass } from "../../shared/components/styles";
+import { getCurrentLocale } from "../../shared/utils/format";
+import {
+  AXIS_TICK,
+  AXIS_LINE,
+  GRID_LINE,
+  TOOLTIP_STYLE,
+} from "../../shared/utils/chartTheme";
 import {
   DollarSign, ShoppingCart, Package, AlertTriangle,
   TrendingUp, TrendingDown, Clock, Users, BarChart3,
@@ -28,17 +35,6 @@ const EXPENSE_COLORS = [
   "#64748b",
 ];
 
-const AXIS_TICK = { fontSize: 11, fill: "var(--color-surface-400)" };
-const AXIS_LINE = { stroke: "var(--color-surface-200)" };
-const GRID_LINE = "var(--color-surface-200)";
-const TOOLTIP_STYLE = {
-  borderRadius: "12px",
-  border: "1px solid var(--color-surface-200)",
-  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-  fontSize: "13px",
-  backgroundColor: "var(--color-surface-0)",
-  color: "var(--color-surface-800)",
-};
 
 function DateFilter({ period, onPeriodChange, startDate, endDate, onStartDateChange, onEndDateChange }) {
   const { t } = useTranslation();
@@ -97,7 +93,7 @@ function SectionHeader({ icon: Icon, title }) {
 
 function SalesTrendChart({ data }) {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   if (!data || data.length === 0) {
     return (
@@ -202,7 +198,7 @@ function getDefaultDates(period) {
 
 export default function ReportsPage() {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
   const [period, setPeriod] = useState("last_30_days");
   const defaults = getDefaultDates(period);
   const [startDate, setStartDate] = useState(defaults.startDate);
@@ -221,9 +217,7 @@ export default function ReportsPage() {
     trendParams.end_date = endDate;
   }
 
-  const profitParams = period === "last_7_days" || period === "custom"
-    ? { period: "custom", start_date: startDate, end_date: endDate }
-    : { period };
+  const profitParams = { period: "custom", start_date: startDate, end_date: endDate };
 
   const { data: dashData, isLoading: dashLoading, error: dashError, refetch: refetchDash } = useQuery({
     queryKey: ["reports-dashboard"],

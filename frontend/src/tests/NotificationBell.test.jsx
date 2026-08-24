@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import i18n from "../i18n";
 
-vi.mock("../modules/notifications/api", () => ({
+vi.mock("../shared/services/notifications", () => ({
   notificationService: {
     getAll: vi.fn(),
     getUnreadCount: vi.fn(),

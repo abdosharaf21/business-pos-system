@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from typing import Dict, Any, List
 
 from backend.database.connection import Database
-from backend.utils.expiration import normalize_expiration_date
+from backend.shared.expiration import normalize_expiration_date
 
 
 class ReportRepository:
@@ -388,15 +388,18 @@ class ReportRepository:
             cursor.execute(
                 "SELECT p.id, p.name, p.sku, p.barcode, p.minimum_stock, "
                 "p.purchase_price, c.name AS category_name, "
-                "COALESCE(wh.quantity, 0) AS warehouse_qty, "
-                "COALESCE(st.quantity, 0) AS store_qty, "
+                "(COALESCE(inv.total_qty, 0) - COALESCE(inv.store_qty, 0)) "
+                "AS warehouse_qty, "
+                "COALESCE(inv.store_qty, 0) AS store_qty, "
                 "e.expiration_date "
                 "FROM products p "
                 "LEFT JOIN categories c ON c.id = p.category_id "
-                "LEFT JOIN inventory wh ON wh.product_id = p.id "
-                "AND wh.location = 'warehouse' "
-                "LEFT JOIN inventory st ON st.product_id = p.id "
-                "AND st.location = 'store' "
+                "LEFT JOIN ("
+                "SELECT product_id, SUM(quantity) AS total_qty, "
+                "COALESCE(SUM(CASE WHEN location = 'store' THEN quantity END), 0) "
+                "AS store_qty "
+                "FROM inventory GROUP BY product_id"
+                ") inv ON inv.product_id = p.id "
                 "LEFT JOIN ("
                 "SELECT product_id, MIN(expiration_date) AS expiration_date "
                 "FROM purchase_items WHERE expiration_date IS NOT NULL "
@@ -548,16 +551,19 @@ class ReportRepository:
             cursor.execute(
                 "SELECT p.id, p.name, p.sku, p.minimum_stock, "
                 "p.selling_price, c.name AS category_name, "
-                "COALESCE(wh.quantity, 0) AS warehouse_qty, "
-                "COALESCE(st.quantity, 0) AS store_qty "
+                "(COALESCE(inv.total_qty, 0) - COALESCE(inv.store_qty, 0)) "
+                "AS warehouse_qty, "
+                "COALESCE(inv.store_qty, 0) AS store_qty "
                 "FROM products p "
                 "LEFT JOIN categories c ON c.id = p.category_id "
-                "LEFT JOIN inventory wh ON wh.product_id = p.id "
-                "AND wh.location = 'warehouse' "
-                "LEFT JOIN inventory st ON st.product_id = p.id "
-                "AND st.location = 'store' "
+                "LEFT JOIN ("
+                "SELECT product_id, SUM(quantity) AS total_qty, "
+                "COALESCE(SUM(CASE WHEN location = 'store' THEN quantity END), 0) "
+                "AS store_qty "
+                "FROM inventory GROUP BY product_id"
+                ") inv ON inv.product_id = p.id "
                 "WHERE p.status = 'active' "
-                "ORDER BY (COALESCE(wh.quantity, 0) + COALESCE(st.quantity, 0)) ASC "
+                "ORDER BY COALESCE(inv.total_qty, 0) ASC "
                 "LIMIT %s",
                 (limit,),
             )

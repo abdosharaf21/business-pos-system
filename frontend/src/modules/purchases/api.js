@@ -1,14 +1,8 @@
 import api from "../../shared/services/axios";
+import { createCrudService } from "../../shared/services/crud";
 
 export const purchaseService = {
-  getAll: (params) => api.get("/purchases/", { params }),
-  getById: (id) => api.get(`/purchases/${id}`),
-  create: (data) => api.post("/purchases/", data),
+  ...createCrudService("/purchases"),
   getInvoice: (id) => api.get(`/purchases/${id}/invoice`),
   searchProducts: (q) => api.get(`/purchases/products/search?q=${encodeURIComponent(q)}`),
-};
-
-export const supplierService = {
-  getAll: () => api.get("/suppliers/"),
-  create: (data) => api.post("/suppliers/", data),
 };

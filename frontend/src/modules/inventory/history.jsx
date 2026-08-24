@@ -48,7 +48,7 @@ export default function InventoryHistoryPage() {
     queryKey: ["inventory-movements-page", productId, movementType, startDate, endDate],
     queryFn: async () => {
       const res = await inventoryService.getMovements(params);
-      return res.data.data;
+      return res.data.data.items || [];
     },
     keepPreviousData: true,
   });

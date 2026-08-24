@@ -25,6 +25,7 @@ import {
   dangerIconButtonClass, paginationButtonClass, tableHeadClass, tableBodyClass, tableRowClass,
 } from "../../shared/components/styles";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { getCurrentLocale } from "../../shared/utils/format";
 import {
   Plus, Pencil, Trash2, Eye, Search, Wallet, ReceiptText,
   CalendarDays, TrendingUp, Award, ArrowUp, ArrowUpDown, ArrowDown,
@@ -76,7 +77,7 @@ export default function ExpensesPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const canManage = ["admin", "manager"].includes(user?.role);
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -630,7 +631,7 @@ function ExpenseModal({ isOpen, onClose, editing, onSubmit, loading, categories 
 
 function ExpenseDetailsModal({ expense, onClose }) {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const locale = getCurrentLocale(i18n.language);
 
   if (!expense) return null;
 

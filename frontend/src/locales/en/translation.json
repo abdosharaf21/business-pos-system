@@ -20,7 +20,22 @@
     "settings": "Settings",
     "newSale": "New Sale",
     "stock": "Stock",
-    "dashboardOverview": "Dashboard Overview"
+    "dashboardOverview": "Dashboard Overview",
+    "businessDevelopment": "Business Development",
+    "businessHome": "Home",
+    "clients": "Clients",
+    "servicesCatalog": "Services",
+    "serviceRecords": "Service Records",
+    "serviceCategories": "Service Categories",
+    "clientServices": "Client Services",
+    "deals": "Deals",
+    "warehouses": "Warehouses",
+    "transfers": "Transfers",
+    "reorder": "Reorder",
+    "expiration": "Expiration",
+    "expensesList": "Expenses",
+    "expenseCategories": "Categories",
+    "backToServices": "Back to Services"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -354,6 +369,204 @@
       "quantityPositive": "Quantity must be greater than zero",
       "quantityRequired": "Counted quantity is required",
       "quantityNonNegative": "Counted quantity cannot be negative"
+    },
+    "overview": {
+      "title": "Inventory Overview",
+      "description": "Stock health across warehouse and store",
+      "kpi": {
+        "products": "Active Products",
+        "totalQuantity": "Total Quantity",
+        "stockValue": "Stock Value",
+        "lowStock": "Low Stock Items"
+      },
+      "distribution": {
+        "title": "Stock Distribution",
+        "warehouse": "Warehouse",
+        "store": "Store"
+      },
+      "recentMovements": "Recent Movements",
+      "movementColumns": {
+        "product": "Product",
+        "type": "Type",
+        "quantity": "Quantity",
+        "warehouse": "Warehouse",
+        "user": "User"
+      }
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "description": "Physical storage locations for your stock",
+      "new": "New Warehouse",
+      "searchPlaceholder": "Search warehouses...",
+      "statuses": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "columns": {
+        "name": "Warehouse",
+        "location": "Location",
+        "status": "Status"
+      },
+      "form": {
+        "createTitle": "New Warehouse",
+        "editTitle": "Edit Warehouse",
+        "name": "Name",
+        "location": "Location",
+        "status": "Status"
+      },
+      "validation": {
+        "nameRequired": "Warehouse name is required"
+      },
+      "confirmDelete": {
+        "title": "Delete warehouse?",
+        "message": "\"{{name}}\" will be permanently removed."
+      },
+      "empty": {
+        "title": "No warehouses yet",
+        "noWarehouses": "Add your first storage location",
+        "noResults": "No warehouses match your search"
+      },
+      "toast": {
+        "created": "Warehouse created successfully",
+        "createFailed": "Failed to create warehouse",
+        "updated": "Warehouse updated successfully",
+        "updateFailed": "Failed to update warehouse",
+        "deleted": "Warehouse deleted successfully",
+        "deleteFailed": "Failed to delete warehouse"
+      }
+    },
+    "transfers": {
+      "title": "Transfers",
+      "description": "Move stock between warehouses",
+      "new": "New Transfer",
+      "filters": {
+        "status": "Filter by status",
+        "allStatuses": "All statuses"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "number": "Number",
+        "source": "Source",
+        "destination": "Destination",
+        "itemsCount": "Items",
+        "status": "Status"
+      },
+      "form": {
+        "createTitle": "New Transfer",
+        "source": "Source Warehouse",
+        "destination": "Destination Warehouse",
+        "chooseWarehouse": "Choose a warehouse",
+        "addItem": "Add item",
+        "removeItem": "Remove item",
+        "chooseProduct": "Choose a product",
+        "quantityPlaceholder": "Qty",
+        "notes": "Notes",
+        "submitCreate": "Create Transfer"
+      },
+      "details": {
+        "title": "Transfer {{name}}",
+        "items": "Items",
+        "product": "Product",
+        "quantity": "Quantity"
+      },
+      "actions": {
+        "viewDetails": "View details",
+        "complete": "Complete",
+        "completing": "Completing...",
+        "cancel": "Cancel transfer",
+        "cancelling": "Cancelling..."
+      },
+      "confirmComplete": {
+        "title": "Complete transfer?",
+        "message": "Transfer \"{{name}}\" stock will move to the destination warehouse."
+      },
+      "confirmCancel": {
+        "title": "Cancel transfer?",
+        "message": "Transfer \"{{name}}\" will be cancelled and no stock will move."
+      },
+      "validation": {
+        "sourceRequired": "Source warehouse is required",
+        "destinationRequired": "Destination warehouse is required",
+        "sameWarehouse": "Source and destination must differ",
+        "itemsRequired": "At least one item is required",
+        "productRequired": "Please choose a product",
+        "quantityInvalid": "Quantity must be a positive whole number"
+      },
+      "empty": {
+        "title": "No transfers yet",
+        "noTransfers": "Create a transfer to move stock between warehouses",
+        "noResults": "No transfers match the current filter"
+      },
+      "toast": {
+        "created": "Transfer created successfully",
+        "createFailed": "Failed to create transfer",
+        "completed": "Transfer completed successfully",
+        "completeFailed": "Failed to complete transfer",
+        "cancelled": "Transfer cancelled successfully",
+        "cancelFailed": "Failed to cancel transfer"
+      }
+    },
+    "reorder": {
+      "title": "Reorder",
+      "description": "Products at or below their minimum stock level",
+      "searchPlaceholder": "Search products...",
+      "columns": {
+        "product": "Product",
+        "current": "Current Stock",
+        "minimum": "Minimum Stock",
+        "suggestedOrder": "Suggested Order",
+        "unitPrice": "Unit Price"
+      },
+      "empty": {
+        "title": "Everything is stocked",
+        "allStocked": "No products are below their minimum stock level",
+        "noResults": "No products match your search"
+      }
+    },
+    "expirationPage": {
+      "title": "Expiration Tracking",
+      "description": "Products with tracked expiration dates",
+      "searchPlaceholder": "Search products...",
+      "columns": {
+        "product": "Product",
+        "stock": "Stock",
+        "expirationDate": "Expiration Date",
+        "status": "Status"
+      },
+      "empty": {
+        "title": "Nothing expiring",
+        "noTracked": "No products have expiration dates set",
+        "noResults": "No products match your search"
+      }
+    },
+    "reports": {
+      "title": "Inventory Reports",
+      "description": "Stock valuation and movement insights",
+      "tabs": {
+        "inventory": "Inventory Value",
+        "mostTransferred": "Most Transferred",
+        "lowestStock": "Lowest Stock"
+      },
+      "inventoryColumns": {
+        "category": "Category",
+        "products": "Products",
+        "quantity": "Quantity",
+        "value": "Value"
+      },
+      "transferredColumns": {
+        "product": "Product",
+        "transfers": "Transfers",
+        "quantity": "Quantity Moved"
+      },
+      "lowestColumns": {
+        "product": "Product",
+        "stock": "Current Stock",
+        "minimum": "Minimum Stock"
+      }
     }
   },
   "purchases": {
@@ -406,8 +619,8 @@
       "addProducts": "Add Products",
       "searchPlaceholder": "Search by name, barcode, or SKU...",
       "searching": "Searching...",
-    "noProductsFound": "No products found",
-    "productNotFound": "Product not found",
+      "noProductsFound": "No products found",
+      "productNotFound": "Product not found",
       "skuPrefix": "SKU: {{code}}",
       "barcodeFormat": "({{code}})",
       "complete": "Complete Purchase",
@@ -1029,6 +1242,53 @@
       "monthlyTrend": "Monthly Trend",
       "yearlyTrend": "Yearly Trend",
       "noData": "No expense data available"
+    },
+    "dashboard": {
+      "title": "Expenses Dashboard",
+      "description": "Where your money goes",
+      "kpi": {
+        "today": "Today",
+        "thisMonth": "This Month",
+        "thisYear": "This Year",
+        "avgMonthly": "Avg Monthly"
+      },
+      "charts": {
+        "yearly": "Monthly Totals — {{year}}"
+      },
+      "highestCategory": {
+        "title": "Highest Spending Category"
+      },
+      "byCategory": "Spending by Category",
+      "categoryColumns": {
+        "category": "Category",
+        "expenses": "Expenses",
+        "total": "Total"
+      }
+    },
+    "categoriesPage": {
+      "title": "Expense Categories",
+      "description": "Read-only list managed by administrators",
+      "columns": {
+        "name": "Category",
+        "description": "Description"
+      },
+      "empty": {
+        "title": "No categories",
+        "noCategories": "No expense categories have been defined"
+      }
+    },
+    "reports": {
+      "title": "Expense Reports",
+      "description": "Analyze spending by category and payment method",
+      "tabs": {
+        "byCategory": "By Category",
+        "byPayment": "By Payment Method"
+      },
+      "columns": {
+        "expenses": "Expenses",
+        "total": "Total",
+        "share": "Share"
+      }
     }
   },
   "inventoryAudits": {
@@ -1147,7 +1407,36 @@
       "admin": "Admin",
       "manager": "Manager",
       "employee": "Employee"
-    }
+    },
+    "none": "None",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "create": "Create",
+      "update": "Update",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "close": "Close",
+      "clearFilters": "Clear filters"
+    },
+    "columns": {
+      "actions": "Actions"
+    },
+    "months": {
+      "1": "Jan",
+      "2": "Feb",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "May",
+      "6": "Jun",
+      "7": "Jul",
+      "8": "Aug",
+      "9": "Sep",
+      "10": "Oct",
+      "11": "Nov",
+      "12": "Dec"
+    },
+    "toggleTheme": "Toggle dark mode"
   },
   "notifications": {
     "title": "Notifications",
@@ -1299,6 +1588,344 @@
     "export": "Export",
     "users": "Users",
     "storeSettings": "Store Settings",
-    "backup": "Backup"
+    "backup": "Backup",
+    "clients": "Clients",
+    "services": "Services",
+    "deals": "Deals"
+  },
+  "business": {
+    "clientStatus": {
+      "lead": "Lead",
+      "prospect": "Prospect",
+      "customer": "Customer"
+    },
+    "serviceStatus": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "assignmentStatus": {
+      "pending": "Pending",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "paymentStatus": {
+      "pending": "Pending",
+      "partial": "Partial",
+      "paid": "Paid",
+      "refunded": "Refunded"
+    },
+    "dealStatus": {
+      "draft": "Draft",
+      "confirmed": "Confirmed",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "dashboard": {
+      "title": "Business Development",
+      "description": "Clients, services and deals at a glance",
+      "kpi": {
+        "clients": "Total Clients",
+        "activeClients": "Active Clients",
+        "services": "Services",
+        "deals": "Deals",
+        "clientServices": "Client Services",
+        "activeClientServices": "Active Assignments",
+        "monthlyRevenue": "Monthly Revenue"
+      },
+      "totalRevenue": "Total Revenue",
+      "monthlyRevenue": "Monthly Revenue",
+      "revenue": "Revenue",
+      "recentDeals": "Recent Deals",
+      "noDeals": "No deals recorded yet",
+      "bestServices": "Best Performing Services",
+      "noBestServices": "No service performance data yet",
+      "paymentBreakdown": "Payment Status Breakdown",
+      "recentClientServices": "Recent Client Services",
+      "noClientServices": "No client services assigned yet",
+      "viewReports": "View Reports"
+    },
+    "reports": {
+      "title": "Business Reports",
+      "description": "Deal revenue and status analytics",
+      "kpi": {
+        "totalDeals": "Total Deals",
+        "totalRevenue": "Total Revenue",
+        "monthlyRevenue": "Monthly Revenue",
+        "clients": "Clients"
+      },
+      "charts": {
+        "paymentStatus": "Revenue by Payment Status",
+        "dealStatus": "Deals by Status"
+      },
+      "tables": {
+        "serviceRevenue": "Service Revenue"
+      },
+      "columns": {
+        "service": "Service",
+        "deals": "Deals",
+        "revenue": "Revenue"
+      }
+    },
+    "clients": {
+      "title": "Clients",
+      "description": "Manage your business development clients",
+      "new": "New Client",
+      "searchPlaceholder": "Search clients...",
+      "filters": {
+        "status": "Filter by status",
+        "allStatuses": "All statuses"
+      },
+      "columns": {
+        "company": "Company",
+        "contactPerson": "Contact Person",
+        "phone": "Phone",
+        "email": "Email",
+        "industry": "Industry",
+        "status": "Status"
+      },
+      "form": {
+        "createTitle": "New Client",
+        "editTitle": "Edit Client",
+        "company": "Company Name",
+        "contactPerson": "Contact Person",
+        "phone": "Phone",
+        "email": "Email",
+        "industry": "Industry",
+        "address": "Address"
+      },
+      "validation": {
+        "companyRequired": "Company name is required",
+        "contactRequired": "Contact person is required"
+      },
+      "confirmDelete": {
+        "title": "Delete client?",
+        "message": "\"{{name}}\" will be permanently removed along with its assignments."
+      },
+      "empty": {
+        "title": "No clients yet",
+        "noClients": "Create your first client to start tracking deals",
+        "noResults": "No clients match your search"
+      },
+      "toast": {
+        "created": "Client created successfully",
+        "createFailed": "Failed to create client",
+        "updated": "Client updated successfully",
+        "updateFailed": "Failed to update client",
+        "deleted": "Client deleted successfully",
+        "deleteFailed": "Failed to delete client"
+      }
+    },
+    "services": {
+      "title": "Services",
+      "description": "The catalog of services you sell",
+      "new": "New Service",
+      "searchPlaceholder": "Search services...",
+      "filters": {
+        "category": "Filter by category",
+        "allCategories": "All categories",
+        "status": "Filter by status",
+        "allStatuses": "All statuses"
+      },
+      "durationDays": "{{count}} days",
+      "columns": {
+        "name": "Service",
+        "category": "Category",
+        "price": "Price",
+        "duration": "Duration",
+        "status": "Status"
+      },
+      "form": {
+        "createTitle": "New Service",
+        "editTitle": "Edit Service",
+        "name": "Name",
+        "description": "Description",
+        "category": "Category",
+        "noCategory": "No category",
+        "price": "Price",
+        "duration": "Duration (days)",
+        "status": "Status"
+      },
+      "validation": {
+        "nameRequired": "Service name is required",
+        "priceInvalid": "Price must be zero or more"
+      },
+      "confirmDelete": {
+        "title": "Delete service?",
+        "message": "\"{{name}}\" will be permanently removed from the catalog."
+      },
+      "empty": {
+        "title": "No services yet",
+        "noServices": "Add your first service to start selling",
+        "noResults": "No services match your search"
+      },
+      "toast": {
+        "created": "Service created successfully",
+        "createFailed": "Failed to create service",
+        "updated": "Service updated successfully",
+        "updateFailed": "Failed to update service",
+        "deleted": "Service deleted successfully",
+        "deleteFailed": "Failed to delete service"
+      }
+    },
+    "serviceCategories": {
+      "title": "Service Categories",
+      "description": "Organize your service catalog",
+      "new": "New Category",
+      "searchPlaceholder": "Search categories...",
+      "columns": {
+        "name": "Category",
+        "description": "Description"
+      },
+      "form": {
+        "createTitle": "New Category",
+        "editTitle": "Edit Category",
+        "name": "Name",
+        "description": "Description"
+      },
+      "validation": {
+        "nameRequired": "Category name is required"
+      },
+      "confirmDelete": {
+        "title": "Delete category?",
+        "message": "\"{{name}}\" will be permanently removed. Services keep working without a category."
+      },
+      "empty": {
+        "title": "No categories yet",
+        "noCategories": "Create a category to group your services",
+        "noResults": "No categories match your search"
+      },
+      "toast": {
+        "created": "Category created successfully",
+        "createFailed": "Failed to create category",
+        "updated": "Category updated successfully",
+        "updateFailed": "Failed to update category",
+        "deleted": "Category deleted successfully",
+        "deleteFailed": "Failed to delete category"
+      }
+    },
+    "clientServices": {
+      "title": "Client Services",
+      "description": "Assign services to clients and track their progress",
+      "assignNew": "Assign Service",
+      "selectClient": "Select a client",
+      "chooseClient": "Choose a client to view their services",
+      "columns": {
+        "service": "Service",
+        "price": "Price",
+        "status": "Status",
+        "notes": "Notes"
+      },
+      "form": {
+        "assignTitle": "Assign Service",
+        "editTitle": "Edit Assignment",
+        "service": "Service",
+        "chooseService": "Choose a service",
+        "price": "Price",
+        "status": "Status",
+        "notes": "Notes",
+        "assignAction": "Assign"
+      },
+      "validation": {
+        "serviceRequired": "Please choose a service",
+        "priceInvalid": "Price must be zero or more"
+      },
+      "confirmDelete": {
+        "title": "Remove assignment?",
+        "message": "\"{{name}}\" will no longer be assigned to this client."
+      },
+      "empty": {
+        "title": "Client services",
+        "pickClient": "Pick a client above to see their assigned services",
+        "noAssignments": "\"{{name}}\" has no assigned services yet"
+      },
+      "toast": {
+        "assigned": "Service assigned successfully",
+        "assignFailed": "Failed to assign service",
+        "updated": "Assignment updated successfully",
+        "updateFailed": "Failed to update assignment",
+        "deleted": "Assignment removed successfully",
+        "deleteFailed": "Failed to remove assignment"
+      }
+    },
+    "deals": {
+      "title": "Deals",
+      "description": "Track negotiated deals and their payments",
+      "new": "New Deal",
+      "searchPlaceholder": "Search by number, client or service...",
+      "filters": {
+        "dealStatus": "Filter by deal status",
+        "allDealStatuses": "All deal statuses",
+        "paymentStatus": "Filter by payment status",
+        "allPaymentStatuses": "All payment statuses"
+      },
+      "columns": {
+        "number": "Number",
+        "client": "Client",
+        "service": "Service",
+        "finalAmount": "Final Amount",
+        "paymentStatus": "Payment",
+        "dealStatus": "Status"
+      },
+      "form": {
+        "createTitle": "New Deal",
+        "editTitle": "Edit Deal",
+        "client": "Client",
+        "chooseClient": "Choose a client",
+        "service": "Service",
+        "chooseService": "Choose a service",
+        "price": "Price",
+        "discount": "Discount",
+        "tax": "Tax",
+        "dealStatus": "Deal Status",
+        "paymentStatus": "Payment Status",
+        "notes": "Notes"
+      },
+      "summary": {
+        "price": "Price",
+        "discount": "Discount",
+        "tax": "Tax",
+        "finalAmount": "Final Amount"
+      },
+      "validation": {
+        "clientRequired": "Please choose a client",
+        "serviceRequired": "Please choose a service",
+        "priceInvalid": "Price must be zero or more"
+      },
+      "confirmDelete": {
+        "title": "Delete deal?",
+        "message": "Deal \"{{name}}\" will be permanently removed."
+      },
+      "empty": {
+        "title": "No deals yet",
+        "noDeals": "Create your first deal to start tracking revenue",
+        "noResults": "No deals match your search"
+      },
+      "toast": {
+        "created": "Deal created successfully",
+        "createFailed": "Failed to create deal",
+        "updated": "Deal updated successfully",
+        "updateFailed": "Failed to update deal",
+        "deleted": "Deal deleted successfully",
+        "deleteFailed": "Failed to delete deal"
+      }
+    }
+  },
+  "catalog": {
+    "title": "Application Catalog",
+    "description": "All the applications in your workspace. Open one to switch to it.",
+    "open": "Open",
+    "currentApp": "Current app",
+    "appDescriptions": {
+      "business": "Clients, sellable services and deals pipeline.",
+      "pos": "Sell, track sales and manage customers.",
+      "inventory": "Stock, warehouses, transfers and audits.",
+      "expenses": "Record expenses and analyse spending."
+    },
+    "serviceRecords": {
+      "title": "Service Records",
+      "description": "The sellable services your clients can purchase — managed separately from these applications.",
+      "manage": "Manage service records"
+    }
   }
 }
